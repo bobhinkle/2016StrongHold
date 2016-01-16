@@ -1,25 +1,25 @@
 
-package com.team1323.stronghold2016;
+package org.usfirst.frc.team1323.robot;
 
 
-import edu.wpi.first.wpilibj.SampleRobot;
-import edu.wpi.first.wpilibj.RobotDrive;
+import ControlSystem.RoboSystem;
+import IO.TeleController;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot {
-    RobotDrive myRobot;
-    Joystick stick;
+    RoboSystem myRobot;
+    private TeleController controllers;
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
 
     public Robot() {
-        myRobot = new RobotDrive(0, 1);
-        myRobot.setExpiration(0.1);
-        stick = new Joystick(0);
+        myRobot = RoboSystem.getInstance();
+        controllers = TeleController.getInstance();
     }
     
     public void robotInit() {
@@ -46,17 +46,11 @@ public class Robot extends SampleRobot {
     	
     	switch(autoSelected) {
     	case customAuto:
-            myRobot.setSafetyEnabled(false);
-            myRobot.drive(-0.5, 1.0);	// spin at half speed
-            Timer.delay(2.0);		//    for 2 seconds
-            myRobot.drive(0.0, 0.0);	// stop robot
+    		
             break;
     	case defaultAuto:
     	default:
-            myRobot.setSafetyEnabled(false);
-            myRobot.drive(-0.5, 0.0);	// drive forwards half speed
-            Timer.delay(2.0);		//    for 2 seconds
-            myRobot.drive(0.0, 0.0);	// stop robot
+    		
             break;
     	}
     }
@@ -65,9 +59,8 @@ public class Robot extends SampleRobot {
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
-        myRobot.setSafetyEnabled(true);
         while (isOperatorControl() && isEnabled()) {
-            myRobot.arcadeDrive(stick); // drive with arcade style (use right stick)
+        	controllers.update();  
             Timer.delay(0.005);		// wait for a motor update time
         }
     }

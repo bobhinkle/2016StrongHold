@@ -123,16 +123,16 @@ public class TeleController
         }
         /////////////////////////////////////////////////////
         if(driver.leftBumper.isPressed()){
-        	
+        	robot.intakeReverse();
         }
         ///////////////////////////////////////////////////////
         if(driver.rightBumper.isPressed()){
-        	
+        	robot.intakeForward();
         }
         
         //////////////////////////////////////////////////////
         if(driver.backButton.isHeld()){  // 
-        	
+        	robot.intakeStop();
         }
         ////////////////////////////////////////////////////////
         if(driver.startButton.isPressed()){
@@ -147,6 +147,7 @@ public class TeleController
         if(driver.getPOV() == 0){
         	
         }
+        robot.dt.directArcadeDrive(driver.getButtonAxis(Xbox.LEFT_STICK_X), -driver.getButtonAxis(Xbox.RIGHT_STICK_Y));
         
     }
     public void update(){
