@@ -32,15 +32,15 @@ public class TeleController
     }    
     public void coDriver(){
         if(codriver.aButton.isPressed()){
-        	
+        	robot.enablePTO();
         }
         //////////////////////////////////////////
         if(codriver.bButton.isPressed()){
-        	
+        	robot.disablePTO();
         }
         ////////////////////////////////////////
         if(codriver.xButton.isPressed()){
-        	
+        	robot.shooter.set(6500);
         }
         ///////////////////////////////////////
         if(codriver.yButton.isPressed()){
@@ -49,23 +49,24 @@ public class TeleController
         /////////////////////////////////////////////
 
         if(codriver.rightTrigger.isPressed()){ 
-        	
+        	robot.extendIntake();
         }
         //////////////////////////////////
         if(codriver.rightBumper.isPressed()) {
-        	
+        	robot.intakeForward();
         }
         ///////////////////////////////////////////////////////
         if(codriver.leftTrigger.isPressed()){
-        	
+        	robot.retractIntake();
         }
         //////////////////////////////////////////////////////////////////// 
         if(codriver.leftBumper.isPressed()){ 
-        	
+        	robot.intakeReverse();
         }
         //////////////////////////////////////////////////////
         if(codriver.backButton.isPressed()){  // stop all      
-        	
+        	robot.intakeStop();
+        	robot.shooter.stop();
         }
         ////////////////////////////////////////////////////////
         if(codriver.startButton.isPressed()){
@@ -81,11 +82,11 @@ public class TeleController
         }
         ///////////////////////////////////////////////
         if (codriver.getButtonAxis(Xbox.LEFT_STICK_Y) > 0.3) {
-            
+            robot.hangerDrive.set(0.5);
         }else if( codriver.getButtonAxis(Xbox.LEFT_STICK_Y) < -0.3){
-        	
+        	robot.hangerDrive.set(-0.5);
         }else{
-        	
+        	robot.hangerDrive.set(0.0);
         }
         ///////////////////////////////////////////////
         if(codriver.leftCenterClick.isPressed()){
@@ -106,9 +107,9 @@ public class TeleController
     public void driver() {
     	
     	if(driver.aButton.isPressed()){       
-    		
+    		robot.enablePTO();
         }else if(driver.bButton.isPressed()){  
-        	
+        	robot.disablePTO();
         }else if(driver.xButton.isPressed()){
         	
         }else if(driver.yButton.isPressed()){
@@ -119,15 +120,19 @@ public class TeleController
     	
         //////////////////////////////////
         if(driver.rightTrigger.isPressed()) {
-        	
+        	robot.dt.highGear();
         }
+		//////////////////////////////////
+		if(driver.leftTrigger.isPressed()) {
+			robot.dt.lowGear();
+		}
         /////////////////////////////////////////////////////
         if(driver.leftBumper.isPressed()){
-        	robot.intakeReverse();
+        	
         }
         ///////////////////////////////////////////////////////
         if(driver.rightBumper.isPressed()){
-        	robot.intakeForward();
+        	
         }
         
         //////////////////////////////////////////////////////

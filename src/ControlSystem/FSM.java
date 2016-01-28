@@ -11,7 +11,7 @@ public class FSM {
     }
 	private RoboSystem robot;
 	private static FSM instance = null;
-	
+	public partsUpdate pu;
 	private State currentState = State.INIT;
     private State goalState = State.DEFAULT;
     private State prevState = State.DEFAULT;
@@ -25,6 +25,8 @@ public class FSM {
     public FSM() {
     	SmartDashboard.putString("FSM", "STARTED");
         robot = RoboSystem.getInstance();
+        pu = new partsUpdate();
+    	pu.start();
     }
     
     public void setGoalState(State goal) {
@@ -51,7 +53,7 @@ public class FSM {
     		SmartDashboard.putString("FSM", "THREAD STARTED");
     		while(keepRunning){
 				update();
-				
+				robot.shooter.run();
 				Timer.delay(0.01); 
     		}
         }

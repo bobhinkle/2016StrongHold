@@ -3,6 +3,7 @@ package SubSystems;
 import Utilities.Ports;
 import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
+import edu.wpi.first.wpilibj.Solenoid;
 
 
 public class DriveTrain{
@@ -13,6 +14,7 @@ public class DriveTrain{
     private CANTalon left_dt_2;
 	public DriveBase left;
 	public DriveBase right;
+	private Solenoid shifter;
 	
 	public enum SIDE{
 		LEFT,RIGHT
@@ -20,6 +22,7 @@ public class DriveTrain{
 	public DriveTrain(){
 		left = new DriveBase(Ports.LEFT_DT_1,Ports.LEFT_DT_2);
 		right = new DriveBase(Ports.RIGHT_DT_1,Ports.RIGHT_DT_2);
+		shifter = new Solenoid(1,Ports.DRIVE_SHIFT);
 	}
 	public static DriveTrain getInstance()
     {
@@ -65,4 +68,10 @@ public class DriveTrain{
         applyPower(left,DriveTrain.SIDE.LEFT);
         applyPower(-right,DriveTrain.SIDE.RIGHT);
     }
+	public void highGear(){
+		shifter.set(true);
+	}
+	public void lowGear(){
+		shifter.set(false);
+	}
 }

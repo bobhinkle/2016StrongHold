@@ -2,6 +2,7 @@
 package org.usfirst.frc.team1323.robot;
 
 
+import ControlSystem.FSM;
 import ControlSystem.RoboSystem;
 import IO.TeleController;
 import edu.wpi.first.wpilibj.Joystick;
@@ -16,7 +17,7 @@ public class Robot extends SampleRobot {
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
-
+    private FSM fsm;
     public Robot() {
         myRobot = RoboSystem.getInstance();
         controllers = TeleController.getInstance();
@@ -27,6 +28,7 @@ public class Robot extends SampleRobot {
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto modes", chooser);
+        fsm = FSM.getInstance();
     }
 
 	/**
