@@ -34,6 +34,7 @@ public class RoboSystem{
     	hanger = new Solenoid(1,Ports.HANGER);
     	hangerDrive = new CANTalon(Ports.HANGER_DRIVE);
     	shooter = Shooter.getInstance();
+    	shooter.start();
     }
     
     public void intakeForward(){

@@ -29,6 +29,7 @@ public class Robot extends SampleRobot {
         chooser.addObject("My Auto", customAuto);
         SmartDashboard.putData("Auto modes", chooser);
         fsm = FSM.getInstance();
+        fsm.start();
     }
 
 	/**
