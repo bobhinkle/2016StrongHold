@@ -40,11 +40,11 @@ public class TeleController
         }
         ////////////////////////////////////////
         if(codriver.xButton.isPressed()){
-        	robot.shooter.set(6500);
+        	robot.shooter.goTo(5500);
         }
         ///////////////////////////////////////
         if(codriver.yButton.isPressed()){
-        	
+        	robot.shooter.goTo(6500);
         }
         /////////////////////////////////////////////
 
@@ -97,10 +97,10 @@ public class TeleController
         	
         }
         if(codriver.getPOV() == 0){
-        	
+        	robot.shooter.shooterUpSpeed();
         }
         if(codriver.getPOV() ==180){
-        	
+        	robot.shooter.shooterDownSpeed();
         }
     }
     

@@ -69,6 +69,7 @@ public class SuperEncoder implements PIDSource {
     public double getDistance(){
         return enc.getDistance();
     }
+    
     public void start(){
     	
     }
@@ -76,7 +77,7 @@ public class SuperEncoder implements PIDSource {
         enc.setDistancePerPulse(dpp);
     }
     public void update(){
-        rpm = getRate()/5.208333333333333;
+        rpm = getRate()/4.340278;
     }
     public double getRPM()
     {        
