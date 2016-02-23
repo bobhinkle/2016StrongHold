@@ -5,7 +5,6 @@ package org.usfirst.frc.team1323.robot;
 import ControlSystem.FSM;
 import ControlSystem.RoboSystem;
 import IO.TeleController;
-import edu.wpi.first.wpilibj.Joystick;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -62,9 +61,10 @@ public class Robot extends SampleRobot {
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
+    	myRobot.intake.arm_stop();
         while (isOperatorControl() && isEnabled()) {
         	controllers.update();  
-            Timer.delay(0.005);		// wait for a motor update time
+            Timer.delay(0.01);		// wait for a motor update time
         }
     }
 

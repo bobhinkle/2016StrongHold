@@ -8,10 +8,6 @@ import edu.wpi.first.wpilibj.Solenoid;
 
 public class DriveTrain{
 	private static DriveTrain instance = null;
-	private CANTalon right_dt_1;
-    private CANTalon right_dt_2;
-    private CANTalon left_dt_1;
-    private CANTalon left_dt_2;
 	public DriveBase left;
 	public DriveBase right;
 	private Solenoid shifter;

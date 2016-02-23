@@ -91,11 +91,13 @@ public class FSM {
 	            case DEFAULT:
 	            	SmartDashboard.putString("FSM_STATE", "WAITING");
 	            	break;
-			case PRE_TOTE:
-				break;
 			default:
 				break;
 	        }
+	        robot.intake.update();
+	        robot.shooter.update();
+	        robot.turret.update();
+//	        robot.elevator.update();
 	    }
     }
 }
