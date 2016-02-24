@@ -11,6 +11,7 @@ public class Elevator {
     public static final int UP = 0;
     public static final int DOWN = 1;
     public static final int STOP = 2;
+    public static final int MOVING = 3;
     private int status = 1;
     public static Elevator getInstance()
     {
@@ -33,11 +34,11 @@ public class Elevator {
     	return status;
     }
     public void up(){
-    	status = 0;
+    	status = MOVING;
     	setVoltage(-12.0);
     }
     public void down(){
-    	status = 1;
+    	status = MOVING;
     	setVoltage(12.0);
     }
     private void check(int direction){
@@ -45,12 +46,31 @@ public class Elevator {
     	case UP:
     		if(elevator_motor.getOutputCurrent() > 20){
         		setVoltage(-1.0);
+        		status = UP;
         	}
     		break;
     	case DOWN:
     		if(elevator_motor.getOutputCurrent() > 20){
         		setVoltage(0.5);
+        		status = DOWN;
         	}
+    	}
+    	
+    }
+    public void currentStatus(){
+    	switch(status){
+    	case UP:
+    		SmartDashboard.putString("ELE_STATE", "UP");
+    		break;
+    	case DOWN:
+    		SmartDashboard.putString("ELE_STATE", "DOWN");
+    		break;
+    	case MOVING:
+    		SmartDashboard.putString("ELE_STATE", "MOVING");
+    		break;
+    	case STOP:
+    		SmartDashboard.putString("ELE_STATE", "STOPPED");
+    		break;
     	}
     	
     }
@@ -62,7 +82,7 @@ public class Elevator {
     	SmartDashboard.putNumber("ELE_DRAW", elevator_motor.getOutputCurrent());
     	SmartDashboard.putNumber("ELE_GOAL", elevator_motor.getSetpoint());
     	SmartDashboard.putNumber("ELE_POWER", elevator_motor.getOutputVoltage());
-    	SmartDashboard.putNumber("ELE_P", elevator_motor.getP());
+    	currentStatus();
     	check(status);
     }
     

@@ -3,12 +3,15 @@ package ControlSystem;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import SubSystems.Elevator;
 import Utilities.Constants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class FSM {
 	
 	public enum State{
-    	DEFAULT, INIT, LOW_BAR, LOW_BAR_TURRET_WAIT
+    	DEFAULT, INIT, LOW_BAR, 
+    	INTAKE, INTAKE_READY,STOW, ELEVATOR_WAITING,ELEVATOR_LOWER, STOW_READY,
+    	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY
     	
     }
 	private RoboSystem robot;
@@ -59,6 +62,7 @@ public class FSM {
             currentState = State.DEFAULT;
             goalState = goal;
         }else{
+        	prevState = currentState;
             goalState = goal;
         }
     }
@@ -91,14 +95,61 @@ public class FSM {
 	            case LOW_BAR:
 	            	robot.turret.set(0.0);
 	            	robot.shooter.set(0);
-	            	robot.intake.preloader_stop();
+	            	robot.shooter.preloader_stop();
 	            	robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
-	            	setGoalState(State.LOW_BAR_TURRET_WAIT);
+	            	robot.shooter.hoodExtend();
+	            	setGoalState(State.ELEVATOR_WAITING);
 	            	break;
-	            case LOW_BAR_TURRET_WAIT:
+	            case INTAKE:
+	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
+	            	robot.turret.set(0.0);
+	            	robot.shooter.set(0.0);
+	            	robot.shooter.preloader_stop();
+	            	robot.shooter.hoodExtend();
+	            	setGoalState(State.INTAKE_READY);
+	            	break;
+	            case INTAKE_READY:
+	            	SmartDashboard.putString("FSM_STATE", "INTAKE_READY");
+	            	break;
+	            case STOW:
+	            	robot.intake.setAngle(Constants.INTAKE_STOW_ANGLE);
+	            	robot.turret.set(0.0);
+	            	robot.shooter.set(0.0);
+	            	robot.shooter.preloader_stop();
+	            	robot.shooter.hoodExtend();
+	            	setGoalState(State.ELEVATOR_WAITING);
+	            	break;
+	            case ELEVATOR_WAITING:
 	            	if(robot.turret.safeToLower()){
 	            		robot.elevator.down();
+	            		setGoalState(State.STOW_READY);
 	            	}
+	            	SmartDashboard.putString("FSM_STATE", "STOW WAITING");
+	            	break;
+	            case STOW_READY:
+	            	SmartDashboard.putString("FSM_STATE", "STOW READY");
+	            	break;
+	            case SHOOTER_CLOSE:
+	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
+	            	robot.elevator.up();
+	            	robot.intake.intake_stop();
+	            	robot.shooter.hoodRetract();
+	            	setGoalState(State.SHOOTER_READY);
+	            	break;
+	            case SHOOTER_FAR:
+	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
+	            	robot.elevator.up();
+	            	robot.intake.intake_stop();
+	            	robot.shooter.hoodExtend();
+	            	setGoalState(State.SHOOTER_WAITING);
+	            	break;
+	            case SHOOTER_WAITING:
+	            	if(robot.elevator.status() == Elevator.UP){
+	            		setGoalState(State.SHOOTER_READY);
+	            	}SmartDashboard.putString("FSM_STATE", "SHOOTER WAITING");
+	            	break;
+	            case SHOOTER_READY:
+	            	SmartDashboard.putString("FSM_STATE", "SHOOTER READY");
 	            	break;
 	            case DEFAULT:
 	            	SmartDashboard.putString("FSM_STATE", "WAITING");

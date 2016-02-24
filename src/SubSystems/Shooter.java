@@ -1,12 +1,14 @@
 package SubSystems;
 
-import Sensors.SuperEncoder;
+import Utilities.Constants;
 import Utilities.Ports;
+import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Solenoid;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter 
 {
@@ -14,11 +16,18 @@ public class Shooter
     private CANTalon motor2;
     private CANTalon motor3;
     private CANTalon motor4;
-    private SuperEncoder enc;
+    private CANTalon preloader_motor;
     private Solenoid hood;
     private int absolutePosition;
     private static Shooter instance = null;
+    private static final int CLOSE = 0;
+    private static final int FAR   = 1;
+    private static final int STOPPED = 2;
+    private int status = STOPPED;
+    private boolean firing = false;
     public boolean fenderShot = false;
+    private Elevator elevator;
+    private ShootingAction fireCommand;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -50,6 +59,8 @@ public class Shooter
         motor4 = new CANTalon(Ports.SHOOTER_MOTOR_4);
         motor4.changeControlMode(TalonControlMode.Follower);
         motor4.set(Ports.SHOOTER_MOTOR_3);
+        preloader_motor = new CANTalon(Ports.PRELOAD);
+        elevator = Elevator.getInstance();
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -57,6 +68,19 @@ public class Shooter
     	SmartDashboard.putNumber("SHOOTER_POWER", motor1.getOutputVoltage());
     	SmartDashboard.putNumber("SHOOTER_CURRENT", motor1.getOutputCurrent());
     	SmartDashboard.putNumber("SHOOTER_ERROR", motor1.getSetpoint()-motor1.getSpeed());
+    	
+    }
+    public void setPresetSpeed(int preset){
+    	switch(preset){
+    	case CLOSE:
+    		status = CLOSE;
+    		set(Constants.SHOOTER_CLOSE_SHOT);
+    		break;
+    	case FAR:
+    		status = FAR;
+    		set(Constants.SHOOTER_FAR_SHOT);
+    		break;
+    	}
     }
     public void set(double speed){
     	motor1.setProfile(0);
@@ -66,7 +90,59 @@ public class Shooter
     	motor1.setProfile(1);
     	motor1.set(0.0);
     }
-    public void hoodExtend(){ hood.set(false); } 
-    public void hoodRetract(){ hood.set(true); }
-	
+    public void hoodExtend(){ 
+    	if((elevator.status() != Elevator.MOVING) || (elevator.status() != Elevator.STOP) )
+    		hood.set(false); 
+    } 
+    public void hoodRetract(){ 
+    	if((elevator.status() != Elevator.MOVING) || (elevator.status() != Elevator.STOP) )
+    		hood.set(true); 
+    }	
+    public void preloader_forward(){
+    	preloader_motor.set(0.75);
+    }
+    public void preloader_reverse(){
+    	preloader_motor.set(-0.75);
+    }
+    public void preloader_stop(){
+    	preloader_motor.set(0.0);
+    }
+    public void fire(){
+    	if(!firing){
+	    	fireCommand = new ShootingAction();
+	    	fireCommand.start();
+    	}
+    }
+    public class ShootingAction extends Thread{
+    	boolean keeprunning = true;
+		@Override
+		public void run() {
+			firing = true;
+			while(keeprunning){
+				switch(status){
+					case CLOSE:
+						if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), 20.0) ){
+							preloader_forward();
+							Timer.delay(2.0);
+							preloader_stop();
+							keeprunning = false;
+						}
+						break;
+					case FAR:
+						if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), 20.0) ){
+							preloader_forward();
+							Timer.delay(2.0);
+							preloader_stop();
+							keeprunning = false;
+						}
+						break;
+					default:
+						keeprunning = false;
+						break;
+				}				
+			}
+			firing = false;			
+		}
+    	
+    }
 }

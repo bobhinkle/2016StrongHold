@@ -1,5 +1,6 @@
 package SubSystems;
 
+import Utilities.Constants;
 import Utilities.Ports;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
@@ -11,7 +12,6 @@ public class Intake {
 private static Intake instance = null;
     private CANTalon intake_motor;
     private CANTalon intake_arm_motor;
-    private CANTalon preloader_motor;
     private int absolutePosition;
     private double position;
     public static Intake getInstance()
@@ -37,8 +37,7 @@ private static Intake instance = null;
     	intake_arm_motor.set(intake_arm_motor.getPosition());
 //    	intake_arm_motor.setPID(4.0, 0.001, 240.0, 0.0, 0, 0.0, 0);
 //    	intake_arm_motor.setPID(3.0, 0.0, 240.0, 0.0, 0, 0.0, 1);
-    	intake_arm_motor.setProfile(0);
-    	preloader_motor = new CANTalon(Ports.PRELOAD);    	
+    	intake_arm_motor.setProfile(0);    	    	
     }
     
     public void update(){
@@ -49,6 +48,11 @@ private static Intake instance = null;
     	SmartDashboard.putNumber("INTAKE_POWER", intake_arm_motor.getOutputVoltage());
     	SmartDashboard.putNumber("INTAKE_P", intake_arm_motor.getP());
     	SmartDashboard.putNumber("INTAKE_ERROR", (intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()));
+    	if((intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()) > 0){
+    		intake_arm_motor.setProfile(0);
+    	}else{
+    		intake_arm_motor.setProfile(1);
+    	}
     }
     
     public void intake_forward(){
@@ -64,14 +68,13 @@ private static Intake instance = null;
     public void arm_stop(){
     	intake_arm_motor.setSetpoint(intake_arm_motor.getPosition());
     }
-    public void preloader_forward(){
-    	preloader_motor.set(0.75);
-    }
-    public void preloader_reverse(){
-    	preloader_motor.set(-0.75);
-    }
-    public void preloader_stop(){
-    	preloader_motor.set(0.0);
+    
+    public void manualMove(double angle){
+    	double current = intake_arm_motor.get();
+    	double newpos  = current + angle;
+    	if(Constants.INTAKE_ARM_MIN_ANGLE < newpos && newpos < Constants.INTAKE_ARM_MAX_ANGLE){
+    		setAngle(angle);
+    	}
     }
     public void setAngle(double angle){
     	if(angle > intake_arm_motor.getPosition()){

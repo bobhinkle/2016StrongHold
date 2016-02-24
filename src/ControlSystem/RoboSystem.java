@@ -3,23 +3,21 @@ package ControlSystem;
 
 import SubSystems.DriveTrain;
 import SubSystems.Elevator;
+import SubSystems.Hanger;
 import SubSystems.Intake;
 import SubSystems.Shooter;
 import SubSystems.Turret;
-import Utilities.Ports;
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Solenoid;
 
 
 public class RoboSystem{
-	public DriveTrain dt;
-	public Solenoid pto;
-	public Solenoid hanger;
+	public DriveTrain dt;	
 	public CANTalon hangerDrive;
 	public Shooter shooter;
 	public Intake intake;
 	public Turret turret;
 	public Elevator elevator;
+	public Hanger hanger;
     private static RoboSystem instance = null;
     
     
@@ -36,15 +34,6 @@ public class RoboSystem{
     	shooter = Shooter.getInstance();
     	turret = Turret.getInstance();
     	elevator = Elevator.getInstance();
-    	pto = new Solenoid(1,Ports.PTO);
+    	hanger = Hanger.getInstance();
     }
-    
-    public void enablePTO(){
-    	pto.set(true);
-    }
-    public void disablePTO(){
-    	pto.set(false);
-    }
-    
-    
 }

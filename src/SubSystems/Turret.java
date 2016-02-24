@@ -1,5 +1,6 @@
 package SubSystems;
 
+import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
@@ -15,6 +16,7 @@ public class Turret {
     private double position;
     private DigitalInput hallEffect;
     private double scale = 39.13; //39.13
+    private Elevator elevator;
     public static Turret getInstance()
     {
         if( instance == null )
@@ -38,6 +40,7 @@ public class Turret {
     	turret_motor.setProfile(0);
     	turret_motor.set(turret_motor.getPosition());
     	hallEffect = new DigitalInput(Ports.TURRET_RESET);
+    	elevator = Elevator.getInstance();
     }
     
     public void update(){
@@ -49,7 +52,6 @@ public class Turret {
     	SmartDashboard.putNumber("TURRET_P", turret_motor.getP());
     	SmartDashboard.putNumber("TURRET_ERROR", (turret_motor.getPosition()-turret_motor.getSetpoint())*scale);
     	SmartDashboard.putBoolean("TURRET_RESET", hallEffect.get());
-    	zeroCheck();
     }
     public boolean safeToLower(){
     	return !hallEffect.get() && Util.onTarget(0.0, turret_motor.getPosition(), 1.0);
@@ -60,6 +62,15 @@ public class Turret {
     }
     public void set(double angle){
     	turret_motor.set(angle/scale);
+    }
+    public void manualMove(double angle){
+    	if(elevator.status() == Elevator.UP){
+    		double current = turret_motor.get() * scale;
+    		double newpos = current + angle;
+    		if(Constants.TURRET_MIN_ANGLE < newpos && newpos < Constants.TURRET_MAX_ANGLE){
+    			turret_motor.set(newpos/scale);
+    		}
+    	}
     }
     public void zeroCheck(){
     	if(!hallEffect.get()){

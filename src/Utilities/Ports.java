@@ -29,11 +29,11 @@ public class Ports {
     
     
     //solenoids
-    public static final int DRIVE_SHIFT = 0;
-    
-    public static final int PTO         = 2;
+    public static final int DRIVE_SHIFT1 = 0;
+    public static final int DRIVE_SHIFT2 = 1;
+    public static final int PTO          = 2;
     public static final int HANGER      = 3;
-    
+    public static final int LACTCH		= 4;
     //DIGITAL
     public static final int TURRET_RESET = 5;
 }
