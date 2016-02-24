@@ -109,7 +109,7 @@ public class FSM {
 	        robot.intake.update();
 	        robot.shooter.update();
 	        robot.turret.update();
-//	        robot.elevator.update();
+	        robot.elevator.update();
 	    }
     }
 }

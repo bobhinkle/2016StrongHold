@@ -73,18 +73,19 @@ public class TeleController
         	robot.shooter.stop();
         	robot.intake.preloader_stop();
         	robot.turret.stop();
+        	robot.elevator.stop();
         }
         ////////////////////////////////////////////////////////
         if(codriver.startButton.isPressed()){
-        	
+        	robot.turret.set(0);
         }
         ////////////////////////////////////////////////////////        
         if (codriver.getButtonAxis(Xbox.RIGHT_STICK_Y) > 0.2) {
-        	robot.elevator.setCurrent(0.5*codriver.getButtonAxis(Xbox.RIGHT_STICK_Y));
+        	
         }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_Y) < -0.2){
-        	robot.elevator.setCurrent(0.5*codriver.getButtonAxis(Xbox.RIGHT_STICK_Y));
+        	
         }else{
-        	robot.elevator.setCurrent(0);
+        	
         }
         ///////////////////////////////////////////////
         if (codriver.getButtonAxis(Xbox.LEFT_STICK_Y) > 0.3) {
@@ -96,11 +97,13 @@ public class TeleController
         }
         ///////////////////////////////////////////////
         if(codriver.leftCenterClick.isPressed()){
-        	robot.turret.set(15);
+ //       	robot.turret.set(15);
+        	robot.elevator.down();
         }     
         ///////////////////////////////////////////////
         if(codriver.rightCenterClick.isPressed()) {
-        	robot.turret.set(-15);
+//        	robot.turret.set(-15);
+        	robot.elevator.up();
         }
         if(codriver.getPOV() == 0){
         	robot.shooter.set(4000);;
