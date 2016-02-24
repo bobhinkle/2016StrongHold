@@ -49,6 +49,7 @@ public class Turret {
     	SmartDashboard.putNumber("TURRET_P", turret_motor.getP());
     	SmartDashboard.putNumber("TURRET_ERROR", (turret_motor.getPosition()-turret_motor.getSetpoint())*scale);
     	SmartDashboard.putBoolean("TURRET_RESET", hallEffect.get());
+    	zeroCheck();
     }
     public boolean safeToLower(){
     	return !hallEffect.get() && Util.onTarget(0.0, turret_motor.getPosition(), 1.0);
@@ -60,5 +61,9 @@ public class Turret {
     public void set(double angle){
     	turret_motor.set(angle/scale);
     }
-    
+    public void zeroCheck(){
+    	if(!hallEffect.get()){
+    		turret_motor.setEncPosition(0);
+    	}
+    }
 }
