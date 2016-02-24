@@ -3,11 +3,12 @@ package ControlSystem;
 import java.util.Timer;
 import java.util.TimerTask;
 
+import Utilities.Constants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class FSM {
 	
 	public enum State{
-    	DEFAULT, INIT, PRE_TOTE,
+    	DEFAULT, INIT, LOW_BAR, LOW_BAR_TURRET_WAIT
     	
     }
 	private RoboSystem robot;
@@ -76,7 +77,7 @@ public class FSM {
     	
 		
 		default:
-			setGoalState(FSM.State.PRE_TOTE);
+			setGoalState(FSM.State.INIT);
 			break;
 		}
     }
@@ -87,7 +88,18 @@ public class FSM {
 	                SmartDashboard.putString("FSM_STATE", "INIT");
 	                stateComplete(State.INIT);
 	                break;
-	            
+	            case LOW_BAR:
+	            	robot.turret.set(0.0);
+	            	robot.shooter.set(0);
+	            	robot.intake.preloader_stop();
+	            	robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
+	            	setGoalState(State.LOW_BAR_TURRET_WAIT);
+	            	break;
+	            case LOW_BAR_TURRET_WAIT:
+	            	if(robot.turret.safeToLower()){
+	            		robot.elevator.down();
+	            	}
+	            	break;
 	            case DEFAULT:
 	            	SmartDashboard.putString("FSM_STATE", "WAITING");
 	            	break;

@@ -41,6 +41,9 @@ public class Constants {
     ////////////////////////////////////////////////////////////////////////////////////////////
     public static final int INTAKE_ARM_MAX_ANGLE = 220;
     public static final int INTAKE_ARM_MIN_ANGLE = 60;
+    public static final int INTAKE_GRAB_BALL_ANGLE = 220;
+    public static final int INTAKE_LOW_BAR_ANGLE   = 180;
+    public static final int INTAKE_FULL_RAISE      = 80;
     /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double DRIVE_DISTANCE_PER_PULSE = 0.008607439 * 2;      //0.03420833;
     public static final double VOLTS_TO_PSI = 53.18;

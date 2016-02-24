@@ -38,8 +38,7 @@ private static Intake instance = null;
 //    	intake_arm_motor.setPID(4.0, 0.001, 240.0, 0.0, 0, 0.0, 0);
 //    	intake_arm_motor.setPID(3.0, 0.0, 240.0, 0.0, 0, 0.0, 1);
     	intake_arm_motor.setProfile(0);
-    	preloader_motor = new CANTalon(Ports.PRELOAD);
-    	
+    	preloader_motor = new CANTalon(Ports.PRELOAD);    	
     }
     
     public void update(){

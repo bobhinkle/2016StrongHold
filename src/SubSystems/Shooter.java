@@ -32,7 +32,6 @@ public class Shooter
     	motor1.setEncPosition(absolutePosition);
     	motor1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
     	motor1.reverseSensor(false);
-//    	intake_arm_motor.reverseOutput(true);
     	motor1.configEncoderCodesPerRev(360);
     	motor1.configNominalOutputVoltage(+0f, -0f);
     	motor1.configPeakOutputVoltage(+0f, -12f);

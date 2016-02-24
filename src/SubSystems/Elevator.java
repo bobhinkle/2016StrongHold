@@ -8,6 +8,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Elevator {
 	private static Elevator instance = null;
     private CANTalon elevator_motor;
+    public static final int UP = 0;
+    public static final int DOWN = 1;
+    public static final int MOVING = 2;
+    private int status = 1;
     public static Elevator getInstance()
     {
         if( instance == null )
@@ -25,7 +29,15 @@ public class Elevator {
     	elevator_motor.setProfile(0);
     	
     }
-    
+    public int status(){
+    	return status;
+    }
+    public void up(){
+    	
+    }
+    public void down(){
+    	
+    }
     public void update(){
     	SmartDashboard.putNumber("ELE_DRAW", elevator_motor.getOutputCurrent());
     	SmartDashboard.putNumber("ELE_GOAL", elevator_motor.getSetpoint());

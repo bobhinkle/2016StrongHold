@@ -1,6 +1,7 @@
 package SubSystems;
 
 import Utilities.Ports;
+import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
@@ -49,10 +50,12 @@ public class Turret {
     	SmartDashboard.putNumber("TURRET_ERROR", (turret_motor.getPosition()-turret_motor.getSetpoint())*scale);
     	SmartDashboard.putBoolean("TURRET_RESET", hallEffect.get());
     }
+    public boolean safeToLower(){
+    	return !hallEffect.get() && Util.onTarget(0.0, turret_motor.getPosition(), 1.0);
+    }
     
     public void stop(){
     	turret_motor.setSetpoint(turret_motor.getPosition());
-//    	turret_motor.set(0);
     }
     public void set(double angle){
     	turret_motor.set(angle/scale);
