@@ -71,13 +71,13 @@ public class FSM {
         return currentState;
     }
     private void stateComplete(State state){
-        prevState = state;
+        currentState = state;
     }
-    public State previousState(){
+    public State getPreviousState(){
     	return prevState;
     }
     public void nextState(){
-    	switch(previousState()){
+    	switch(getPreviousState()){
     	
 		
 		default:
@@ -98,6 +98,7 @@ public class FSM {
 	            	robot.shooter.preloader_stop();
 	            	robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
 	            	robot.shooter.hoodExtend();
+	            	stateComplete(FSM.State.LOW_BAR);
 	            	setGoalState(State.ELEVATOR_WAITING);
 	            	break;
 	            case INTAKE:
@@ -106,9 +107,11 @@ public class FSM {
 	            	robot.shooter.set(0.0);
 	            	robot.shooter.preloader_stop();
 	            	robot.shooter.hoodExtend();
+	            	stateComplete(FSM.State.INTAKE);
 	            	setGoalState(State.INTAKE_READY);
 	            	break;
 	            case INTAKE_READY:
+	            	stateComplete(FSM.State.INTAKE_READY);
 	            	SmartDashboard.putString("FSM_STATE", "INTAKE_READY");
 	            	break;
 	            case STOW:
@@ -117,16 +120,19 @@ public class FSM {
 	            	robot.shooter.set(0.0);
 	            	robot.shooter.preloader_stop();
 	            	robot.shooter.hoodExtend();
+	            	stateComplete(FSM.State.STOW);
 	            	setGoalState(State.ELEVATOR_WAITING);
 	            	break;
 	            case ELEVATOR_WAITING:
 	            	if(robot.turret.safeToLower()){
 	            		robot.elevator.down();
+	            		stateComplete(FSM.State.ELEVATOR_WAITING);
 	            		setGoalState(State.STOW_READY);
 	            	}
 	            	SmartDashboard.putString("FSM_STATE", "STOW WAITING");
 	            	break;
 	            case STOW_READY:
+	            	stateComplete(FSM.State.STOW_READY);
 	            	SmartDashboard.putString("FSM_STATE", "STOW READY");
 	            	break;
 	            case SHOOTER_CLOSE:
@@ -135,6 +141,7 @@ public class FSM {
 	            	robot.intake.intake_stop();
 	            	robot.shooter.hoodRetract();
 	            	robot.shooter.setGoal(Constants.SHOOTER_CLOSE_SHOT);
+	            	stateComplete(FSM.State.SHOOTER_CLOSE);
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
 	            case SHOOTER_FAR:
@@ -143,14 +150,17 @@ public class FSM {
 	            	robot.intake.intake_stop();
 	            	robot.shooter.hoodExtend();
 	            	robot.shooter.setGoal(Constants.SHOOTER_FAR_SHOT);
+	            	stateComplete(FSM.State.SHOOTER_FAR);
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
 	            case SHOOTER_WAITING:
 	            	if(robot.elevator.status() == Elevator.UP){
+	            		stateComplete(FSM.State.SHOOTER_WAITING);
 	            		setGoalState(State.SHOOTER_READY);
 	            	}SmartDashboard.putString("FSM_STATE", "SHOOTER WAITING");
 	            	break;
 	            case SHOOTER_READY:
+	            	stateComplete(FSM.State.SHOOTER_READY);
 	            	SmartDashboard.putString("FSM_STATE", "SHOOTER READY");
 	            	break;
 	            case DEFAULT:

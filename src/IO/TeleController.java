@@ -63,7 +63,13 @@ public class TeleController
         }
         ///////////////////////////////////////////////////////
         if(codriver.leftTrigger.isPressed()){
-        	robot.shooter.set(6000);
+        	if(fsm.getPreviousState()==FSM.State.SHOOTER_CLOSE){
+        		robot.shooter.set(Constants.SHOOTER_CLOSE_SHOT);
+        	}else if(fsm.getPreviousState()==FSM.State.SHOOTER_FAR){
+        		robot.shooter.set(Constants.SHOOTER_FAR_SHOT);
+        	}else{
+        		System.out.println("Shooting position not set");
+        	}
         }
         //////////////////////////////////////////////////////
         if(codriver.backButton.isPressed()){  // stop all      
