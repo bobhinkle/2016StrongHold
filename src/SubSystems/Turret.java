@@ -67,8 +67,12 @@ public class Turret {
     	if(elevator.status() == Elevator.UP){
     		double current = turret_motor.get() * scale;
     		double newpos = current + angle;
-    		if(Constants.TURRET_MIN_ANGLE < newpos && newpos < Constants.TURRET_MAX_ANGLE){
-    			turret_motor.set(newpos/scale);
+    		if(Constants.TURRET_MIN_ANGLE > newpos){
+    			turret_motor.setSetpoint(Constants.TURRET_MIN_ANGLE/scale);
+    		}else if(newpos > Constants.TURRET_MAX_ANGLE){
+    			turret_motor.setSetpoint(Constants.TURRET_MAX_ANGLE/scale);
+    		}else{
+    			turret_motor.setSetpoint(newpos/scale);
     		}
     	}
     }
@@ -76,5 +80,8 @@ public class Turret {
     	if(!hallEffect.get()){
     		turret_motor.setEncPosition(0);
     	}
+    }
+    public double getAngle(){
+    	return turret_motor.get()*scale;
     }
 }

@@ -36,4 +36,8 @@ public class RoboSystem{
     	elevator = Elevator.getInstance();
     	hanger = Hanger.getInstance();
     }
+    public void Init(){
+    	intake.setAngle(intake.getAngle());
+    	turret.set(turret.getAngle());
+    }
 }

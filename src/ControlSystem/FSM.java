@@ -134,6 +134,7 @@ public class FSM {
 	            	robot.elevator.up();
 	            	robot.intake.intake_stop();
 	            	robot.shooter.hoodRetract();
+	            	robot.shooter.setGoal(Constants.SHOOTER_CLOSE_SHOT);
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
 	            case SHOOTER_FAR:
@@ -141,6 +142,7 @@ public class FSM {
 	            	robot.elevator.up();
 	            	robot.intake.intake_stop();
 	            	robot.shooter.hoodExtend();
+	            	robot.shooter.setGoal(Constants.SHOOTER_FAR_SHOT);
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
 	            case SHOOTER_WAITING:

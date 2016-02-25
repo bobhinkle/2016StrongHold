@@ -23,10 +23,7 @@ public class Ports {
     public static final int SHOOTER_MOTOR_3 = 12;
     public static final int SHOOTER_MOTOR_4 = 13;    
     public static final int RIGHT_DT_1 = 14;
-    public static final int RIGHT_DT_2 = 15;
-    
-    
-    
+    public static final int RIGHT_DT_2 = 15;   
     
     //solenoids
     public static final int DRIVE_SHIFT1 = 0;
@@ -34,6 +31,7 @@ public class Ports {
     public static final int PTO          = 2;
     public static final int HANGER      = 3;
     public static final int LACTCH		= 4;
+    public static final int HOOD	    = 5;
     //DIGITAL
     public static final int TURRET_RESET = 5;
 }

@@ -17,9 +17,9 @@ public class TeleController
     private static TeleController instance = null;
     public TeleController(){
         driver = new Joystick(0);
-        codriver  = new Xbox(1);
+        codriver  = new Xbox(2);
         codriver.init();
-        wheel = new ThrustMasterWheel(2);
+        wheel = new ThrustMasterWheel(1);
         robot = RoboSystem.getInstance();
         fsm = FSM.getInstance();
         System.out.println("CONTROLS STARTED");
@@ -63,13 +63,7 @@ public class TeleController
         }
         ///////////////////////////////////////////////////////
         if(codriver.leftTrigger.isPressed()){
-        	if(fsm.previousState() == FSM.State.SHOOTER_CLOSE){
-        		robot.shooter.set(Constants.SHOOTER_CLOSE_SHOT);
-        	}else if(fsm.previousState() == FSM.State.SHOOTER_FAR){
-        		robot.shooter.set(Constants.SHOOTER_FAR_SHOT);
-        	}else{
-        		robot.shooter.set(0.0);
-        	}
+        	robot.shooter.set(6000);
         }
         //////////////////////////////////////////////////////
         if(codriver.backButton.isPressed()){  // stop all      
@@ -97,17 +91,17 @@ public class TeleController
         }
         ////////////////////////////////////////////////////////        
         if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.2) {
-        	robot.turret.manualMove(codriver.getButtonAxis(Xbox.RIGHT_STICK_X));
+        	robot.turret.manualMove(codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
         }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.2){
-        	robot.turret.manualMove(codriver.getButtonAxis(Xbox.RIGHT_STICK_X));
+        	robot.turret.manualMove(codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
         }else{
         	
         }
         ///////////////////////////////////////////////
         if (codriver.getButtonAxis(Xbox.LEFT_STICK_Y) > 0.3) {
-        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y));
+//        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y));
         }else if( codriver.getButtonAxis(Xbox.LEFT_STICK_Y) < -0.3){
-        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y));
+//        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y));
         }else{
         	
         }

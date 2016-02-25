@@ -61,7 +61,7 @@ public class Robot extends SampleRobot {
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
-    	myRobot.intake.arm_stop();
+    	myRobot.Init();
         while (isOperatorControl() && isEnabled()) {
         	controllers.update();  
             Timer.delay(0.01);		// wait for a motor update time

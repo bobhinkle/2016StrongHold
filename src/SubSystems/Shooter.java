@@ -27,7 +27,9 @@ public class Shooter
     private boolean firing = false;
     public boolean fenderShot = false;
     private Elevator elevator;
+    private Turret turret;
     private ShootingAction fireCommand;
+    private double speed = 0;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -61,6 +63,8 @@ public class Shooter
         motor4.set(Ports.SHOOTER_MOTOR_3);
         preloader_motor = new CANTalon(Ports.PRELOAD);
         elevator = Elevator.getInstance();
+        turret  = Turret.getInstance();
+        hood = new Solenoid(Ports.HOOD);
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -70,29 +74,38 @@ public class Shooter
     	SmartDashboard.putNumber("SHOOTER_ERROR", motor1.getSetpoint()-motor1.getSpeed());
     	
     }
+    public void setGoal(double goal){
+    	speed = goal;
+    }
     public void setPresetSpeed(int preset){
     	switch(preset){
     	case CLOSE:
     		status = CLOSE;
-    		set(Constants.SHOOTER_CLOSE_SHOT);
+    		set(speed);
     		break;
     	case FAR:
     		status = FAR;
-    		set(Constants.SHOOTER_FAR_SHOT);
+    		set(speed);
+    		break;
+    	default:
+    		set(speed);
     		break;
     	}
     }
-    public void set(double speed){
+    public void set(double _speed){
     	motor1.setProfile(0);
-    	motor1.set(speed);
+    	motor1.set(_speed);
     }
     public void stop(){
     	motor1.setProfile(1);
     	motor1.set(0.0);
     }
     public void hoodExtend(){ 
-    	if((elevator.status() != Elevator.MOVING) || (elevator.status() != Elevator.STOP) )
-    		hood.set(false); 
+    	double angle = turret.getAngle();
+    	if((angle > Constants.TURRET_HOOD_MIN_ANGLE) && (angle < Constants.TURRET_HOOD_MAX_ANGLE) ){
+    		turret.set(0.0);
+    	}
+    	hood.set(false); 
     } 
     public void hoodRetract(){ 
     	if((elevator.status() != Elevator.MOVING) || (elevator.status() != Elevator.STOP) )
