@@ -1,4 +1,5 @@
 package IO;import SubSystems.Elevator;
+import SubSystems.Shooter;
 import SubSystems.DriveTrain.GEAR;
 import Utilities.Constants;
 import ControlSystem.FSM;
@@ -33,10 +34,12 @@ public class TeleController
     public void coDriver(){
         if(codriver.aButton.isPressed()){
         	fsm.setGoalState(FSM.State.INTAKE);
+//        	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
         }
         //////////////////////////////////////////
         if(codriver.bButton.isPressed()){
         	fsm.setGoalState(FSM.State.STOW);
+//        	robot.intake.setAngle(Constants.INTAKE_STOW_ANGLE);
         }
         ////////////////////////////////////////
         if(codriver.xButton.isPressed()){
@@ -64,10 +67,10 @@ public class TeleController
         ///////////////////////////////////////////////////////
         if(codriver.leftTrigger.isPressed()){
         	if(fsm.getPreviousState()==FSM.State.SHOOTER_CLOSE){
-        		robot.shooter.set(Constants.SHOOTER_CLOSE_SHOT);
+        		robot.shooter.setPresetSpeed(Shooter.CLOSE);
         	}else if(fsm.getPreviousState()==FSM.State.SHOOTER_FAR){
-        		robot.shooter.set(Constants.SHOOTER_FAR_SHOT);
-        	}else{
+        		robot.shooter.setPresetSpeed(Shooter.FAR);
+        	}else{        		
         		System.out.println("Shooting position not set");
         	}
         }
@@ -97,9 +100,9 @@ public class TeleController
         }
         ////////////////////////////////////////////////////////        
         if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.2) {
-        	robot.turret.manualMove(codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
+        	robot.turret.manualMove(-codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
         }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.2){
-        	robot.turret.manualMove(codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
+        	robot.turret.manualMove(-codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
         }else{
         	
         }

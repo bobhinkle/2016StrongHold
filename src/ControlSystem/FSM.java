@@ -10,7 +10,7 @@ public class FSM {
 	
 	public enum State{
     	DEFAULT, INIT, LOW_BAR, 
-    	INTAKE, INTAKE_READY,STOW, ELEVATOR_WAITING,ELEVATOR_LOWER, STOW_READY,
+    	INTAKE, INTAKE_WAITING,INTAKE_READY,STOW, ELEVATOR_WAITING,ELEVATOR_LOWER, STOW_READY,
     	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY
     	
     }
@@ -108,7 +108,15 @@ public class FSM {
 	            	robot.shooter.preloader_stop();
 	            	robot.shooter.hoodExtend();
 	            	stateComplete(FSM.State.INTAKE);
-	            	setGoalState(State.INTAKE_READY);
+	            	setGoalState(State.INTAKE_WAITING);
+	            	break;
+	            case INTAKE_WAITING:
+	            	if(robot.turret.safeToLower()){
+	            		robot.elevator.down();
+	            		stateComplete(FSM.State.INTAKE_WAITING);
+	            		setGoalState(State.INTAKE_READY);
+	            	}
+	            	SmartDashboard.putString("FSM_STATE", "INTAKE WAITING");
 	            	break;
 	            case INTAKE_READY:
 	            	stateComplete(FSM.State.INTAKE_READY);
@@ -154,8 +162,7 @@ public class FSM {
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
 	            case SHOOTER_WAITING:
-	            	if(robot.elevator.status() == Elevator.UP){
-	            		stateComplete(FSM.State.SHOOTER_WAITING);
+	            	if(robot.elevator.status() == Elevator.UP){	            		
 	            		setGoalState(State.SHOOTER_READY);
 	            	}SmartDashboard.putString("FSM_STATE", "SHOOTER WAITING");
 	            	break;

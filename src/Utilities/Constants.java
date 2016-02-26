@@ -41,10 +41,10 @@ public class Constants {
     ////////////////////////////////////////////////////////////////////////////////////////////
     public static final int INTAKE_ARM_MAX_ANGLE = 290;
     public static final int INTAKE_ARM_MIN_ANGLE = 100;
-    public static final int INTAKE_GRAB_BALL_ANGLE = 186;
+    public static final int INTAKE_GRAB_BALL_ANGLE = 182;
     public static final int INTAKE_SHOOTING_ANGLE   = 180;
     public static final int INTAKE_LOW_BAR_ANGLE   = 153;
-    public static final int INTAKE_STOW_ANGLE      = 280;
+    public static final int INTAKE_STOW_ANGLE      = 270;    
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final int TURRET_MAX_ANGLE = 90;
     public static final int TURRET_MIN_ANGLE = -90;

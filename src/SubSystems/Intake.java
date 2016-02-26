@@ -31,13 +31,16 @@ private static Intake instance = null;
     	intake_arm_motor.reverseOutput(true);
     	intake_arm_motor.configPotentiometerTurns(360);
     	intake_arm_motor.configNominalOutputVoltage(+0f, -0f);
-    	intake_arm_motor.configPeakOutputVoltage(+12f, -12f);
-    	intake_arm_motor.setAllowableClosedLoopErr(0); 
+    	intake_arm_motor.configPeakOutputVoltage(+6f, -6f);
+    	intake_arm_motor.setProfile(0); 
+    	intake_arm_motor.setAllowableClosedLoopErr(3); 
     	intake_arm_motor.changeControlMode(TalonControlMode.Position);
     	intake_arm_motor.set(intake_arm_motor.getPosition());
-    	intake_arm_motor.setPID(4.0, 0.001, 240.0, 0.0, 0, 0.0, 0);
-    	intake_arm_motor.setPID(3.0, 0.0, 240.0, 0.0, 0, 0.0, 1);
-    	intake_arm_motor.setProfile(0);    	    	
+    	intake_arm_motor.setPID(4.0, 0.002, 240.0, 0.0, 0, 0.0, 0);
+    	intake_arm_motor.setPID(2.0, 0.0, 400.0, 0.0, 0, 0.0, 1);
+    	intake_arm_motor.setProfile(1);    	  
+    	intake_arm_motor.setAllowableClosedLoopErr(3); 
+    	intake_arm_motor.setProfile(0);
     }
     public double getAngle(){
     	return intake_arm_motor.get();
@@ -50,9 +53,11 @@ private static Intake instance = null;
     	SmartDashboard.putNumber("INTAKE_POWER", intake_arm_motor.getOutputVoltage());
 //    	SmartDashboard.putNumber("INTAKE_P", intake_arm_motor.getP());
     	SmartDashboard.putNumber("INTAKE_ERROR", (intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()));
-    	if((intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()) > 0){
+    	if((intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()) < 0){
+    		SmartDashboard.putNumber("INTAKE_PROFILE", 0);
     		intake_arm_motor.setProfile(0);
     	}else{
+    		SmartDashboard.putNumber("INTAKE_PROFILE", 1);
     		intake_arm_motor.setProfile(1);
     	}
     }

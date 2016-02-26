@@ -20,8 +20,8 @@ public class Shooter
     private Solenoid hood;
     private int absolutePosition;
     private static Shooter instance = null;
-    private static final int CLOSE = 0;
-    private static final int FAR   = 1;
+    public static final int CLOSE = 0;
+    public static final int FAR   = 1;
     private static final int STOPPED = 2;
     private int status = STOPPED;
     private boolean firing = false;
@@ -45,7 +45,7 @@ public class Shooter
     	motor1.reverseSensor(false);
     	motor1.configEncoderCodesPerRev(360);
     	motor1.configNominalOutputVoltage(+0f, -0f);
-    	motor1.configPeakOutputVoltage(+0f, -12f);
+    	motor1.configPeakOutputVoltage(+12f, -12f);
     	motor1.setAllowableClosedLoopErr(0); 
     	motor1.changeControlMode(TalonControlMode.Speed);
     	motor1.set(motor1.getPosition());
@@ -81,11 +81,11 @@ public class Shooter
     	switch(preset){
     	case CLOSE:
     		status = CLOSE;
-    		set(speed);
+    		set(Constants.SHOOTER_CLOSE_SHOT);
     		break;
     	case FAR:
     		status = FAR;
-    		set(speed);
+    		set(Constants.SHOOTER_FAR_SHOT);
     		break;
     	default:
     		set(speed);
@@ -112,10 +112,10 @@ public class Shooter
     		hood.set(true); 
     }	
     public void preloader_forward(){
-    	preloader_motor.set(0.75);
+    	preloader_motor.set(-0.75);
     }
     public void preloader_reverse(){
-    	preloader_motor.set(-0.75);
+    	preloader_motor.set(0.75);
     }
     public void preloader_stop(){
     	preloader_motor.set(0.0);
@@ -131,25 +131,33 @@ public class Shooter
 		@Override
 		public void run() {
 			firing = true;
+			System.out.println("Fire Started");
 			while(keeprunning){
+				System.out.println("Fire Checking 1");
 				switch(status){
 					case CLOSE:
-						if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), 20.0) ){
+						if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), 50.0) ){
 							preloader_forward();
 							Timer.delay(2.0);
 							preloader_stop();
-							keeprunning = false;
+							
+						}else{
+							System.out.println("ERROR" + motor1.get());
 						}
+						keeprunning = false;
 						break;
 					case FAR:
-						if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), 20.0) ){
+						if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), 50.0) ){
 							preloader_forward();
 							Timer.delay(2.0);
 							preloader_stop();
-							keeprunning = false;
+						}else{
+							System.out.println("ERROR" + motor1.get());
 						}
+						keeprunning = false;
 						break;
 					default:
+						System.out.println("ERROR2");
 						keeprunning = false;
 						break;
 				}				
