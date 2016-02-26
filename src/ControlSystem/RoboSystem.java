@@ -39,5 +39,6 @@ public class RoboSystem{
     public void Init(){
     	intake.setAngle(intake.getAngle());
     	turret.set(turret.getAngle());
+    	shooter.stop();
     }
 }

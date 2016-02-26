@@ -21,9 +21,10 @@ public class SuperEncoder implements PIDSource {
     private double checkDiff = 0;
     public final static int PID_RPM = 0;
     public final static int PID_DISTANCE = 1;
-    public final static int LOW_RESOLUTION = 1;
-    public final static int HIGH_RESOLUTION = 2;
-    public SuperEncoder(int aChannel, int bChannel,boolean reverseDirection,int type) {
+    public static enum RESOLUTION{
+    	LOW_RESOLUTION,HIGH_RESOLUTION
+    }
+    public SuperEncoder(int aChannel, int bChannel,boolean reverseDirection,RESOLUTION type) {
             // TODO Auto-generated constructor stub
         switch(type){
             case LOW_RESOLUTION:

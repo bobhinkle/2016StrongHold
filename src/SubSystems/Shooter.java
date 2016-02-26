@@ -134,7 +134,7 @@ public class Shooter
 			while(keeprunning){
 				switch(status){
 					case CLOSE:
-						if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), 20.0) ){
+						if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
 							preloader_forward();
 							Timer.delay(2.0);
 							preloader_stop();
@@ -142,7 +142,7 @@ public class Shooter
 						}
 						break;
 					case FAR:
-						if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), 20.0) ){
+						if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
 							preloader_forward();
 							Timer.delay(2.0);
 							preloader_stop();

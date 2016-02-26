@@ -2,6 +2,7 @@ package SubSystems;
 
 import Utilities.Constants;
 import Utilities.Ports;
+import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
@@ -14,6 +15,7 @@ private static Intake instance = null;
     private CANTalon intake_arm_motor;
     private int absolutePosition;
     private double position;
+    private boolean whatForPositionDisable = false;
     public static Intake getInstance()
     {
         if( instance == null )
@@ -42,18 +44,36 @@ private static Intake instance = null;
     public double getAngle(){
     	return intake_arm_motor.get();
     }
+    public void setPositionForDisable(double angle){
+    	setAngle(angle);
+    	whatForPositionDisable = true;
+    }
+    public void enablePID(){
+    	intake_arm_motor.changeControlMode(TalonControlMode.Position);
+    }
+    public void disablePID(){
+    	intake_arm_motor.changeControlMode(TalonControlMode.Disabled);
+    }
+    public void checkForDisable(){
+    	if(Util.onTarget(intake_arm_motor.getSetpoint(), intake_arm_motor.get(), 10)){
+    		disablePID();
+    		whatForPositionDisable = false;
+    	}
+    }
     public void update(){
     	position = intake_arm_motor.getPosition();
     	SmartDashboard.putNumber("INTAKE_ANGLE", position);
     	SmartDashboard.putNumber("INTAKE_DRAW", intake_arm_motor.getOutputCurrent());
     	SmartDashboard.putNumber("INTAKE_GOAL", intake_arm_motor.getSetpoint());
     	SmartDashboard.putNumber("INTAKE_POWER", intake_arm_motor.getOutputVoltage());
-//    	SmartDashboard.putNumber("INTAKE_P", intake_arm_motor.getP());
     	SmartDashboard.putNumber("INTAKE_ERROR", (intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()));
     	if((intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()) > 0){
     		intake_arm_motor.setProfile(0);
     	}else{
     		intake_arm_motor.setProfile(1);
+    	}
+    	if(whatForPositionDisable){
+    		checkForDisable();
     	}
     }
     
@@ -79,11 +99,18 @@ private static Intake instance = null;
     	}
     }
     public void setAngle(double angle){
+    	enablePID();
     	if(angle > intake_arm_motor.getPosition()){
     		intake_arm_motor.setProfile(0);
     	}else{
     		intake_arm_motor.setProfile(1);
     	}
-    	intake_arm_motor.setSetpoint(angle);
+    	if(angle > Constants.INTAKE_ARM_MAX_ANGLE){
+    		intake_arm_motor.setSetpoint(Constants.INTAKE_ARM_MAX_ANGLE);
+    	}else if(angle < Constants.INTAKE_ARM_MIN_ANGLE){
+    		intake_arm_motor.setSetpoint(Constants.INTAKE_ARM_MIN_ANGLE);
+    	}else{
+    		intake_arm_motor.setSetpoint(angle);
+    	}    	
     }
 }

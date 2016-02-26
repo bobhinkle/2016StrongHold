@@ -53,6 +53,7 @@ public class Constants {
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double SHOOTER_FAR_SHOT  = 6000;
     public static final double SHOOTER_CLOSE_SHOT = 4000;
+    public static final double SHOOTER_ERROR      = 100;
     /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double DRIVE_DISTANCE_PER_PULSE = 0.008607439 * 2;      //0.03420833;
     public static final double VOLTS_TO_PSI = 53.18;

@@ -1,9 +1,7 @@
 
-package org.usfirst.frc.team1323.robot;
+package ControlSystem;
 
 
-import ControlSystem.FSM;
-import ControlSystem.RoboSystem;
 import IO.TeleController;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -11,14 +9,14 @@ import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Robot extends SampleRobot {
-    RoboSystem myRobot;
+    RoboSystem robot;
     private TeleController controllers;
     final String defaultAuto = "Default";
     final String customAuto = "My Auto";
     SendableChooser chooser;
     private FSM fsm;
     public Robot() {
-        myRobot = RoboSystem.getInstance();
+        robot = RoboSystem.getInstance();
         controllers = TeleController.getInstance();
     }
     
@@ -61,7 +59,7 @@ public class Robot extends SampleRobot {
      * Runs the motors with arcade steering.
      */
     public void operatorControl() {
-    	myRobot.Init();
+    	robot.Init();
         while (isOperatorControl() && isEnabled()) {
         	controllers.update();  
             Timer.delay(0.01);		// wait for a motor update time

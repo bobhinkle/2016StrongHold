@@ -34,4 +34,8 @@ public class Ports {
     public static final int HOOD	    = 5;
     //DIGITAL
     public static final int TURRET_RESET = 5;
+    public static final int FOLLOWER_X   = 7;
+    
+    //ANALOG
+    public static final int GYRO = 0;
 }

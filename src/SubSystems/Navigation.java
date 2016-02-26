@@ -1,16 +1,17 @@
 package SubSystems;
 
-import Utilities.Constants;
+import java.util.Timer;
+import java.util.TimerTask;
+
+import Sensors.SuperEncoder;
 import Utilities.Ports;
 import Utilities.Util;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
-import edu.wpi.first.wpilibj.interfaces.Gyro;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Navigation implements PIDSource{
 	
-    Gyro gyro2;
     // Navigational state
     private double x = 0.0; // positive from driver facing center of the field
     private double y = 0.0; // positive from driver looking left
@@ -19,6 +20,9 @@ public class Navigation implements PIDSource{
     private boolean twoGyro = false;
     private double angle = 0;
     private double STARTING_ANGLE_OFFSET = 0.0;
+    private final Timer mTimer = new Timer();
+    private static final int K_READING_RATE = 200;
+    private SuperEncoder followerWheelX;
     private Navigation()
     {
         
@@ -26,10 +30,43 @@ public class Navigation implements PIDSource{
     public static Navigation getInstance()
     {
         if( instance == null )
-        {
             instance = new Navigation();
-        }
         return instance;
+    }
+    public void start() {
+        synchronized (mTimer) {
+            mTimer.schedule(new InitTask(), 0);
+        }
+    }
+    private class InitTask extends TimerTask {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                	SmartDashboard.putString("NAV", "STARTED");
+                	followerWheelX = new SuperEncoder(Ports.FOLLOWER_X,Ports.FOLLOWER_X+1,false,SuperEncoder.RESOLUTION.HIGH_RESOLUTION);
+                    break;
+                } catch (Exception e) {
+                    System.out.println("nave" + e.getMessage());
+                    synchronized (mTimer) {
+                        mTimer.schedule(new InitTask(), 500);
+                    }
+                }
+            }
+            synchronized (mTimer) {
+                mTimer.schedule(new UpdateTask(), 0, (int) (1000.0 / K_READING_RATE));
+            }
+        }
+    }
+    private class UpdateTask extends TimerTask {
+	    public void run(){ 
+	    	updatePosition();
+	        SmartDashboard.putNumber("X",getX());
+	        SmartDashboard.putNumber("Y",getY());
+	        SmartDashboard.putNumber("RawDistanceX",followerWheelX.getRaw());
+	        SmartDashboard.putNumber("Heading",getHeadingInDegrees());
+	        SmartDashboard.putNumber("RawHeading",getRawHeading()); 
+	    }
     }
     public void initGyro(){
         System.out.println("init");
