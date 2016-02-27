@@ -53,7 +53,7 @@ public class TeleController
         //////////////////////////////////////////////////////////////////// 
         if(codriver.leftBumper.isPressed()){ 
         	robot.intake.intake_reverse();
-        	if(robot.elevator.status() == Elevator.UP){
+        	if(robot.elevator.status() == Elevator.Direction.UP){
         		robot.shooter.preloader_reverse();
         	}
         }

@@ -108,7 +108,7 @@ public class Shooter
     	hood.set(false); 
     } 
     public void hoodRetract(){ 
-    	if((elevator.status() != Elevator.MOVING) || (elevator.status() != Elevator.STOP) )
+    	if((elevator.status() != Elevator.Direction.MOVING) || (elevator.status() != Elevator.Direction.STOP) )
     		hood.set(true); 
     }	
     public void preloader_forward(){

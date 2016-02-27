@@ -1,5 +1,6 @@
 package SubSystems;
 
+import ControlSystem.FSM;
 import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
@@ -17,6 +18,7 @@ public class Turret {
     private DigitalInput hallEffect;
     private double scale = 39.13; //39.13
     private Elevator elevator;
+    private FSM fsm;
     public static Turret getInstance()
     {
         if( instance == null )
@@ -41,6 +43,7 @@ public class Turret {
     	turret_motor.set(turret_motor.getPosition());
     	hallEffect = new DigitalInput(Ports.TURRET_RESET);
     	elevator = Elevator.getInstance();
+    	fsm = FSM.getInstance();
     }
     
     public void update(){
@@ -64,16 +67,26 @@ public class Turret {
     	turret_motor.set(angle/scale);
     }
     public void manualMove(double angle){
-    	if(elevator.status() == Elevator.UP){
+    	if(elevator.status() == Elevator.Direction.UP){
     		double current = turret_motor.get() * scale;
     		double newpos = current + angle;
-    		if(Constants.TURRET_MIN_ANGLE > newpos){
-    			turret_motor.setSetpoint(Constants.TURRET_MIN_ANGLE/scale);
-    		}else if(newpos > Constants.TURRET_MAX_ANGLE){
-    			turret_motor.setSetpoint(Constants.TURRET_MAX_ANGLE/scale);
+    		if(fsm.getCurrentState() == FSM.State.SHOOTER_CLOSE || fsm.getPreviousState() == FSM.State.SHOOTER_CLOSE){
+    			if(Constants.TURRET_CLOSE_SHOT_MIN_ANGLE > newpos){
+        			turret_motor.setSetpoint(Constants.TURRET_CLOSE_SHOT_MIN_ANGLE/scale);
+        		}else if(newpos > Constants.TURRET_CLOSE_SHOT_MAX_ANGLE){
+        			turret_motor.setSetpoint(Constants.TURRET_CLOSE_SHOT_MAX_ANGLE/scale);
+        		}else{
+        			turret_motor.setSetpoint(newpos/scale);
+        		}
     		}else{
-    			turret_motor.setSetpoint(newpos/scale);
-    		}
+    			if(Constants.TURRET_MIN_ANGLE > newpos){
+        			turret_motor.setSetpoint(Constants.TURRET_MIN_ANGLE/scale);
+        		}else if(newpos > Constants.TURRET_MAX_ANGLE){
+        			turret_motor.setSetpoint(Constants.TURRET_MAX_ANGLE/scale);
+        		}else{
+        			turret_motor.setSetpoint(newpos/scale);
+        		}
+    		}    		
     	}
     }
     public void zeroCheck(){

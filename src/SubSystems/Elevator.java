@@ -8,14 +8,10 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Elevator {
 	private static Elevator instance = null;
     private CANTalon elevator_motor;
-    public static final int UP = 0;
-    public static final int DOWN = 1;
-    public static final int STOP = 2;
-    public static final int MOVING = 3;
-    private int status = STOP;
+    private Direction status = Direction.STOP;
     private Direction direction = Direction.UP;
-    private enum Direction{
-    	UP,DOWN
+    public static enum Direction{
+    	UP,DOWN,MOVING,STOP
     }
     public static Elevator getInstance()
     {
@@ -34,31 +30,35 @@ public class Elevator {
     	elevator_motor.setProfile(0);
     	
     }
-    public int status(){
+    public Direction status(){
     	return status;
     }
     public void up(){
-    	status = MOVING;
-    	direction = Direction.UP;
-    	setVoltage(-12.0);
+    	if(status != Direction.UP){
+	    	status = Direction.MOVING;
+	    	direction = Direction.UP;
+	    	setVoltage(-12.0);
+    	}
     }
     public void down(){
-    	status = MOVING;
-    	direction = Direction.DOWN;
-    	setVoltage(12.0);
+    	if(status != Direction.DOWN){
+	    	status = Direction.MOVING;
+	    	direction = Direction.DOWN;
+	    	setVoltage(12.0);
+    	}
     }
     private void check(){
     	switch(direction){
     	case UP:
     		if(elevator_motor.getOutputCurrent() > 20){
         		setVoltage(-1.0);
-        		status = UP;
+        		status = Direction.UP;
         	}
     		break;
     	case DOWN:
     		if(elevator_motor.getOutputCurrent() > 20){
         		setVoltage(0.5);
-        		status = DOWN;
+        		status = Direction.DOWN;
         	}
     	}  
     	currentStatus();
@@ -82,7 +82,7 @@ public class Elevator {
     }
     public void stop(){
     	setVoltage(0.0);
-    	status = STOP;
+    	status = Direction.STOP;
     }
     public synchronized void update(){
     	try{	    	

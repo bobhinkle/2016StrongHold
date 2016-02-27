@@ -154,7 +154,7 @@ public class FSM {
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
 	            case SHOOTER_WAITING:
-	            	if(robot.elevator.status() == Elevator.UP){
+	            	if(robot.elevator.status() == Elevator.Direction.UP){
 	            		stateComplete(FSM.State.SHOOTER_WAITING);
 	            		setGoalState(State.SHOOTER_READY);
 	            	}SmartDashboard.putString("FSM_STATE", "SHOOTER WAITING");

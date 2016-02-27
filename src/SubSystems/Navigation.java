@@ -115,16 +115,7 @@ public class Navigation implements PIDSource{
 //    	gyro.reset();
     }
 
-    public synchronized void run()
-    {
-/*        updatePosition();
-        SmartDashboard.putNumber("X",getX());
-        SmartDashboard.putNumber("Y",getY());
-        SmartDashboard.putNumber("RawDistanceX",followerWheelX.getRaw());
-        SmartDashboard.putNumber("RawDistanceY",followerWheelY.getRaw());
-        SmartDashboard.putNumber("Heading",getHeadingInDegrees());
-        SmartDashboard.putNumber("RawHeading",getRawHeading());   */     
-    }
+    
 
     public double getFollowerWheelDistance()
     {
