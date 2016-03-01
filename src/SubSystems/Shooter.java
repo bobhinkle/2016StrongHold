@@ -20,10 +20,7 @@ public class Shooter
     private Solenoid hood;
     private int absolutePosition;
     private static Shooter instance = null;
-    private static final int CLOSE = 0;
-    private static final int FAR   = 1;
-    private static final int STOPPED = 2;
-    private int status = STOPPED;
+    private Status status = Status.STOPPED;
     private boolean firing = false;
     public boolean fenderShot = false;
     private Elevator elevator;
@@ -36,7 +33,9 @@ public class Shooter
             instance = new Shooter();
         return instance;
     }
-    
+    public static enum Status{
+    	CLOSE, FAR, STOPPED
+    }
     public Shooter(){
     	motor1 = new CANTalon(Ports.SHOOTER_MOTOR_3);
     	absolutePosition = motor1.getPulseWidthPosition() & 0xFFF;
@@ -45,12 +44,13 @@ public class Shooter
     	motor1.reverseSensor(false);
     	motor1.configEncoderCodesPerRev(360);
     	motor1.configNominalOutputVoltage(+0f, -0f);
-    	motor1.configPeakOutputVoltage(+0f, -12f);
+    	motor1.configPeakOutputVoltage(+12f, 0);
     	motor1.setAllowableClosedLoopErr(0); 
     	motor1.changeControlMode(TalonControlMode.Speed);
     	motor1.set(motor1.getPosition());
 //    	motor1.setPID(0.048, 0.0, 0.0, 0.048, 0, 0.0, 0);
 //    	motor1.setPID(0.0, 0.0, 0.0, 0.048, 0, 0.0, 1);
+//    	motor1.setVoltageRampRate(10.24);
     	motor1.setProfile(0);
         motor2 = new CANTalon(Ports.SHOOTER_MOTOR_1);
         motor2.changeControlMode(TalonControlMode.Follower);
@@ -77,14 +77,14 @@ public class Shooter
     public void setGoal(double goal){
     	speed = goal;
     }
-    public void setPresetSpeed(int preset){
+    public void setPresetSpeed(Status preset){
     	switch(preset){
     	case CLOSE:
-    		status = CLOSE;
+    		status = Status.CLOSE;
     		set(speed);
     		break;
     	case FAR:
-    		status = FAR;
+    		status = Status.FAR;
     		set(speed);
     		break;
     	default:
@@ -112,10 +112,10 @@ public class Shooter
     		hood.set(true); 
     }	
     public void preloader_forward(){
-    	preloader_motor.set(0.75);
+    	preloader_motor.set(-1.0);
     }
     public void preloader_reverse(){
-    	preloader_motor.set(-0.75);
+    	preloader_motor.set(1.0);
     }
     public void preloader_stop(){
     	preloader_motor.set(0.0);
@@ -127,33 +127,34 @@ public class Shooter
     	}
     }
     public class ShootingAction extends Thread{
-    	boolean keeprunning = true;
 		@Override
 		public void run() {
 			firing = true;
-			while(keeprunning){
-				switch(status){
-					case CLOSE:
-						if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
-							preloader_forward();
-							Timer.delay(2.0);
-							preloader_stop();
-							keeprunning = false;
-						}
-						break;
-					case FAR:
-						if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
-							preloader_forward();
-							Timer.delay(2.0);
-							preloader_stop();
-							keeprunning = false;
-						}
-						break;
-					default:
-						keeprunning = false;
-						break;
-				}				
-			}
+			switch(status){
+			case CLOSE:
+				if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
+					preloader_forward();
+					Timer.delay(2.0);
+					preloader_stop();
+					System.out.println("FIRE CLOSE");
+				}else{
+					System.out.println("ERROR CLOSE");
+				}
+				break;
+			case FAR:
+				if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
+					preloader_forward();
+					Timer.delay(2.0);
+					preloader_stop();
+					System.out.println("FIRE FAR");
+				}else{
+					System.out.println("ERROR FAR");
+				}
+				break;
+			default:
+				System.out.println("NO STATUS");
+				break;
+			}		
 			firing = false;			
 		}
     	

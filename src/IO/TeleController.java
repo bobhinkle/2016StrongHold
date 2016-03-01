@@ -97,9 +97,9 @@ public class TeleController
         }
         ////////////////////////////////////////////////////////        
         if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.2) {
-        	robot.turret.manualMove(codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
+        	robot.turret.manualMove(-codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
         }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.2){
-        	robot.turret.manualMove(codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
+        	robot.turret.manualMove(-codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*10);
         }else{
         	
         }
@@ -139,6 +139,9 @@ public class TeleController
     public void driver() {
     	if (driver.getRawButton(1)){robot.dt.setGear(GEAR.LOW);}
         if(driver.getRawButton(3)){robot.dt.setGear(GEAR.HIGH); }
+        if(driver.getRawButton(2)){robot.dt.setGear(GEAR.NUETRAL); }
+        if(driver.getRawButton(6)){robot.dt.setGear(GEAR.PTO); }
+        if(driver.getRawButton(7)){robot.dt.disablePTO(); }
         if(driver.getRawButton(5)){
         	robot.hanger.extendHanger();
         }

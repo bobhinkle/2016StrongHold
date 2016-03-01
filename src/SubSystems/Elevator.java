@@ -34,18 +34,18 @@ public class Elevator {
     	return status;
     }
     public void up(){
-    	if(status != Direction.UP){
+//    	if(status != Direction.UP){
 	    	status = Direction.MOVING;
 	    	direction = Direction.UP;
 	    	setVoltage(-12.0);
-    	}
+//    	}
     }
     public void down(){
-    	if(status != Direction.DOWN){
+//    	if(status != Direction.DOWN){
 	    	status = Direction.MOVING;
 	    	direction = Direction.DOWN;
 	    	setVoltage(12.0);
-    	}
+//    	}
     }
     private void check(){
     	switch(direction){
@@ -60,6 +60,7 @@ public class Elevator {
         		setVoltage(0.5);
         		status = Direction.DOWN;
         	}
+        	break;
     	}  
     	currentStatus();
     }

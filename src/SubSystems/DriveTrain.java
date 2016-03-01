@@ -4,6 +4,7 @@ import Utilities.Ports;
 import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 
 
 public class DriveTrain{
@@ -11,20 +12,22 @@ public class DriveTrain{
 	public DriveBase left;
 	public DriveBase right;
 	private Solenoid shifter1,shifter2;
-	public GEAR gear = GEAR.LOW;
+	public GEAR currentGear = GEAR.LOW;
 	public Solenoid pto;
+	private boolean shifting = false;
+	public ShifterAction shifter;
 	public enum SIDE{
 		LEFT,RIGHT
 	}
 	public enum GEAR{
-		HIGH,LOW,NUETRAL
+		HIGH,LOW,NUETRAL,PTO
 	}
 	public DriveTrain(){
 		left = new DriveBase(Ports.LEFT_DT_1,Ports.LEFT_DT_2);
 		right = new DriveBase(Ports.RIGHT_DT_1,Ports.RIGHT_DT_2);
-		shifter1 = new Solenoid(1,Ports.DRIVE_SHIFT1);
-		shifter2 = new Solenoid(1,Ports.DRIVE_SHIFT2);
-    	pto= new Solenoid(1,Ports.PTO);
+		shifter1 = new Solenoid(21,Ports.DRIVE_SHIFT1);
+		shifter2 = new Solenoid(21,Ports.DRIVE_SHIFT2);
+    	pto= new Solenoid(21,Ports.PTO);
 	}
 	
 	public static DriveTrain getInstance()
@@ -81,26 +84,13 @@ public class DriveTrain{
         applyPower(-right,DriveTrain.SIDE.RIGHT);
     }
 	public void setGear(GEAR gearset) {
-		switch(gearset){
-		case LOW:
-			gear = GEAR.LOW;
-			shifter1.set(false);
-			shifter2.set(true);
-			break;
-		case HIGH:
-			gear = GEAR.HIGH;
-			shifter1.set(true);
-			shifter2.set(false);
-			break;
-		case NUETRAL:
-			gear = GEAR.NUETRAL;
-			shifter1.set(false);
-			shifter2.set(false);
-			break;
+		if(!shifting){
+			shifter = new ShifterAction();
+			shifter.setGear(gearset);
+			shifter.start();
 		}
-		}
-	
-	public boolean inLowGear() { return gear == GEAR.LOW;}
+	}	
+	public boolean inLowGear() { return currentGear == GEAR.LOW;}
 	private double old_wheel = 0.0;
     private double neg_inertia_accumulator = 0.0;
 	public void cheesyDrive(double wheel, double throttle, boolean quickturn)
@@ -165,7 +155,7 @@ public class DriveTrain{
 
         if ((!Util.inRange(throttle, -0.15,0.15) || !(Util.inRange(wheel, -0.4, 0.4))) && quickturn) {
                 overPower = 1.0;
-                if (gear == GEAR.HIGH) {
+                if (currentGear == GEAR.HIGH) {
                         sensitivity = 1.0; // default 1.0
                 } else {
                         sensitivity = 1.0;
@@ -195,4 +185,48 @@ public class DriveTrain{
         }
         directDrive(left_pwm,right_pwm);
     }
+	public class ShifterAction extends Thread{
+		private GEAR gear;
+		
+		public void setGear(GEAR _gear){
+			gear = _gear;
+		}
+		@Override
+		public void run() {
+			shifting = true;
+			switch(gear){
+			case LOW:
+				shifter1.set(true);
+				shifter2.set(false);
+				disablePTO();
+				currentGear = GEAR.LOW;
+				break;
+			case HIGH:
+				shifter1.set(false);
+				shifter2.set(false);
+				disablePTO();
+				currentGear = GEAR.HIGH;
+				break;
+			case NUETRAL:
+				shifter1.set(false);
+				Timer.delay(0.5);
+				shifter2.set(true);
+				currentGear = GEAR.NUETRAL;
+				disablePTO();
+				break;
+			case PTO:
+				shifter1.set(false);
+				shifter2.set(false);
+				Timer.delay(0.5);
+				shifter1.set(false);
+				Timer.delay(0.5);
+				shifter2.set(true);
+				
+				Timer.delay(0.5);
+				enablePTO();
+				break;
+			}
+			shifting = false;
+		}
+	}
 }

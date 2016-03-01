@@ -18,6 +18,7 @@ public class Ports {
     public static final int INTAKE_ARM_MOTOR = 4;
     public static final int INTAKE = 5;
     public static final int ELEVATOR = 6;
+    public static final int TEST_TALON = 9;
     public static final int PRELOAD = 10;
     public static final int TURRET = 11;
     public static final int SHOOTER_MOTOR_3 = 12;

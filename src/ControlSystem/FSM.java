@@ -4,6 +4,8 @@ import java.util.Timer;
 import java.util.TimerTask;
 
 import SubSystems.Elevator;
+import SubSystems.Shooter;
+import SubSystems.DriveTrain.GEAR;
 import Utilities.Constants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class FSM {
@@ -11,7 +13,7 @@ public class FSM {
 	public enum State{
     	DEFAULT, INIT, LOW_BAR, 
     	INTAKE, INTAKE_READY,STOW, ELEVATOR_WAITING,ELEVATOR_LOWER, STOW_READY,
-    	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY
+    	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY,PTO
     	
     }
 	private RoboSystem robot;
@@ -140,7 +142,7 @@ public class FSM {
 	            	robot.elevator.up();
 	            	robot.intake.intake_stop();
 	            	robot.shooter.hoodRetract();
-	            	robot.shooter.setGoal(Constants.SHOOTER_CLOSE_SHOT);
+	            	robot.shooter.setPresetSpeed(Shooter.Status.CLOSE);
 	            	stateComplete(FSM.State.SHOOTER_CLOSE);
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
@@ -149,13 +151,12 @@ public class FSM {
 	            	robot.elevator.up();
 	            	robot.intake.intake_stop();
 	            	robot.shooter.hoodExtend();
-	            	robot.shooter.setGoal(Constants.SHOOTER_FAR_SHOT);
+	            	robot.shooter.setPresetSpeed(Shooter.Status.FAR);
 	            	stateComplete(FSM.State.SHOOTER_FAR);
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
 	            case SHOOTER_WAITING:
 	            	if(robot.elevator.status() == Elevator.Direction.UP){
-	            		stateComplete(FSM.State.SHOOTER_WAITING);
 	            		setGoalState(State.SHOOTER_READY);
 	            	}SmartDashboard.putString("FSM_STATE", "SHOOTER WAITING");
 	            	break;
@@ -173,6 +174,7 @@ public class FSM {
 	        robot.shooter.update();
 	        robot.turret.update();
 	        robot.elevator.update();
+	        //robot.testTalon.update();
 	    }
     }
 }
