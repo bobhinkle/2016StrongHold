@@ -174,6 +174,8 @@ public class FSM {
 	        robot.turret.update();
 	        robot.elevator.update();
 	        robot.testTalon.update();
+	        robot.hanger.update();
+	        robot.dt.update();
 	    }
     }
 }

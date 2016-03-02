@@ -84,6 +84,7 @@ public class TeleController
         	robot.intake.intake_stop();
         	robot.shooter.stop();
         	robot.shooter.preloader_stop();
+        	robot.hanger.ptoStop();
         }
         ////////////////////////////////////////////////////////
         if(codriver.startButton.isPressed()){
@@ -129,7 +130,6 @@ public class TeleController
 		}
         ///////////////////////////////////////////////
         if(codriver.leftCenterClick.isPressed()){
- //       	robot.turret.set(15);
         	robot.elevator.down();
         }     
         ///////////////////////////////////////////////
@@ -146,16 +146,18 @@ public class TeleController
     
     public void driver() {
     	if (driver.getRawButton(1)){robot.dt.setGear(GEAR.LOW);}
+    	if(driver.getRawButton(2)){robot.dt.setGear(GEAR.NUETRAL); }
         if(driver.getRawButton(3)){robot.dt.setGear(GEAR.HIGH); }
-        if(driver.getRawButton(2)){robot.dt.setGear(GEAR.NUETRAL); }
+        if(driver.getRawButton(4)){
+        	if(robot.hanger.armDeployed()){
+        		robot.hanger.retractArm(); 
+        	}else{
+        		robot.hanger.ptoUp();
+        	}
+        }
+        if(driver.getRawButton(5)){robot.hanger.extendHanger(); }
         if(driver.getRawButton(6)){robot.dt.setGear(GEAR.PTO); }
-        if(driver.getRawButton(7)){robot.dt.disablePTO(); }
-        if(driver.getRawButton(5)){
-        	robot.hanger.extendHanger();
-        }
-        if(driver.getRawButton(6)){
-        	robot.hanger.retractArm();
-        }
+        if(driver.getRawButton(7)){robot.dt.disablePTO(); }    
         robot.dt.cheesyDrive(wheel.getX(), -driver.getY(), wheel.getLeftBumper() || wheel.getRightBumper());
     }
     public void update(){

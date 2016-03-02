@@ -53,11 +53,14 @@ public class Constants {
     public static final double TURRET_HOOD_MIN_ANGLE = -10.0;
     public static final double TURRET_CLOSE_SHOT_MAX_ANGLE = 90;
     public static final double TURRET_CLOSE_SHOT_MIN_ANGLE = -90;
+    public static final int TURRET_MIN_ZERO_CHECKS = 10;
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double SHOOTER_FAR_SHOT  = 3700;
     public static final double SHOOTER_CLOSE_SHOT = 3000;
     public static final double SHOOTER_ERROR      = 100;
     /////////////////////////////////////////////////////////////////////////////////////////////////
+    public static final double HANGER_MAX_POWER = 0.5;
+/////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double DRIVE_DISTANCE_PER_PULSE = 0.008607439 * 2;      //0.03420833;
     public static final double VOLTS_TO_PSI = 53.18;
     

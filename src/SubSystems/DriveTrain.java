@@ -5,6 +5,7 @@ import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 
 public class DriveTrain{
@@ -12,7 +13,7 @@ public class DriveTrain{
 	public DriveBase left;
 	public DriveBase right;
 	private Solenoid shifter1,shifter2;
-	public GEAR currentGear = GEAR.LOW;
+	private GEAR currentGear = GEAR.LOW;
 	public Solenoid pto;
 	private boolean shifting = false;
 	public ShifterAction shifter;
@@ -42,11 +43,16 @@ public class DriveTrain{
 	    
 	    public DriveBase(int Port1,int Port2){
 	    	_1 = new CANTalon(Port1);
+	    	_1.setVoltageRampRate(12);
 	    	_2 = new CANTalon(Port2);
+	    	_2.setVoltageRampRate(12);
 	    }
 	    public double currentDraw(){
 	    	return _1.getOutputCurrent();
 	    }
+	}
+	public GEAR currentGear(){
+		return currentGear;
 	}
 	public void enablePTO(){
 	    pto.set(true);
@@ -90,6 +96,10 @@ public class DriveTrain{
 			shifter.start();
 		}
 	}	
+	public void update(){
+		SmartDashboard.putNumber("DT_LEFT_CUR", left.currentDraw());
+		SmartDashboard.putNumber("DT_RIGHT_CUR", right.currentDraw());
+	}
 	public boolean inLowGear() { return currentGear == GEAR.LOW;}
 	private double old_wheel = 0.0;
     private double neg_inertia_accumulator = 0.0;
@@ -220,8 +230,7 @@ public class DriveTrain{
 				Timer.delay(0.5);
 				shifter1.set(false);
 				Timer.delay(0.5);
-				shifter2.set(true);
-				
+				shifter2.set(true);				
 				Timer.delay(0.5);
 				enablePTO();
 				break;

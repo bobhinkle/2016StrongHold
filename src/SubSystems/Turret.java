@@ -19,6 +19,7 @@ public class Turret {
     private double scale = 39.13; //39.13
     private Elevator elevator;
     private FSM fsm;
+    private int checks = 0;
     public static Turret getInstance()
     {
         if( instance == null )
@@ -32,7 +33,6 @@ public class Turret {
     	turret_motor.setEncPosition(absolutePosition);
     	turret_motor.setFeedbackDevice(FeedbackDevice.QuadEncoder);
     	turret_motor.reverseSensor(false);
-//    	intake_arm_motor.reverseOutput(true);
     	turret_motor.configEncoderCodesPerRev(360);
     	turret_motor.configNominalOutputVoltage(+0f, -0f);
     	turret_motor.configPeakOutputVoltage(+12f, -12f);
@@ -57,14 +57,25 @@ public class Turret {
     	SmartDashboard.putBoolean("TURRET_RESET", hallEffect.get());
     }
     public boolean safeToLower(){
-    	return !hallEffect.get() && Util.onTarget(0.0, turret_motor.getPosition(), 1.0);
+    	if(checks < 0 && !hallEffect.get()){
+    		return true;
+    	}else{
+    		if(!hallEffect.get() && Util.onTarget(0.0, turret_motor.getPosition()*scale, 1.5)){
+    			checks--;
+    		}else{
+    			checks = Constants.TURRET_MIN_ZERO_CHECKS;
+    		}
+    		return false;
+    	}
     }
     
     public void stop(){
     	turret_motor.setSetpoint(turret_motor.getPosition());
     }
     public void set(double angle){
-    	turret_motor.set(angle/scale);
+    	if(elevator.status() == Elevator.Direction.UP){
+    		turret_motor.set(angle/scale);
+    	}
     }
     public void manualMove(double angle){
     	if(elevator.status() == Elevator.Direction.UP){
