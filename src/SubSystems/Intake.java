@@ -25,6 +25,8 @@ private static Intake instance = null;
     
     public Intake(){
     	intake_motor = new CANTalon(Ports.INTAKE);
+    	intake_motor.setProfile(0); 
+    	intake_motor.setVoltageRampRate(12);
     	intake_arm_motor = new CANTalon(Ports.INTAKE_ARM_MOTOR);
     	absolutePosition = intake_arm_motor.getPulseWidthPosition() & 0xFFF;
     	intake_arm_motor.setEncPosition(absolutePosition);
@@ -38,7 +40,7 @@ private static Intake instance = null;
     	intake_arm_motor.changeControlMode(TalonControlMode.Position);
     	intake_arm_motor.set(intake_arm_motor.getPosition());
     	intake_arm_motor.setPID(4.0, 0.001, 240.0, 0.0, 0, 0.0, 0);
-    	intake_arm_motor.setPID(3.0, 0.0, 240.0, 0.0, 0, 0.0, 1);
+    	intake_arm_motor.setPID(3.0, 0.0, 240.0, 0.0, 0, 0.0, 1);    	
     	intake_arm_motor.setProfile(0);    	    	
     }
     public double getAngle(){
@@ -50,6 +52,7 @@ private static Intake instance = null;
     }
     public void enablePID(){
     	intake_arm_motor.changeControlMode(TalonControlMode.Position);
+    	intake_arm_motor.set(intake_arm_motor.get());
     }
     public void disablePID(){
     	intake_arm_motor.changeControlMode(TalonControlMode.Disabled);

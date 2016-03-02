@@ -105,9 +105,16 @@ public class Xbox extends Joystick
     	private static final int NOT_PRESSED = 0;
     	private static final int FIRST_PRESS = 1;
     	private static final int HELD        = 2;
+    	private boolean released = false;
     	public buttonCheck(int number){
     		buttonNumber = number;
     		buttonState = NOT_PRESSED;
+    	}
+    	public boolean isReleased(){
+    		if(released){
+    			released = false;
+    			return true;
+    		}return false;
     	}
     	public boolean isPressed(){
     		return buttonState == FIRST_PRESS;
@@ -170,6 +177,9 @@ public class Xbox extends Joystick
     				break;
     			}
     		}else{
+    			if(buttonState == FIRST_PRESS || buttonState == HELD){
+    				released = true;
+    			}
     			buttonState = NOT_PRESSED;
     		}
     	}

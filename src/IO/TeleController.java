@@ -32,8 +32,14 @@ public class TeleController
     }    
     public void coDriver(){
         if(codriver.aButton.isPressed()){
-        	fsm.setGoalState(FSM.State.INTAKE);
-        }
+        	if(codriver.aButton.buttonHoldTime() > 500){
+        		fsm.setGoalState(FSM.State.INTAKE);
+        		robot.intake.intake_forward();
+        	}      	
+        }else if(codriver.aButton.isReleased()){
+        	robot.intake.intake_stop();
+        	robot.intake.setAngle(Constants.INTAKE_WAIT_FOR_GRAB);
+        }        
         //////////////////////////////////////////
         if(codriver.bButton.isPressed()){
         	fsm.setGoalState(FSM.State.STOW);
@@ -105,9 +111,9 @@ public class TeleController
         }
         ///////////////////////////////////////////////
         if (codriver.getButtonAxis(Xbox.LEFT_STICK_Y) > 0.3) {
-//        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y));
+        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y)*10);
         }else if( codriver.getButtonAxis(Xbox.LEFT_STICK_Y) < -0.3){
-//        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y));
+        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y)*10);
         }else{
         	
         }

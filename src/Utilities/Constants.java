@@ -45,6 +45,7 @@ public class Constants {
     public static final int INTAKE_SHOOTING_ANGLE   = 180;
     public static final int INTAKE_LOW_BAR_ANGLE   = 153;
     public static final int INTAKE_STOW_ANGLE      = 280;
+    public static final int INTAKE_WAIT_FOR_GRAB   = 200;
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final int TURRET_MAX_ANGLE = 90;
     public static final int TURRET_MIN_ANGLE = -90;
