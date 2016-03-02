@@ -5,7 +5,6 @@ import java.util.TimerTask;
 
 import SubSystems.Elevator;
 import SubSystems.Shooter;
-import SubSystems.DriveTrain.GEAR;
 import Utilities.Constants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class FSM {
@@ -99,7 +98,7 @@ public class FSM {
 	            	robot.shooter.set(0);
 	            	robot.shooter.preloader_stop();
 	            	robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
-	            	robot.shooter.hoodExtend();
+	            	robot.shooter.setHoodState(Shooter.HoodStates.DOWN);
 	            	stateComplete(FSM.State.LOW_BAR);
 	            	setGoalState(State.ELEVATOR_WAITING);
 	            	break;
@@ -108,7 +107,7 @@ public class FSM {
 	            	robot.turret.set(0.0);
 	            	robot.shooter.set(0.0);
 	            	robot.shooter.preloader_stop();
-	            	robot.shooter.hoodExtend();
+	            	robot.shooter.setHoodState(Shooter.HoodStates.UP);
 	            	stateComplete(FSM.State.INTAKE);
 	            	setGoalState(State.INTAKE_READY);
 	            	break;
@@ -121,7 +120,7 @@ public class FSM {
 	            	robot.turret.set(0.0);
 	            	robot.shooter.set(0.0);
 	            	robot.shooter.preloader_stop();
-	            	robot.shooter.hoodExtend();
+	            	robot.shooter.setHoodState(Shooter.HoodStates.DOWN);
 	            	stateComplete(FSM.State.STOW);
 	            	setGoalState(State.ELEVATOR_WAITING);
 	            	break;
@@ -141,7 +140,7 @@ public class FSM {
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
 	            	robot.elevator.up();
 	            	robot.intake.intake_stop();
-	            	robot.shooter.hoodRetract();
+	            	robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.CLOSE);
 	            	stateComplete(FSM.State.SHOOTER_CLOSE);
 	            	setGoalState(State.SHOOTER_READY);
@@ -150,7 +149,7 @@ public class FSM {
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
 	            	robot.elevator.up();
 	            	robot.intake.intake_stop();
-	            	robot.shooter.hoodExtend();
+	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.FAR);
 	            	stateComplete(FSM.State.SHOOTER_FAR);
 	            	setGoalState(State.SHOOTER_WAITING);
@@ -174,6 +173,7 @@ public class FSM {
 	        robot.shooter.update();
 	        robot.turret.update();
 	        robot.elevator.update();
+	        robot.testTalon.update();
 	    }
     }
 }

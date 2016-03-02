@@ -6,6 +6,7 @@ import SubSystems.Elevator;
 import SubSystems.Hanger;
 import SubSystems.Intake;
 import SubSystems.Shooter;
+import SubSystems.TestTalon;
 import SubSystems.Turret;
 import edu.wpi.first.wpilibj.CANTalon;
 
@@ -18,6 +19,7 @@ public class RoboSystem{
 	public Turret turret;
 	public Elevator elevator;
 	public Hanger hanger;	
+	public TestTalon testTalon;
     private static RoboSystem instance = null;
     
     
@@ -35,7 +37,7 @@ public class RoboSystem{
     	turret = Turret.getInstance();
     	elevator = Elevator.getInstance();
     	hanger = Hanger.getInstance();
-    	//testTalon = new TestTalon();
+    	testTalon = new TestTalon();
     }
     public void Init(){
     	intake.setAngle(intake.getAngle());

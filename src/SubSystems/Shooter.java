@@ -18,6 +18,7 @@ public class Shooter
     private CANTalon motor4;
     private CANTalon preloader_motor;
     private Solenoid hood;
+    private Solenoid topHood;
     private int absolutePosition;
     private static Shooter instance = null;
     private Status status = Status.STOPPED;
@@ -36,6 +37,9 @@ public class Shooter
     public static enum Status{
     	CLOSE, FAR, STOPPED
     }
+    public static enum HoodStates{
+    	DOWN, FAR_SHOT, CLOSE_SHOT,UP
+    }
     public Shooter(){
     	motor1 = new CANTalon(Ports.SHOOTER_MOTOR_3);
     	absolutePosition = motor1.getPulseWidthPosition() & 0xFFF;
@@ -52,6 +56,7 @@ public class Shooter
 //    	motor1.setPID(0.0, 0.0, 0.0, 0.048, 0, 0.0, 1);
 //    	motor1.setVoltageRampRate(10.24);
     	motor1.setProfile(0);
+    	motor1.setVoltageRampRate(12);
         motor2 = new CANTalon(Ports.SHOOTER_MOTOR_1);
         motor2.changeControlMode(TalonControlMode.Follower);
         motor2.set(Ports.SHOOTER_MOTOR_3);
@@ -64,7 +69,8 @@ public class Shooter
         preloader_motor = new CANTalon(Ports.PRELOAD);
         elevator = Elevator.getInstance();
         turret  = Turret.getInstance();
-        hood = new Solenoid(Ports.HOOD);
+        hood = new Solenoid(21,Ports.HOOD);
+        topHood = new Solenoid(21,Ports.TOP_HOOD);
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -73,6 +79,30 @@ public class Shooter
     	SmartDashboard.putNumber("SHOOTER_CURRENT", motor1.getOutputCurrent());
     	SmartDashboard.putNumber("SHOOTER_ERROR", motor1.getSetpoint()-motor1.getSpeed());
     	
+    }
+    public void setHoodState(HoodStates state){
+    	switch(state){
+    	case DOWN:
+    		hood.set(true);
+    		topHood.set(false);
+    		System.out.println("DOWN");
+    		break;
+    	case FAR_SHOT:
+    		hood.set(false);
+    		topHood.set(false);
+    		System.out.println("FAR");
+    		break;
+    	case CLOSE_SHOT:
+    		hood.set(false);
+    		topHood.set(true);
+    		System.out.println("CLOSE");
+    		break;
+    	case UP:
+    		hood.set(false);
+    		topHood.set(false);
+    		System.out.println("UP");
+    		break;
+    	}
     }
     public void setGoal(double goal){
     	speed = goal;
@@ -134,7 +164,7 @@ public class Shooter
 			case CLOSE:
 				if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
 					preloader_forward();
-					Timer.delay(2.0);
+					Timer.delay(3.0);
 					preloader_stop();
 					System.out.println("FIRE CLOSE");
 				}else{

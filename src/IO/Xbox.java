@@ -121,7 +121,7 @@ public class Xbox extends Joystick
     	}
     	public double buttonHoldTime(){
     		if(buttonState == HELD)
-    			return buttonStartTime - System.currentTimeMillis();
+    			return System.currentTimeMillis()-buttonStartTime;
     		return 0;
     	}
     	public boolean isHeld(){

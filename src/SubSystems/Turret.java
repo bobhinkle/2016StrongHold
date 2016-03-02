@@ -38,7 +38,7 @@ public class Turret {
     	turret_motor.configPeakOutputVoltage(+12f, -12f);
     	turret_motor.setAllowableClosedLoopErr(0); 
     	turret_motor.changeControlMode(TalonControlMode.Position);
-//    	turret_motor.setPID(0.01, 0.0, 0.0, 0.0, 0, 0.0, 0);
+//    	turret_motor.setPID(1.4, 0.0, 140.0, 0.0, 0, 0.0, 0);
     	turret_motor.setProfile(0);
     	turret_motor.set(turret_motor.getPosition());
     	hallEffect = new DigitalInput(Ports.TURRET_RESET);

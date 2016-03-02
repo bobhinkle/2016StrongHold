@@ -40,19 +40,19 @@ public class Constants {
     public static final double TURN_KP_TURN = 0.08;
     ////////////////////////////////////////////////////////////////////////////////////////////
     public static final int INTAKE_ARM_MAX_ANGLE = 290;
-    public static final int INTAKE_ARM_MIN_ANGLE = 100;
+    public static final int INTAKE_ARM_MIN_ANGLE = 160;
     public static final int INTAKE_GRAB_BALL_ANGLE = 186;
     public static final int INTAKE_SHOOTING_ANGLE   = 180;
-    public static final int INTAKE_LOW_BAR_ANGLE   = 153;
+    public static final int INTAKE_LOW_BAR_ANGLE   = 173;
     public static final int INTAKE_STOW_ANGLE      = 280;
-    public static final int INTAKE_WAIT_FOR_GRAB   = 200;
+    public static final int INTAKE_WAIT_FOR_GRAB   = 220;
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final int TURRET_MAX_ANGLE = 90;
     public static final int TURRET_MIN_ANGLE = -90;
     public static final double TURRET_HOOD_MAX_ANGLE = 20.0;
     public static final double TURRET_HOOD_MIN_ANGLE = -10.0;
-    public static final double TURRET_CLOSE_SHOT_MAX_ANGLE = 5;
-    public static final double TURRET_CLOSE_SHOT_MIN_ANGLE = -5;
+    public static final double TURRET_CLOSE_SHOT_MAX_ANGLE = 90;
+    public static final double TURRET_CLOSE_SHOT_MIN_ANGLE = -90;
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double SHOOTER_FAR_SHOT  = 3700;
     public static final double SHOOTER_CLOSE_SHOT = 3000;
