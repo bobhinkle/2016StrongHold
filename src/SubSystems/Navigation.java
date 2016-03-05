@@ -6,6 +6,7 @@ import java.util.TimerTask;
 import Sensors.SuperEncoder;
 import Utilities.Ports;
 import Utilities.Util;
+import edu.wpi.first.wpilibj.ADXRS450_Gyro;
 import edu.wpi.first.wpilibj.PIDSource;
 import edu.wpi.first.wpilibj.PIDSourceType;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
@@ -23,9 +24,10 @@ public class Navigation implements PIDSource{
     private final Timer mTimer = new Timer();
     private static final int K_READING_RATE = 200;
     private SuperEncoder followerWheelX;
+    private ADXRS450_Gyro gyro;
     private Navigation()
     {
-        
+        start();
     }
     public static Navigation getInstance()
     {
@@ -43,7 +45,8 @@ public class Navigation implements PIDSource{
         public void run() {
             while (true) {
                 try {
-                	SmartDashboard.putString("NAV", "STARTED");
+                	gyro = new ADXRS450_Gyro();
+                    gyro.calibrate();
                 	followerWheelX = new SuperEncoder(Ports.FOLLOWER_X,Ports.FOLLOWER_X+1,false,SuperEncoder.RESOLUTION.HIGH_RESOLUTION);
                     break;
                 } catch (Exception e) {
@@ -60,13 +63,25 @@ public class Navigation implements PIDSource{
     }
     private class UpdateTask extends TimerTask {
 	    public void run(){ 
-	    	updatePosition();
-	        SmartDashboard.putNumber("X",getX());
-	        SmartDashboard.putNumber("Y",getY());
-	        SmartDashboard.putNumber("RawDistanceX",followerWheelX.getRaw());
-	        SmartDashboard.putNumber("Heading",getHeadingInDegrees());
-	        SmartDashboard.putNumber("RawHeading",getRawHeading()); 
+	    	try{
+		    	updatePosition();
+		        SmartDashboard.putNumber("X",getX());
+		        SmartDashboard.putNumber("Y",getY());
+		        SmartDashboard.putNumber("RawDistanceX",followerWheelX.getRaw());
+		        SmartDashboard.putNumber("Heading",getHeadingInDegrees());
+		        SmartDashboard.putNumber("RawHeading",getRawHeading()); 
+	    	}catch(Exception e){
+	    		System.out.println(e);
+	    	}
+	        
 	    }
+    }
+    public void update(){
+    	updatePosition();
+        SmartDashboard.putNumber("X",getX());
+        SmartDashboard.putNumber("Y",getY());
+//        SmartDashboard.putNumber("RawDistanceX",followerWheelX.getRaw());
+        SmartDashboard.putNumber("Heading",getHeadingInDegrees());
     }
     public void initGyro(){
         System.out.println("init");
@@ -93,7 +108,7 @@ public class Navigation implements PIDSource{
     public double getHeadingInDegrees()
     {
         //return Util.boundAngle0to360Degrees(gyro.getAngleInDegrees());
-    	return 0;
+    	return gyro.getAngle();
     }
     public double getRawHeading(){
 //        return gyro.getAngle();

@@ -1,6 +1,7 @@
 package IO;import SubSystems.Elevator;
 import SubSystems.DriveTrain.GEAR;
 import Utilities.Constants;
+import Utilities.Util;
 import ControlSystem.FSM;
 import ControlSystem.RoboSystem;
 import edu.wpi.first.wpilibj.Joystick;
@@ -32,7 +33,7 @@ public class TeleController
     }    
     public void coDriver(){
         if(codriver.aButton.isPressed() || codriver.aButton.isHeld()){
-        	if(codriver.aButton.buttonHoldTime() > 500){
+        	if(codriver.aButton.buttonHoldTime() > 10){
         		fsm.setGoalState(FSM.State.INTAKE);
         		robot.intake.intake_forward();
         	}else{
@@ -106,9 +107,9 @@ public class TeleController
         }
         ////////////////////////////////////////////////////////        
         if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.2) {
-        	robot.turret.manualMove(-codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*7);
+        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*20);
         }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.2){
-        	robot.turret.manualMove(-codriver.getButtonAxis(Xbox.RIGHT_STICK_X)*7);
+        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*20);
         }else{
         	
         }
@@ -145,9 +146,11 @@ public class TeleController
     }
     
     public void driver() {
-    	if (driver.getRawButton(1)){robot.dt.setGear(GEAR.LOW);}
+    	if (driver.getRawButton(1)){robot.dt.setGear(GEAR.LOW);
+    	robot.hanger.retractHanger();}
     	if(driver.getRawButton(2)){robot.dt.setGear(GEAR.NUETRAL); }
-        if(driver.getRawButton(3)){robot.dt.setGear(GEAR.HIGH); }
+        if(driver.getRawButton(3)){robot.dt.setGear(GEAR.HIGH); 
+        robot.hanger.retractHanger();}
         if(driver.getRawButton(4)){
         	if(robot.hanger.armDeployed()){
         		robot.hanger.retractArm(); 
@@ -155,7 +158,9 @@ public class TeleController
         		robot.hanger.ptoUp();
         	}
         }
-        if(driver.getRawButton(5)){robot.hanger.extendHanger(); }
+        if(driver.getRawButton(5)){
+        	robot.hanger.extendHanger(); 
+        	robot.dt.setGear(GEAR.PTO);}
         if(driver.getRawButton(6)){robot.dt.setGear(GEAR.PTO); }
         if(driver.getRawButton(7)){robot.dt.disablePTO(); }    
         robot.dt.cheesyDrive(wheel.getX(), -driver.getY(), wheel.getLeftBumper() || wheel.getRightBumper());

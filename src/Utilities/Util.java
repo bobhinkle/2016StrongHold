@@ -228,7 +228,19 @@ public class Util {
        else
     	   return 0;
     }
-    
+    public static double turretSmoother(double input){
+    	double val = Math.abs(input);
+    	double p1 = 54.63;
+    	double p2 = -214.7;
+    	double p3 = 321.8;
+    	double p4 = -231.6;
+    	double p5 = 83.36;
+    	double p6 = -13.65;
+    	double p7 = 1.169;
+    	double p8 = -0.000534;
+    	double result = (p1*Math.pow(val, 7)) + (p2*Math.pow(val, 6))  +(p3*Math.pow(val, 5)) + (p4*Math.pow(val, 4))  +(p5*Math.pow(val, 3)) + (p6*Math.pow(val, 2))  + (p7*val) + p8;
+    	return result;
+    }
     double t,k1,k2,k3,m;
     public void setTime(double acceleration, double distance){
     	t = Math.sqrt((2*Math.PI*distance/acceleration));

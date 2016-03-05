@@ -24,8 +24,8 @@ public class Hanger{
 		EXTENDED, MOVING, DOWN , STOPPED, UP
 	}
 	public Hanger(){
-		hangerArm = new Solenoid(Ports.HANGER);
-		latch = new Solenoid(Ports.LACTCH);
+		hangerArm = new Solenoid(21,Ports.HANGER);
+//		latch = new Solenoid(Ports.LACTCH);
 		dt = DriveTrain.getInstance();
 	}
 	

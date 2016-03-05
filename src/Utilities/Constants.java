@@ -39,13 +39,14 @@ public class Constants {
     public static final double MAX_ROTATION_ANGLE_PER_SEC = 2;
     public static final double TURN_KP_TURN = 0.08;
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int INTAKE_ARM_MAX_ANGLE = 290;
-    public static final int INTAKE_ARM_MIN_ANGLE = 160;
-    public static final int INTAKE_GRAB_BALL_ANGLE = 186;
-    public static final int INTAKE_SHOOTING_ANGLE   = 180;
-    public static final int INTAKE_LOW_BAR_ANGLE   = 173;
-    public static final int INTAKE_STOW_ANGLE      = 280;
-    public static final int INTAKE_WAIT_FOR_GRAB   = 220;
+    public static final int INTAKE_OFFSET = 190;
+    public static final int INTAKE_ARM_MAX_ANGLE = INTAKE_OFFSET + 10; //280
+    public static final int INTAKE_ARM_MIN_ANGLE = INTAKE_OFFSET - 120;
+    public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET - 95;
+    public static final int INTAKE_SHOOTING_ANGLE   = INTAKE_OFFSET - 100;
+    public static final int INTAKE_LOW_BAR_ANGLE   = INTAKE_OFFSET - 107;
+    public static final int INTAKE_STOW_ANGLE      = INTAKE_OFFSET;
+    public static final int INTAKE_WAIT_FOR_GRAB   = INTAKE_OFFSET - 55;    
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final int TURRET_MAX_ANGLE = 90;
     public static final int TURRET_MIN_ANGLE = -90;
@@ -55,7 +56,7 @@ public class Constants {
     public static final double TURRET_CLOSE_SHOT_MIN_ANGLE = -90;
     public static final int TURRET_MIN_ZERO_CHECKS = 10;
 /////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final double SHOOTER_FAR_SHOT  = 3700;
+    public static final double SHOOTER_FAR_SHOT  = 4200;
     public static final double SHOOTER_CLOSE_SHOT = 3000;
     public static final double SHOOTER_ERROR      = 100;
     /////////////////////////////////////////////////////////////////////////////////////////////////

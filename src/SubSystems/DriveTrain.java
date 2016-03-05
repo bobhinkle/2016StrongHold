@@ -43,9 +43,9 @@ public class DriveTrain{
 	    
 	    public DriveBase(int Port1,int Port2){
 	    	_1 = new CANTalon(Port1);
-	    	_1.setVoltageRampRate(12);
+	    	//_1.setVoltageRampRate(12);
 	    	_2 = new CANTalon(Port2);
-	    	_2.setVoltageRampRate(12);
+	    	//_2.setVoltageRampRate(12);
 	    }
 	    public double currentDraw(){
 	    	return _1.getOutputCurrent();

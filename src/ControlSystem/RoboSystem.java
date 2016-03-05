@@ -5,6 +5,7 @@ import SubSystems.DriveTrain;
 import SubSystems.Elevator;
 import SubSystems.Hanger;
 import SubSystems.Intake;
+import SubSystems.Navigation;
 import SubSystems.Shooter;
 import SubSystems.TestTalon;
 import SubSystems.Turret;
@@ -20,6 +21,7 @@ public class RoboSystem{
 	public Elevator elevator;
 	public Hanger hanger;	
 	public TestTalon testTalon;
+	public Navigation nav;
     private static RoboSystem instance = null;
     
     
@@ -37,7 +39,8 @@ public class RoboSystem{
     	turret = Turret.getInstance();
     	elevator = Elevator.getInstance();
     	hanger = Hanger.getInstance();
-    	testTalon = new TestTalon();
+    	nav = Navigation.getInstance();
+//    	testTalon = new TestTalon();
     }
     public void Init(){
     	intake.setAngle(intake.getAngle());

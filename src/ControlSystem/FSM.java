@@ -120,9 +120,9 @@ public class FSM {
 	            	robot.turret.set(0.0);
 	            	robot.shooter.set(0.0);
 	            	robot.shooter.preloader_stop();
-	            	robot.shooter.setHoodState(Shooter.HoodStates.DOWN);
+	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	stateComplete(FSM.State.STOW);
-	            	setGoalState(State.ELEVATOR_WAITING);
+	            	setGoalState(FSM.State.STOW_READY);
 	            	break;
 	            case ELEVATOR_WAITING:
 	            	if(robot.turret.safeToLower()){
@@ -138,16 +138,18 @@ public class FSM {
 	            	break;
 	            case SHOOTER_CLOSE:
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
-	            	robot.elevator.up();
+	            	if(robot.elevator.status() != Elevator.Direction.UP)
+	            		robot.elevator.up();
 	            	robot.intake.intake_stop();
-	            	robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
+	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.CLOSE);
 	            	stateComplete(FSM.State.SHOOTER_CLOSE);
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
 	            case SHOOTER_FAR:
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
-	            	robot.elevator.up();
+	            	if(robot.elevator.status() != Elevator.Direction.UP)
+	            		robot.elevator.up();
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.FAR);
@@ -173,7 +175,7 @@ public class FSM {
 	        robot.shooter.update();
 	        robot.turret.update();
 	        robot.elevator.update();
-	        robot.testTalon.update();
+//	        robot.testTalon.update();
 	        robot.hanger.update();
 	        robot.dt.update();
 	    }

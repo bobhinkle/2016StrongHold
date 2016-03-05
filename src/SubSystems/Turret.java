@@ -38,9 +38,9 @@ public class Turret {
     	turret_motor.configPeakOutputVoltage(+12f, -12f);
     	turret_motor.setAllowableClosedLoopErr(0); 
     	turret_motor.changeControlMode(TalonControlMode.Position);
-//    	turret_motor.setPID(1.4, 0.0, 140.0, 0.0, 0, 0.0, 0);
+    	turret_motor.setPID(1.4, 0.0, 140.0, 0.0, 0, 0.0, 0);
     	turret_motor.setProfile(0);
-    	turret_motor.set(turret_motor.getPosition());
+    	turret_motor.set(0.0);
     	hallEffect = new DigitalInput(Ports.TURRET_RESET);
     	elevator = Elevator.getInstance();
     	fsm = FSM.getInstance();
@@ -52,7 +52,7 @@ public class Turret {
     	SmartDashboard.putNumber("TURRET_DRAW", turret_motor.getOutputCurrent());
     	SmartDashboard.putNumber("TURRET_GOAL", turret_motor.getSetpoint()*scale);
     	SmartDashboard.putNumber("TURRET_POWER", turret_motor.getOutputVoltage());
-    	SmartDashboard.putNumber("TURRET_P", turret_motor.getP());
+//    	SmartDashboard.putNumber("TURRET_P", turret_motor.getP());
     	SmartDashboard.putNumber("TURRET_ERROR", (turret_motor.getPosition()-turret_motor.getSetpoint())*scale);
     	SmartDashboard.putBoolean("TURRET_RESET", hallEffect.get());
     }

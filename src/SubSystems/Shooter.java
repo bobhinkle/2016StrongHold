@@ -45,7 +45,7 @@ public class Shooter
     	absolutePosition = motor1.getPulseWidthPosition() & 0xFFF;
     	motor1.setEncPosition(absolutePosition);
     	motor1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	motor1.reverseSensor(false);
+    	motor1.reverseSensor(true);
     	motor1.configEncoderCodesPerRev(360);
     	motor1.configNominalOutputVoltage(+0f, -0f);
     	motor1.configPeakOutputVoltage(+12f, 0);
@@ -56,7 +56,7 @@ public class Shooter
 //    	motor1.setPID(0.0, 0.0, 0.0, 0.048, 0, 0.0, 1);
 //    	motor1.setVoltageRampRate(10.24);
     	motor1.setProfile(0);
-    	motor1.setVoltageRampRate(12);
+//    	motor1.setVoltageRampRate(12);
         motor2 = new CANTalon(Ports.SHOOTER_MOTOR_1);
         motor2.changeControlMode(TalonControlMode.Follower);
         motor2.set(Ports.SHOOTER_MOTOR_3);

@@ -32,8 +32,8 @@ public class Ports {
     public static final int PTO          = 2;
     public static final int HANGER      = 5;
     public static final int LACTCH		= 4;
-    public static final int HOOD	    = 3;
-    public static final int TOP_HOOD	= 6;
+    public static final int HOOD	    = 4;
+    public static final int TOP_HOOD	= 3;
     //DIGITAL
     public static final int TURRET_RESET = 5;
     public static final int FOLLOWER_X   = 7;

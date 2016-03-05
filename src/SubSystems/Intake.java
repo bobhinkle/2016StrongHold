@@ -26,7 +26,7 @@ private static Intake instance = null;
     public Intake(){
     	intake_motor = new CANTalon(Ports.INTAKE);
     	intake_motor.setProfile(0); 
-    	intake_motor.setVoltageRampRate(12);
+    	//intake_motor.setVoltageRampRate(12);
     	intake_arm_motor = new CANTalon(Ports.INTAKE_ARM_MOTOR);
     	absolutePosition = intake_arm_motor.getPulseWidthPosition() & 0xFFF;
     	intake_arm_motor.setEncPosition(absolutePosition);
@@ -39,8 +39,8 @@ private static Intake instance = null;
     	intake_arm_motor.setAllowableClosedLoopErr(0); 
     	intake_arm_motor.changeControlMode(TalonControlMode.Position);
     	intake_arm_motor.set(intake_arm_motor.getPosition());
-//    	intake_arm_motor.setPID(2.5, 0.0, 240.0, 0.0, 0, 0.0, 0);
-//    	intake_arm_motor.setPID(5.0, 0.005, 150.0, 0.0, 0, 0.0, 1);    	
+    	intake_arm_motor.setPID(2.5, 0.0, 240.0, 0.0, 0, 0.0, 0);
+    	intake_arm_motor.setPID(5.0, 0.005, 150.0, 0.0, 0, 0.0, 1);    	
     	intake_arm_motor.setProfile(0);    	    	
     }
     public double getAngle(){
@@ -65,7 +65,8 @@ private static Intake instance = null;
     }
     public void update(){
     	position = intake_arm_motor.getPosition();
-    	SmartDashboard.putNumber("INTAKE_ANGLE", position);
+    	SmartDashboard.putNumber("INTAKE_ANGLE_RAW", position);
+    	SmartDashboard.putNumber("INTAKE_ANGLE", Constants.INTAKE_OFFSET - position);
     	SmartDashboard.putNumber("INTAKE_DRAW", intake_arm_motor.getOutputCurrent());
     	SmartDashboard.putNumber("INTAKE_P", intake_arm_motor.getP());
     	SmartDashboard.putNumber("INTAKE_GOAL", intake_arm_motor.getSetpoint());
