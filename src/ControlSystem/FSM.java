@@ -5,6 +5,7 @@ import java.util.TimerTask;
 
 import SubSystems.Elevator;
 import SubSystems.Shooter;
+import SubSystems.Turret;
 import Utilities.Constants;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class FSM {
@@ -143,6 +144,7 @@ public class FSM {
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.CLOSE);
+	            	robot.turret.setState(Turret.State.TRACKING);
 	            	stateComplete(FSM.State.SHOOTER_CLOSE);
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
@@ -153,6 +155,7 @@ public class FSM {
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.FAR);
+	            	robot.turret.setState(Turret.State.TRACKING);
 	            	stateComplete(FSM.State.SHOOTER_FAR);
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
@@ -173,13 +176,26 @@ public class FSM {
 	        }
 	        try{
 		        robot.intake.update();
+			}catch(Exception e){
+				        	
+			 }
+	        try{
 		        robot.shooter.update();
+			}catch(Exception e){
+				        	
+			}
+	        try{
 		        robot.turret.update();
+			}catch(Exception e){
+				        	
+			 }
+	        try{
 		        robot.elevator.update();
-	//	        robot.testTalon.update();
-		        robot.hanger.update();
-//		        robot.dt.update();
-		        robot.vision.update();
+			}catch(Exception e){
+				        	
+			}
+		    try{
+		    	robot.hanger.update();
 	        }catch(Exception e){
 	        	
 	        }

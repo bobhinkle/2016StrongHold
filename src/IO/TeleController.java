@@ -1,4 +1,5 @@
 package IO;import SubSystems.Elevator;
+import SubSystems.Turret;
 import SubSystems.Vision;
 import SubSystems.DriveTrain.GEAR;
 import Utilities.Constants;
@@ -84,10 +85,7 @@ public class TeleController
         }
         if(codriver.leftTrigger.buttonHoldTime() > 200){
         	if(robot.elevator.status() == Elevator.Direction.UP){
-        		if(Vision.isTargetSeen() ){ //&& !tracked
-        			tracked = true;
-        			robot.turret.set(robot.turret.getAngle() - Vision.getAngle());
-        		}
+        		robot.turret.setState(Turret.State.HOLDING);
         	}
         }else{
 			tracked = false;

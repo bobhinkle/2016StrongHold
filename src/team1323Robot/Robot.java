@@ -78,7 +78,7 @@ public class Robot extends SampleRobot {
     			Timer.delay(0.1);
     		}
     		
-    		if(Vision.isTargetSeen()){ //
+    		if(robot.vision.isTargetSeen()){ //
     			robot.turret.set(robot.turret.getAngle() - Vision.getAngle());
     		}else{
     			robot.turret.set(-30.0);
@@ -87,7 +87,7 @@ public class Robot extends SampleRobot {
     		double visionAngle = 0;
     		while(!robot.shooter.onTarget() && isAutonomous()){
     			visionAngle = Vision.getAngle();
-    			if(Vision.isTargetSeen() && visionAngle < -20 && visionAngle > -40){ //
+    			if(robot.vision.isTargetSeen() && visionAngle < -20 && visionAngle > -40){ //
         			robot.turret.set(robot.turret.getAngle() - Vision.getAngle());
         		}else{
         			robot.turret.set(-35.0);
