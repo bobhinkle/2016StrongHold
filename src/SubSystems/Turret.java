@@ -32,20 +32,22 @@ public class Turret {
     	absolutePosition = turret_motor.getPulseWidthPosition() & 0xFFF;
     	turret_motor.setEncPosition(absolutePosition);
     	turret_motor.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	turret_motor.reverseSensor(false);
+    	turret_motor.reverseSensor(true);
     	turret_motor.configEncoderCodesPerRev(360);
     	turret_motor.configNominalOutputVoltage(+0f, -0f);
     	turret_motor.configPeakOutputVoltage(+12f, -12f);
     	turret_motor.setAllowableClosedLoopErr(0); 
     	turret_motor.changeControlMode(TalonControlMode.Position);
-    	turret_motor.setPID(1.4, 0.0, 140.0, 0.0, 0, 0.0, 0);
+    	turret_motor.setPID(1.4, 0.001, 140.0, 0.0, 0, 0.0, 0);
     	turret_motor.setProfile(0);
     	turret_motor.set(0.0);
     	hallEffect = new DigitalInput(Ports.TURRET_RESET);
     	elevator = Elevator.getInstance();
     	fsm = FSM.getInstance();
     }
-    
+    public double getGoal(){
+    	return turret_motor.getSetpoint();
+    }
     public void update(){
     	position = turret_motor.getPosition();
     	SmartDashboard.putNumber("TURRET_ANGLE", position*scale);

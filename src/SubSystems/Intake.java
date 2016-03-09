@@ -65,8 +65,7 @@ private static Intake instance = null;
     }
     public void update(){
     	position = intake_arm_motor.getPosition();
-    	SmartDashboard.putNumber("INTAKE_ANGLE_RAW", position);
-    	SmartDashboard.putNumber("INTAKE_ANGLE", Constants.INTAKE_OFFSET - position);
+    	SmartDashboard.putNumber("INTAKE_ANGLE", position);
     	SmartDashboard.putNumber("INTAKE_DRAW", intake_arm_motor.getOutputCurrent());
     	SmartDashboard.putNumber("INTAKE_P", intake_arm_motor.getP());
     	SmartDashboard.putNumber("INTAKE_GOAL", intake_arm_motor.getSetpoint());
@@ -109,7 +108,6 @@ private static Intake instance = null;
     	}
     }
     public void setAngle(double angle){
-//    	enablePID();
     	if(angle > intake_arm_motor.getPosition()){
     		intake_arm_motor.setProfile(0);
     	}else{

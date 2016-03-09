@@ -1,6 +1,8 @@
 package SubSystems;
 
+import Utilities.Constants;
 import Utilities.Ports;
+import Utilities.TrajectorySmoother;
 import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.Solenoid;
@@ -17,6 +19,13 @@ public class DriveTrain{
 	public Solenoid pto;
 	private boolean shifting = false;
 	public ShifterAction shifter;
+	private Navigation nav;
+	private boolean useHeadingController = false;
+	private boolean useDistanceController = false;
+	private boolean useTurnController = false;
+	private boolean setHeading = false;
+	private double headingControllerInput = 0;
+	private double xInput,rotateInput = 0;
 	public enum SIDE{
 		LEFT,RIGHT
 	}
@@ -29,6 +38,7 @@ public class DriveTrain{
 		shifter1 = new Solenoid(21,Ports.DRIVE_SHIFT1);
 		shifter2 = new Solenoid(21,Ports.DRIVE_SHIFT2);
     	pto= new Solenoid(21,Ports.PTO);
+    	nav = Navigation.getInstance();
 	}
 	
 	public static DriveTrain getInstance()
@@ -48,7 +58,7 @@ public class DriveTrain{
 	    	//_2.setVoltageRampRate(12);
 	    }
 	    public double currentDraw(){
-	    	return _1.getOutputCurrent();
+	    	return _2.getOutputCurrent();
 	    }
 	}
 	public GEAR currentGear(){
@@ -120,7 +130,7 @@ public class DriveTrain{
                 wheel = Math.sin(Math.PI / 2.0 * wheelNonLinearity * wheel) / Math.sin(Math.PI / 2.0 * wheelNonLinearity);
                 wheel = Math.sin(Math.PI / 2.0 * wheelNonLinearity * wheel) / Math.sin(Math.PI / 2.0 * wheelNonLinearity);
         } else {
-                wheelNonLinearity = 0.8; // used to be csvReader->TURN_NONL higher is less sensitive
+                wheelNonLinearity = 0.5; // used to be csvReader->TURN_NONL higher is less sensitive 0.8
                 // Apply a sin function that's scaled to make it feel bette
                 wheel = Math.sin(Math.PI / 2.0 * wheelNonLinearity * wheel) / Math.sin(Math.PI / 2.0 * wheelNonLinearity);
                 wheel = Math.sin(Math.PI / 2.0 * wheelNonLinearity * wheel) / Math.sin(Math.PI / 2.0 * wheelNonLinearity);
@@ -138,13 +148,13 @@ public class DriveTrain{
                 if (wheel * neg_inertia > 0) {
                         neg_inertia_scalar = 1; // used to be csvReader->NE 5
                 } else {
-                        if (Math.abs(wheel) > 0.65) {
+                        if (Math.abs(wheel) > 0.40) {
                                 neg_inertia_scalar = 1;// used to be csvRe 10
                         } else {
                                 neg_inertia_scalar = 1; // used to be csvRe 3
                         }
                 }
-                sensitivity = 1.07; // used to be csvReader->SENSE_LOW lower is less sensitive
+                sensitivity = 1.30; // used to be csvReader->SENSE_LOW lower is less sensitive 1.07
 
                 if (Math.abs(throttle) > 0.1) { // used to be csvReader->SENSE_
                         sensitivity = .9 - (.9 - sensitivity) / Math.abs(throttle);
@@ -238,4 +248,33 @@ public class DriveTrain{
 			shifting = false;
 		}
 	}
+	
+	double powerToReduce = 0.0;
+    int lastDirection    = 0;
+    public void driveHoldHeading(double headingToHold, double currentHeading,double maxSpeed){
+        if(currentHeading < headingToHold){
+            if(lastDirection != 1)
+                powerToReduce = 0;
+            if((Math.abs(maxSpeed) - powerToReduce) > 0)
+                powerToReduce = powerToReduce + 0.05;
+            SmartDashboard.putString("driveHolding", "turn right");
+            lastDirection = 1;
+            directArcadeDrive(maxSpeed  , maxSpeed - powerToReduce);
+        }else if(currentHeading > headingToHold){
+            if(lastDirection != -1)
+                powerToReduce = 0;
+            if((Math.abs(maxSpeed) - powerToReduce) > 0)
+                powerToReduce = powerToReduce + 0.05;
+            directArcadeDrive(maxSpeed - powerToReduce, maxSpeed );
+            lastDirection = -1;
+            SmartDashboard.putString("driveHolding", "turn left");
+        }else{
+            powerToReduce = 0.0;
+            SmartDashboard.putString("driveHolding", "straight");
+            lastDirection = 0;
+            directArcadeDrive(maxSpeed, maxSpeed);
+        }
+        SmartDashboard.putNumber("POWER_TO_REDUCE", powerToReduce);
+        SmartDashboard.putNumber("POWER_REDUCTION",maxSpeed-powerToReduce);
+    }
 }

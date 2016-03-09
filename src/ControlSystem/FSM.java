@@ -138,17 +138,17 @@ public class FSM {
 	            	break;
 	            case SHOOTER_CLOSE:
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
-	            	if(robot.elevator.status() != Elevator.Direction.UP)
+//	            	if(robot.elevator.status() != Elevator.Direction.UP)
 	            		robot.elevator.up();
 	            	robot.intake.intake_stop();
-	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
+	            	robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.CLOSE);
 	            	stateComplete(FSM.State.SHOOTER_CLOSE);
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
 	            case SHOOTER_FAR:
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
-	            	if(robot.elevator.status() != Elevator.Direction.UP)
+//	            	if(robot.elevator.status() != Elevator.Direction.UP)
 	            		robot.elevator.up();
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
@@ -171,13 +171,18 @@ public class FSM {
 			default:
 				break;
 	        }
-	        robot.intake.update();
-	        robot.shooter.update();
-	        robot.turret.update();
-	        robot.elevator.update();
-//	        robot.testTalon.update();
-	        robot.hanger.update();
-	        robot.dt.update();
+	        try{
+		        robot.intake.update();
+		        robot.shooter.update();
+		        robot.turret.update();
+		        robot.elevator.update();
+	//	        robot.testTalon.update();
+		        robot.hanger.update();
+//		        robot.dt.update();
+		        robot.vision.update();
+	        }catch(Exception e){
+	        	
+	        }
 	    }
     }
 }

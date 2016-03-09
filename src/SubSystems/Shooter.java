@@ -45,7 +45,7 @@ public class Shooter
     	absolutePosition = motor1.getPulseWidthPosition() & 0xFFF;
     	motor1.setEncPosition(absolutePosition);
     	motor1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	motor1.reverseSensor(true);
+    	motor1.reverseSensor(false);
     	motor1.configEncoderCodesPerRev(360);
     	motor1.configNominalOutputVoltage(+0f, -0f);
     	motor1.configPeakOutputVoltage(+12f, 0);
@@ -83,22 +83,22 @@ public class Shooter
     public void setHoodState(HoodStates state){
     	switch(state){
     	case DOWN:
-    		hood.set(true);
+    		hood.set(false);
     		topHood.set(false);
     		System.out.println("DOWN");
     		break;
     	case FAR_SHOT:
-    		hood.set(false);
+    		hood.set(true);
     		topHood.set(false);
     		System.out.println("FAR");
     		break;
     	case CLOSE_SHOT:
-    		hood.set(false);
+    		hood.set(true);
     		topHood.set(true);
     		System.out.println("CLOSE");
     		break;
     	case UP:
-    		hood.set(false);
+    		hood.set(true);
     		topHood.set(false);
     		System.out.println("UP");
     		break;
@@ -150,43 +150,63 @@ public class Shooter
     public void preloader_stop(){
     	preloader_motor.set(0.0);
     }
+    public boolean onTarget(){
+    	return Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), Constants.SHOOTER_ERROR);
+    }
     public void fire(){
     	if(!firing){
-	    	fireCommand = new ShootingAction();
-	    	fireCommand.start();
-    	}
-    }
-    public class ShootingAction extends Thread{
-		@Override
-		public void run() {
-			firing = true;
-			switch(status){
+    		switch(status){
 			case CLOSE:
 				if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
-					preloader_forward();
-					Timer.delay(3.0);
-					preloader_stop();
 					System.out.println("FIRE CLOSE");
+					fireCommand = new ShootingAction();
+			    	fireCommand.start();
 				}else{
-					System.out.println("ERROR CLOSE");
+					System.out.println("FIRE CLOSE ERROR");
 				}
-				break;
+			break;
 			case FAR:
 				if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
-					preloader_forward();
-					Timer.delay(2.0);
-					preloader_stop();
 					System.out.println("FIRE FAR");
+					fireCommand = new ShootingAction();
+			    	fireCommand.start();
 				}else{
-					System.out.println("ERROR FAR");
+					System.out.println("FIRE FAR ERROR");
 				}
-				break;
+			break;
 			default:
 				System.out.println("NO STATUS");
 				break;
-			}		
+    		}
+    	}else{
+    		System.out.println("FIRE STUCK");
+    	}
+    }
+    public void killFire(){
+    	if(firing && fireCommand != null){
+    		try{
+    			fireCommand.kill();
+    		}catch(Exception e){
+    			System.out.println(e);
+    		}
+    	}
+    }
+    public class ShootingAction extends Thread{
+    	private boolean keepRunning = true;
+		@Override
+		public void run() {
+			firing = true;
+			preloader_forward();
+			while(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), Constants.SHOOTER_ERROR+200) && keepRunning)
+				Timer.delay(0.1);
+			if(keepRunning){
+				Timer.delay(2.0);
+				preloader_stop();
+			}
 			firing = false;			
 		}
-    	
+    	public void kill(){
+    		keepRunning = false;
+    	}
     }
 }

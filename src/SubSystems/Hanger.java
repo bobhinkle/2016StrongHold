@@ -72,7 +72,7 @@ public class Hanger{
 		if(dt.currentGear() == GEAR.PTO && armStatus == ARM_STATUS.MOVING){
 			switch(ptoDirection){
 			case UP:
-				if(dt.left.currentDraw() > 10.0 || dt.right.currentDraw() > 10.0 ){
+				if(dt.left.currentDraw() > 1000.0 || dt.right.currentDraw() > 1000.0 ){
 					dt.applyPower(0, DriveTrain.SIDE.LEFT);
 					dt.applyPower(0,DriveTrain.SIDE.RIGHT);
 					armStatus = ARM_STATUS.EXTENDED;
@@ -80,7 +80,7 @@ public class Hanger{
 				}
 				break;
 			case DOWN:
-				if(dt.left.currentDraw() > 10.0 || dt.right.currentDraw() > 10.0){
+				if(dt.left.currentDraw() > 1000.0 || dt.right.currentDraw() > 1000.0){
 					dt.applyPower(0, DriveTrain.SIDE.LEFT);
 					dt.applyPower(0,DriveTrain.SIDE.RIGHT);
 					armStatus = ARM_STATUS.DOWN;

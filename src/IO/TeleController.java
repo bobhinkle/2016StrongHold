@@ -1,4 +1,5 @@
 package IO;import SubSystems.Elevator;
+import SubSystems.Vision;
 import SubSystems.DriveTrain.GEAR;
 import Utilities.Constants;
 import Utilities.Util;
@@ -16,6 +17,7 @@ public class TeleController
     private FSM fsm;
     private RoboSystem robot;
     private static TeleController instance = null;
+    private boolean tracked = false;
     public TeleController(){
         driver = new Joystick(0);
         codriver  = new Xbox(2);
@@ -80,12 +82,23 @@ public class TeleController
         		System.out.println("Shooting position not set");
         	}
         }
+        if(codriver.leftTrigger.buttonHoldTime() > 200){
+        	if(robot.elevator.status() == Elevator.Direction.UP){
+        		if(Vision.isTargetSeen() ){ //&& !tracked
+        			tracked = true;
+        			robot.turret.set(robot.turret.getAngle() - Vision.getAngle());
+        		}
+        	}
+        }else{
+			tracked = false;
+		}
         //////////////////////////////////////////////////////
         if(codriver.backButton.isPressed()){  // stop all      
         	robot.intake.intake_stop();
         	robot.shooter.stop();
         	robot.shooter.preloader_stop();
         	robot.hanger.ptoStop();
+        	robot.shooter.killFire();
         }
         ////////////////////////////////////////////////////////
         if(codriver.startButton.isPressed()){
