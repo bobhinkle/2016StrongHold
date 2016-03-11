@@ -11,6 +11,7 @@ import Utilities.Constants;
 import SubSystems.Elevator;
 import SubSystems.Shooter;
 import SubSystems.TurnController;
+import SubSystems.Turret;
 import SubSystems.Vision;
 import edu.wpi.first.wpilibj.SampleRobot;
 import edu.wpi.first.wpilibj.Timer;
@@ -68,32 +69,37 @@ public class Robot extends SampleRobot {
     	switch(autoSelected) {
     	case customAuto:
     		//Distance - Heading - Max Speed - Timout - Tolerance 
-    		driveDistanceHoldingHeading(125, 0, 0.5, 4.0, 4.0, false, 0);
+    		boolean deployed = false;
+    		double distance = 0.0;
+    		System.out.println("Step1");
+    		driveDistanceHoldingHeading(140, 0, 0.52, 4, 2.0, false, 0);
     		while(!dist.onTarget()){
+    			System.out.println("WAITING1");
+    			Timer.delay(0.1);
+    		}    		    	
+    		System.out.println("DONE");
+    		robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
+    		fsm.setGoalState(FSM.State.AUTO_SHOT);
+    		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
+    			System.out.println("Step2");
     			Timer.delay(0.1);
     		}    		
-    		robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
-    		fsm.setGoalState(FSM.State.SHOOTER_FAR);
-    		while(robot.elevator.status() != Elevator.Direction.UP){
+    		robot.turret.set(-35.0);
+    		System.out.println("Step3");
+    		Timer.delay(1.0);
+    		System.out.println("Step4");
+    		robot.turret.setState(Turret.State.SINGLE);
+    		Timer.delay(1.0);
+    		System.out.println("Step5");
+    		robot.turret.setState(Turret.State.HOLDING);
+    		robot.turret.stop();
+    		robot.shooter.setGoal(Constants.SHOOTER_AUTON_SIDE_SHOT);
+    		robot.shooter.setPresetSpeed(Shooter.Status.AUTO);
+    		while(!robot.shooter.onTarget() && isAutonomous() ){  
+    			System.out.println("Step6");
     			Timer.delay(0.1);
     		}
-    		
-    		if(robot.vision.isTargetSeen()){ //
-    			robot.turret.set(robot.turret.getAngle() - Vision.getAngle());
-    		}else{
-    			robot.turret.set(-30.0);
-    		}
-    		robot.shooter.set(Constants.SHOOTER_FAR_SHOT);
-    		double visionAngle = 0;
-    		while(!robot.shooter.onTarget() && isAutonomous()){
-    			visionAngle = Vision.getAngle();
-    			if(robot.vision.isTargetSeen() && visionAngle < -20 && visionAngle > -40){ //
-        			robot.turret.set(robot.turret.getAngle() - Vision.getAngle());
-        		}else{
-        			robot.turret.set(-35.0);
-        		}
-    			Timer.delay(0.1);
-    		}
+    		System.out.println("Step7");
     		robot.shooter.fire();
     		Timer.delay(4);
     		robot.shooter.stop();
@@ -111,6 +117,7 @@ public class Robot extends SampleRobot {
      */
     public void operatorControl() {
     	robot.Init();
+    	robot.turret.setState(Turret.State.HOLDING);
         while (isOperatorControl() && isEnabled()) {
         	controllers.update();  
             Timer.delay(0.01);		// wait for a motor update time

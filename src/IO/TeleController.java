@@ -54,12 +54,19 @@ public class TeleController
         if(codriver.xButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_CLOSE);
         }
+        if(codriver.xButton.buttonHoldTime() > 200){
+        	robot.turret.setState(Turret.State.TRACKING);
+        }
         ///////////////////////////////////////
         if(codriver.yButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_FAR);
         }
+        if(codriver.yButton.isHeld()){
+        	robot.turret.setState(Turret.State.TRACKING);
+        }
         /////////////////////////////////////////////
         if(codriver.rightTrigger.isPressed()){ 
+        	robot.turret.stop();
         	robot.shooter.fire();
         }
         //////////////////////////////////////////////////////////////////// 
@@ -75,6 +82,7 @@ public class TeleController
         }
         ///////////////////////////////////////////////////////
         if(codriver.leftTrigger.isPressed()){
+        	robot.turret.setState(Turret.State.HOLDING);
         	if(fsm.getPreviousState()==FSM.State.SHOOTER_CLOSE){
         		robot.shooter.set(Constants.SHOOTER_CLOSE_SHOT);
         	}else if(fsm.getPreviousState()==FSM.State.SHOOTER_FAR){
@@ -117,10 +125,12 @@ public class TeleController
         	
         }
         ////////////////////////////////////////////////////////        
-        if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.2) {
-        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*20);
-        }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.2){
-        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*20);
+        if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.25) {
+        	robot.turret.setState(Turret.State.HOLDING);
+        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*10);
+        }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.25){
+        	robot.turret.setState(Turret.State.HOLDING);
+        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*10);
         }else{
         	
         }

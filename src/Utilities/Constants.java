@@ -45,17 +45,18 @@ public class Constants {
     public static final int INTAKE_STOW_ANGLE      = INTAKE_OFFSET;
     public static final int INTAKE_WAIT_FOR_GRAB   = INTAKE_OFFSET - 55;    
 /////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int TURRET_MAX_ANGLE = 90;
-    public static final int TURRET_MIN_ANGLE = -90;
+    public static final int TURRET_MAX_ANGLE = 45;
+    public static final int TURRET_MIN_ANGLE = -45;
     public static final double TURRET_HOOD_MAX_ANGLE = 20.0;
     public static final double TURRET_HOOD_MIN_ANGLE = -10.0;
-    public static final double TURRET_CLOSE_SHOT_MAX_ANGLE = 90;
-    public static final double TURRET_CLOSE_SHOT_MIN_ANGLE = -90;
+    public static final double TURRET_CLOSE_SHOT_MAX_ANGLE = 45;
+    public static final double TURRET_CLOSE_SHOT_MIN_ANGLE = -45;
     public static final int TURRET_MIN_ZERO_CHECKS = 20;
-    public static final int TURRET_TRACKING_ANGLE = 30;
+    public static final int TURRET_TRACKING_ANGLE = 45;
 /////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final double SHOOTER_FAR_SHOT  = 4500;
+    public static final double SHOOTER_FAR_SHOT  = 4250;
     public static final double SHOOTER_CLOSE_SHOT = 3000;
+    public static final double SHOOTER_AUTON_SIDE_SHOT = 3700;
     public static final double SHOOTER_ERROR      = 100;
     /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double HANGER_MAX_POWER = 1.0;
@@ -72,5 +73,6 @@ public class Constants {
     public static final double POWER_STALL = 10.0;
     
     public static final double CAMERA_PIXEL_WIDTH = 640.0;
-	public static final double CAMERA_FOV = 54.0;
+	public static final double CAMERA_FOV = 49.0;
+	public static final double GRIP_X_OFFSET = -0.0;
 }

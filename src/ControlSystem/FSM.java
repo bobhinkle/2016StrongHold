@@ -13,7 +13,7 @@ public class FSM {
 	public enum State{
     	DEFAULT, INIT, LOW_BAR, 
     	INTAKE, INTAKE_READY,STOW, ELEVATOR_WAITING,ELEVATOR_LOWER, STOW_READY,
-    	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY,PTO
+    	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY,PTO,AUTO_SHOT
     	
     }
 	private RoboSystem robot;
@@ -144,7 +144,7 @@ public class FSM {
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.CLOSE);
-	            	robot.turret.setState(Turret.State.TRACKING);
+	            	robot.turret.setState(Turret.State.SPOTTED);
 	            	stateComplete(FSM.State.SHOOTER_CLOSE);
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
@@ -155,8 +155,19 @@ public class FSM {
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.FAR);
-	            	robot.turret.setState(Turret.State.TRACKING);
+	            	robot.turret.setState(Turret.State.SPOTTED);
 	            	stateComplete(FSM.State.SHOOTER_FAR);
+	            	setGoalState(State.SHOOTER_WAITING);
+	            	break;
+	            case AUTO_SHOT:
+	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
+//	            	if(robot.elevator.status() != Elevator.Direction.UP)
+	            	robot.elevator.up();
+	            	robot.intake.intake_stop();
+	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
+	            	robot.shooter.setPresetSpeed(Shooter.Status.FAR);
+	            	robot.turret.setState(Turret.State.HOLDING);
+	            	stateComplete(FSM.State.AUTO_SHOT);
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
 	            case SHOOTER_WAITING:
@@ -174,6 +185,7 @@ public class FSM {
 			default:
 				break;
 	        }
+	        SmartDashboard.putNumber("SVERSION", 1);
 	        try{
 		        robot.intake.update();
 			}catch(Exception e){

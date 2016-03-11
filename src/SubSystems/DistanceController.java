@@ -16,7 +16,7 @@ public class DistanceController extends SynchronousPID implements Controller
     private double goalPosition;
     private double maxVelocity;
     private boolean isOnTarget = false;
-    private static final int onTargetThresh = 100;
+    private static final int onTargetThresh = 50;
     private int onTargetCounter = onTargetThresh;
     public static double kOnTargetToleranceInches = Constants.DISTANCE_TOLERANCE;
     public static final double kLoopRate = 200.0;
@@ -140,7 +140,8 @@ public class DistanceController extends SynchronousPID implements Controller
             }
             else
             { 
-            	 System.out.println("DIS 6");
+            	
+            	 System.out.println("DIS 6 " + current);
                 onTargetCounter = onTargetThresh;
                 isOnTarget = false;
                 robot.dt.cheesyDrive(turn, power, false);

@@ -35,7 +35,7 @@ public class Shooter
         return instance;
     }
     public static enum Status{
-    	CLOSE, FAR, STOPPED
+    	CLOSE, FAR, STOPPED,AUTO
     }
     public static enum HoodStates{
     	DOWN, FAR_SHOT, CLOSE_SHOT,UP
@@ -117,6 +117,10 @@ public class Shooter
     		status = Status.FAR;
     		set(speed);
     		break;
+    	case AUTO:
+    		status = Status.AUTO;
+    		set(speed);
+    		break;
     	default:
     		set(speed);
     		break;
@@ -151,7 +155,7 @@ public class Shooter
     	preloader_motor.set(0.0);
     }
     public boolean onTarget(){
-    	return Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), Constants.SHOOTER_ERROR);
+    	return Util.onTarget(motor1.getSetpoint(), motor1.get(), Constants.SHOOTER_ERROR);
     }
     public void fire(){
     	if(!firing){
@@ -174,6 +178,15 @@ public class Shooter
 					System.out.println("FIRE FAR ERROR");
 				}
 			break;
+			case AUTO:
+				if(Util.onTarget(Constants.SHOOTER_AUTON_SIDE_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
+					System.out.println("FIRE AUTO");
+					fireCommand = new ShootingAction();
+			    	fireCommand.start();
+				}else{
+					System.out.println("FIRE AUTO ERROR");
+				}
+				break;				
 			default:
 				System.out.println("NO STATUS");
 				break;
