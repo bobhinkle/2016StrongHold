@@ -144,7 +144,7 @@ public class FSM {
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.CLOSE);
-	            	robot.turret.setState(Turret.State.SPOTTED);
+	            	robot.turret.setState(Turret.State.OFF);
 	            	stateComplete(FSM.State.SHOOTER_CLOSE);
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
@@ -155,18 +155,19 @@ public class FSM {
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	robot.shooter.setPresetSpeed(Shooter.Status.FAR);
-	            	robot.turret.setState(Turret.State.SPOTTED);
+	            	robot.turret.setState(Turret.State.OFF);
 	            	stateComplete(FSM.State.SHOOTER_FAR);
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
 	            case AUTO_SHOT:
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
-//	            	if(robot.elevator.status() != Elevator.Direction.UP)
 	            	robot.elevator.up();
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
-	            	robot.shooter.setPresetSpeed(Shooter.Status.FAR);
+	            	robot.shooter.setPresetSpeed(Shooter.Status.AUTO);
 	            	robot.turret.setState(Turret.State.HOLDING);
+	            	robot.shooter.setGoal(Constants.SHOOTER_AUTON_SIDE_SHOT);
+	        		robot.shooter.setPresetSpeed(Shooter.Status.AUTO);
 	            	stateComplete(FSM.State.AUTO_SHOT);
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;

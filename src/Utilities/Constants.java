@@ -36,28 +36,28 @@ public class Constants {
     public static final double STRAIGHT_KD = 0.0;
     public static final double DISTANCE_TOLERANCE = 1.0;
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int INTAKE_OFFSET = 200;
+    public static final int INTAKE_OFFSET = 210; //200 pbot
     public static final int INTAKE_ARM_MAX_ANGLE = INTAKE_OFFSET + 10; //280
     public static final int INTAKE_ARM_MIN_ANGLE = INTAKE_OFFSET - 120;
-    public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET - 80;
+    public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET - 92;
     public static final int INTAKE_SHOOTING_ANGLE   = INTAKE_OFFSET - 100;
-    public static final int INTAKE_LOW_BAR_ANGLE   = INTAKE_OFFSET - 107;
+    public static final int INTAKE_LOW_BAR_ANGLE   = INTAKE_OFFSET - 110;
     public static final int INTAKE_STOW_ANGLE      = INTAKE_OFFSET;
     public static final int INTAKE_WAIT_FOR_GRAB   = INTAKE_OFFSET - 55;    
 /////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int TURRET_MAX_ANGLE = 45;
-    public static final int TURRET_MIN_ANGLE = -45;
+    public static final int TURRET_MAX_ANGLE = 55;
+    public static final int TURRET_MIN_ANGLE = -55;
     public static final double TURRET_HOOD_MAX_ANGLE = 20.0;
     public static final double TURRET_HOOD_MIN_ANGLE = -10.0;
     public static final double TURRET_CLOSE_SHOT_MAX_ANGLE = 45;
     public static final double TURRET_CLOSE_SHOT_MIN_ANGLE = -45;
     public static final int TURRET_MIN_ZERO_CHECKS = 20;
-    public static final int TURRET_TRACKING_ANGLE = 45;
+    public static final int TURRET_TRACKING_ANGLE = 55;
 /////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final double SHOOTER_FAR_SHOT  = 4250;
-    public static final double SHOOTER_CLOSE_SHOT = 3000;
-    public static final double SHOOTER_AUTON_SIDE_SHOT = 3700;
-    public static final double SHOOTER_ERROR      = 100;
+    public static final double SHOOTER_FAR_SHOT  = 4600;
+    public static final double SHOOTER_CLOSE_SHOT = 3500;
+    public static final double SHOOTER_AUTON_SIDE_SHOT = 4100;
+    public static final double SHOOTER_ERROR      = 200;
     /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double HANGER_MAX_POWER = 1.0;
 /////////////////////////////////////////////////////////////////////////////////////////////////

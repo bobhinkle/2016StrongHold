@@ -23,6 +23,7 @@ public class Robot extends SampleRobot {
     private TeleController controllers;
     final String defaultAuto = "Default";
     final String customAuto = "Straight No Shoot";
+    final String dontRun    = "right side";
     SendableChooser chooser;
     private FSM fsm;
     private turnThread turnTh;
@@ -39,6 +40,7 @@ public class Robot extends SampleRobot {
         chooser = new SendableChooser();
         chooser.addDefault("Default Auto", defaultAuto);
         chooser.addObject("My Auto", customAuto);
+        chooser.addObject("rightTest", dontRun);
         SmartDashboard.putData("Auto modes", chooser);
         fsm = FSM.getInstance();
         fsm.start();
@@ -65,26 +67,66 @@ public class Robot extends SampleRobot {
 		robot.dt.setGear(GEAR.HIGH);
 		fsm.setGoalState(FSM.State.LOW_BAR);
 		Timer.delay(0.5);
+		robot.nav.resetPitch();
 		robot.nav.resetRobotPosition(0, 0, 0, true);
     	switch(autoSelected) {
     	case customAuto:
     		//Distance - Heading - Max Speed - Timout - Tolerance 
-    		boolean deployed = false;
-    		double distance = 0.0;
     		System.out.println("Step1");
-    		driveDistanceHoldingHeading(140, 0, 0.52, 4, 2.0, false, 0);
-    		while(!dist.onTarget()){
+    		driveDistanceHoldingHeading(152, 0, 0.57, 4, 2.0, false, 0);
+    		while(!dist.onTarget() && isAutonomous()){
     			System.out.println("WAITING1");
     			Timer.delay(0.1);
     		}    		    	
-    		System.out.println("DONE");
-    		robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
+    		System.out.println("DONE");    		
     		fsm.setGoalState(FSM.State.AUTO_SHOT);
     		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
     			System.out.println("Step2");
     			Timer.delay(0.1);
     		}    		
-    		robot.turret.set(-35.0);
+    		robot.shooter.preloader_forward();
+    		
+    		robot.turret.set(-45.0);
+    		Timer.delay(0.25);
+    		robot.shooter.preloader_stop();
+    		System.out.println("Step3");
+    		Timer.delay(0.25);
+    		System.out.println("Step4");
+    		robot.turret.setState(Turret.State.SINGLE);
+    		Timer.delay(0.5);
+    		System.out.println("Step5");
+    		robot.turret.setState(Turret.State.HOLDING);
+    		robot.turret.stop();
+    		robot.shooter.setGoal(Constants.SHOOTER_AUTON_SIDE_SHOT);
+    		robot.shooter.setPresetSpeed(Shooter.Status.AUTO);
+    		while(!robot.shooter.onTarget() && isAutonomous() ){  
+    			System.out.println("Step6");
+    			Timer.delay(0.1);
+    		}
+    		System.out.println("Step7");
+    		robot.shooter.fire();
+    		Timer.delay(3.0);
+    		robot.shooter.stop();
+    		robot.turret.set(0);
+       		robot.elevator.down();
+    		robot.dt.setGear(GEAR.LOW);
+    		fsm.setGoalState(FSM.State.LOW_BAR);
+    		Timer.delay(0.5);
+    		driveDistanceHoldingHeading(-166, 0, 0.55, 4, 2.0, false, 0);
+    		while(!dist.onTarget() && isAutonomous()){
+    			System.out.println("WAITING1");
+    			Timer.delay(0.1);
+    		}    	    	
+            break;
+    	case dontRun:
+    		
+    		robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
+    		fsm.setGoalState(FSM.State.AUTO_SHOT);
+    		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
+    			System.out.println("Step2");
+    			Timer.delay(0.1);
+    		}    		
+    		robot.turret.set(45.0);
     		System.out.println("Step3");
     		Timer.delay(1.0);
     		System.out.println("Step4");
@@ -107,7 +149,18 @@ public class Robot extends SampleRobot {
             break;
     	case defaultAuto:
     	default:
-    		
+    		driveDistanceHoldingHeading(160, 0, 0.52, 4, 2.0, false, 0);
+    		while(!dist.onTarget()){
+    			System.out.println("WAITING1");
+    			Timer.delay(0.1);
+    		}    		    	
+    		System.out.println("DONE");
+    		robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
+    		fsm.setGoalState(FSM.State.SHOOTER_CLOSE);
+    		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
+    			System.out.println("Step2");
+    			Timer.delay(0.1);
+    		}  
             break;
     	}
     }

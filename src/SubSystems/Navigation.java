@@ -93,6 +93,9 @@ public class Navigation implements PIDSource{
     {
         this.x = x;
         this.y = y;
+        if(gyroReset){
+        	resetPitch();
+        }
     }
     
 

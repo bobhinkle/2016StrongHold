@@ -45,7 +45,7 @@ public class Shooter
     	absolutePosition = motor1.getPulseWidthPosition() & 0xFFF;
     	motor1.setEncPosition(absolutePosition);
     	motor1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	motor1.reverseSensor(false);
+    	motor1.reverseSensor(true);
     	motor1.configEncoderCodesPerRev(360);
     	motor1.configNominalOutputVoltage(+0f, -0f);
     	motor1.configPeakOutputVoltage(+12f, 0);

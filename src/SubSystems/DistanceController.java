@@ -16,7 +16,7 @@ public class DistanceController extends SynchronousPID implements Controller
     private double goalPosition;
     private double maxVelocity;
     private boolean isOnTarget = false;
-    private static final int onTargetThresh = 50;
+    private static final int onTargetThresh = 30;
     private int onTargetCounter = onTargetThresh;
     public static double kOnTargetToleranceInches = Constants.DISTANCE_TOLERANCE;
     public static final double kLoopRate = 200.0;

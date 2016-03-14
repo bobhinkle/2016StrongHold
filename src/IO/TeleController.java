@@ -54,15 +54,9 @@ public class TeleController
         if(codriver.xButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_CLOSE);
         }
-        if(codriver.xButton.buttonHoldTime() > 200){
-        	robot.turret.setState(Turret.State.TRACKING);
-        }
         ///////////////////////////////////////
         if(codriver.yButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_FAR);
-        }
-        if(codriver.yButton.isHeld()){
-        	robot.turret.setState(Turret.State.TRACKING);
         }
         /////////////////////////////////////////////
         if(codriver.rightTrigger.isPressed()){ 
@@ -93,7 +87,7 @@ public class TeleController
         }
         if(codriver.leftTrigger.buttonHoldTime() > 200){
         	if(robot.elevator.status() == Elevator.Direction.UP){
-        		robot.turret.setState(Turret.State.HOLDING);
+        		robot.turret.setState(Turret.State.SPOTTED);
         	}
         }else{
 			tracked = false;

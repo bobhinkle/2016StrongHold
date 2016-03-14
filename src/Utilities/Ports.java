@@ -19,8 +19,8 @@ public class Ports {
     public static final int INTAKE = 5;
     public static final int ELEVATOR = 6;
     public static final int TEST_TALON = 9;
-    public static final int TURRET = 10;
-    public static final int PRELOAD = 11;
+    public static final int TURRET = 11; //10 pbot
+    public static final int PRELOAD = 10; //11 pbot
     public static final int SHOOTER_MOTOR_3 = 12;
     public static final int SHOOTER_MOTOR_4 = 13;    
     public static final int RIGHT_DT_1 = 14;
@@ -32,8 +32,8 @@ public class Ports {
     public static final int PTO          = 2;
     public static final int HANGER      = 5;
     public static final int LACTCH		= 4;
-    public static final int HOOD	    = 4;
-    public static final int TOP_HOOD	= 3;
+    public static final int HOOD	    = 3;
+    public static final int TOP_HOOD	= 4;
     //DIGITAL
     public static final int TURRET_RESET = 5;
     public static final int RIGHT_ENC   = 0;
