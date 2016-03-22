@@ -19,7 +19,6 @@ public class Navigation implements PIDSource{
     private double y = 0.0; // positive from driver looking left
     private static Navigation instance;
     private double basicDistance = 0;
-    private boolean twoGyro = false;
     private double angle = 0;
     private final Timer mTimer = new Timer();
     private static final int K_READING_RATE = 200;

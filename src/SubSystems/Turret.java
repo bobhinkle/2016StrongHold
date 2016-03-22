@@ -26,6 +26,7 @@ public class Turret {
     private Direction trackingDirection = Direction.LEFT;
     private long timePassed = 500;
     private long timeStarted = 0;
+    private double lastAngle = 0;
     public static enum Direction{
     	LEFT, RIGHT
     }
@@ -43,13 +44,13 @@ public class Turret {
     	absolutePosition = turret_motor.getPulseWidthPosition() & 0xFFF;
     	turret_motor.setEncPosition(absolutePosition);
     	turret_motor.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	turret_motor.reverseSensor(false);
+    	turret_motor.reverseSensor(true);
     	turret_motor.configEncoderCodesPerRev(360);
     	turret_motor.configNominalOutputVoltage(+0f, -0f);
     	turret_motor.configPeakOutputVoltage(+12f, -12f);
     	turret_motor.setAllowableClosedLoopErr(0); 
     	turret_motor.changeControlMode(TalonControlMode.Position);
-    	turret_motor.setPID(1.52, 0.002, 140.0, 0.0, 0, 0.0, 0);
+    	turret_motor.setPID(5, 0.0, 50.0, 0.0, 0, 0.0, 0);
     	turret_motor.setProfile(0);
     	turret_motor.set(0.0);
     	hallEffect = new DigitalInput(Ports.TURRET_RESET);
@@ -63,13 +64,19 @@ public class Turret {
     public void setState(Turret.State newState){
 		visionState = newState;
 	}
+    public double visionError(){
+    	if(vision.isTargetSeen()){
+    		return Math.abs(Vision.getAngle());
+    	}
+    	return Math.abs((position-turret_motor.getSetpoint())*scale);
+    }
     public void update(){
     	position = turret_motor.getPosition();
     	angle = position * scale;
     	SmartDashboard.putNumber("TURRET_ANGLE", angle);
     	SmartDashboard.putNumber("TURRET_DRAW", turret_motor.getOutputCurrent());
     	SmartDashboard.putNumber("TURRET_GOAL", turret_motor.getSetpoint()*scale);
-    	SmartDashboard.putNumber("TURRET_ERROR", (position-turret_motor.getSetpoint())*scale);
+    	SmartDashboard.putNumber("TURRET_ERROR", visionError());
     	SmartDashboard.putBoolean("TURRET_RESET", hallEffect.get());
     	
     	if(elevator.status() == Elevator.Direction.UP){
@@ -108,14 +115,19 @@ public class Turret {
 		    		break;
 		    	case SPOTTED:
 		    		SmartDashboard.putString("TUR_STATUS", "SPOTTED");
+		    		double visionAngle = Vision.getAngle();
 		    		if(vision.isTargetSeen()){		    			
 		    			if(System.currentTimeMillis() > (timeStarted + timePassed)){
-		    				set(Vision.getAngle() + angle);
-		    				timeStarted = System.currentTimeMillis();
-		    				System.out.println("Move");
-		    			}else{
-		    				System.out.println("Waiting");
+		    				if(lastAngle!=visionAngle || visionAngle < 3){
+			    				set(visionAngle + angle);			    				
+			    				lastAngle = visionAngle;
+			    				timeStarted = System.currentTimeMillis();
+		    				}
+		    				else{
+		    					timeStarted = System.currentTimeMillis();
+		    				}
 		    			}
+		    			
 		    		}else{
 		    			setState(Turret.State.TRACKING);
 		    		}
@@ -124,14 +136,12 @@ public class Turret {
 		    		if(System.currentTimeMillis() > (timeStarted + timePassed)){
 			    		double vAngle = Vision.getAngle();
 			    		double newAngle = vAngle + angle;
-			    		if(vision.isTargetSeen() && vAngle >-5 && vAngle < 5 ){	 
-			    				set(newAngle);
-			    				
-			    				System.out.println("Move");
+			    		if(vision.isTargetSeen() && vAngle >-10 && vAngle < 10){	 
+			    				set(newAngle);			    				
 			    		}
 			    		timeStarted = System.currentTimeMillis();
 		    		}else{
-	    				System.out.println("Waiting");
+	    				
 	    			}
 		    		break;
 		    	case HOLDING:

@@ -7,7 +7,6 @@ import ControlSystem.RoboSystem;
 import IO.TeleController;
 import SubSystems.DistanceController;
 import SubSystems.DriveTrain.GEAR;
-import Utilities.Constants;
 import SubSystems.Elevator;
 import SubSystems.Shooter;
 import SubSystems.TurnController;
@@ -23,7 +22,7 @@ public class Robot extends SampleRobot {
     private TeleController controllers;
     final String defaultAuto = "Default";
     final String customAuto = "Straight No Shoot";
-    final String dontRun    = "right side";
+    final String testRun    = "right side";
     SendableChooser chooser;
     private FSM fsm;
     private turnThread turnTh;
@@ -38,9 +37,9 @@ public class Robot extends SampleRobot {
     
     public void robotInit() {
         chooser = new SendableChooser();
-        chooser.addDefault("Default Auto", defaultAuto);
-        chooser.addObject("My Auto", customAuto);
-        chooser.addObject("rightTest", dontRun);
+        chooser.addDefault("LOWBARNOSHOT", defaultAuto);
+        chooser.addObject("LBSHOTBACKUNDER", customAuto);
+        chooser.addObject("TestRun", testRun);
         SmartDashboard.putData("Auto modes", chooser);
         fsm = FSM.getInstance();
         fsm.start();
@@ -50,19 +49,10 @@ public class Robot extends SampleRobot {
         distTh = new distanceThread(false);
     }
 
-	/**
-	 * This autonomous (along with the chooser code above) shows how to select between different autonomous modes
-	 * using the dashboard. The sendable chooser code works with the Java SmartDashboard. If you prefer the LabVIEW
-	 * Dashboard, remove all of the chooser code and uncomment the getString line to get the auto name from the text box
-	 * below the Gyro
-	 *
-	 * You can add additional auto modes by adding additional comparisons to the if-else structure below with additional strings.
-	 * If using the SendableChooser make sure to add them to the chooser code above as well.
-	 */
     public void autonomous() {
     	
-    	String autoSelected = (String) chooser.getSelected();
-//		String autoSelected = SmartDashboard.getString("Auto Selector", defaultAuto);
+//    	String autoSelected = (String) chooser.getSelected();
+		String autoSelected = testRun;
 		System.out.println("Auto selected: " + autoSelected);
 		robot.dt.setGear(GEAR.HIGH);
 		fsm.setGoalState(FSM.State.LOW_BAR);
@@ -97,8 +87,8 @@ public class Robot extends SampleRobot {
     		System.out.println("Step5");
     		robot.turret.setState(Turret.State.HOLDING);
     		robot.turret.stop();
-    		robot.shooter.setGoal(Constants.SHOOTER_AUTON_SIDE_SHOT);
-    		robot.shooter.setPresetSpeed(Shooter.Status.AUTO);
+    		robot.shooter.setShot(Shooter.Shot.AUTO);
+    		robot.shooter.setPresetSpeed();
     		while(!robot.shooter.onTarget() && isAutonomous() ){  
     			System.out.println("Step6");
     			Timer.delay(0.1);
@@ -112,40 +102,42 @@ public class Robot extends SampleRobot {
     		robot.dt.setGear(GEAR.LOW);
     		fsm.setGoalState(FSM.State.LOW_BAR);
     		Timer.delay(0.5);
-    		driveDistanceHoldingHeading(-166, 0, 0.55, 4, 2.0, false, 0);
+    		driveDistanceHoldingHeading(20, 0, 0.55, 4, 2.0, false, 0);
     		while(!dist.onTarget() && isAutonomous()){
     			System.out.println("WAITING1");
     			Timer.delay(0.1);
     		}    	    	
             break;
-    	case dontRun:
-    		
-    		robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
-    		fsm.setGoalState(FSM.State.AUTO_SHOT);
+    	case testRun:    		
+    		driveDistanceHoldingHeading(100, 0, 0.57, 2, 2.0, true, 0);
+    		fsm.setGoalState(FSM.State.AUTO_SHOT);    		   		
+    		driveDistanceHoldingHeading(200, 0, 0.8, 2, 2.0, false, 0);
     		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
     			System.out.println("Step2");
     			Timer.delay(0.1);
-    		}    		
-    		robot.turret.set(45.0);
-    		System.out.println("Step3");
+    		}     		
+    		robot.shooter.setShot(Shooter.Shot.AUTO);
+    		robot.shooter.setPresetSpeed();
+    		robot.turret.set(-42.0);
+    		Timer.delay(0.5);
+     		robot.turret.setState(Turret.State.SINGLE);    		
     		Timer.delay(1.0);
-    		System.out.println("Step4");
-    		robot.turret.setState(Turret.State.SINGLE);
-    		Timer.delay(1.0);
-    		System.out.println("Step5");
-    		robot.turret.setState(Turret.State.HOLDING);
-    		robot.turret.stop();
-    		robot.shooter.setGoal(Constants.SHOOTER_AUTON_SIDE_SHOT);
-    		robot.shooter.setPresetSpeed(Shooter.Status.AUTO);
-    		while(!robot.shooter.onTarget() && isAutonomous() ){  
-    			System.out.println("Step6");
+    		while(!robot.shooter.onTarget() && isAutonomous()){
     			Timer.delay(0.1);
     		}
-    		System.out.println("Step7");
-    		robot.shooter.fire();
-    		Timer.delay(4);
-    		robot.shooter.stop();
-    		robot.turret.set(0);
+    		if(robot.vision.isTargetSeen() && Vision.getAngle() < 3 && Vision.getAngle() > -3 && isAutonomous()){
+    			robot.shooter.fire();
+    		}
+    		Timer.delay(2.0);
+    		fsm.setGoalState(FSM.State.LOW_BAR);
+    		driveDistanceHoldingHeading(120, 0, 0.68, 2, 2.0, false, 0);
+    		if(robot.elevator.status() == Elevator.Direction.DOWN){
+	    		driveDistanceHoldingHeading(0, 0, 0.55, 2, 2.0, false, 0);
+	    		turnToHeading(90,1.2);
+	    		while(isAutonomous()){
+	    			Timer.delay(0.1);
+	    		}
+    		}
             break;
     	case defaultAuto:
     	default:
@@ -184,6 +176,7 @@ public class Robot extends SampleRobot {
      */
     public void test() {
     }
+    
     public void turnToHeading(double heading, double timeout){
         robot.nav.resetRobotPosition(0, 0, 0,false);
         if(turn == null){
@@ -240,6 +233,7 @@ public class Robot extends SampleRobot {
                 }else{
                     while(isAutonomous()){
                         dist.run();
+                        dist.resetZero();
                         dist.setSetpoint(distanceGoal);
                         Timer.delay(0.01);
                     }

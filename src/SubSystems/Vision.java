@@ -1,11 +1,9 @@
 package SubSystems;
 
-import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
 import Utilities.Constants;
-import Utilities.Util;
 import edu.wpi.first.wpilibj.networktables.NetworkTable;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
@@ -27,18 +25,10 @@ public class Vision {
 		private static final int K_READING_RATE = 200;
 		private final double[]  DUMMY = {5000};
 		private boolean targetSeen = false;
-		private int checksToAccept = 10;
-		private int checks = 0;
 		private static volatile double gripCenterY = 0.0;
 	
 	public Vision(){
 		SmartDashboard.putString("VISION","INIT2");
-        try {
-			gripProcess = new ProcessBuilder("/home/lvuser/grip").inheritIO().start();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
         updateGripNetwork();
 	}
 	public void start() {
@@ -58,8 +48,6 @@ public class Vision {
             while (true) {
                 try {
             		SmartDashboard.putString("VISION","INIT2");
-            		
-                    gripProcess = new ProcessBuilder("/home/lvuser/grip").inheritIO().start();
                     updateGripNetwork();
                     break;
                 } catch (Exception e) {
@@ -68,7 +56,7 @@ public class Vision {
             }
             synchronized (mTimer) {
             	SmartDashboard.putString("VISION","STARTED");
-                mTimer.schedule(new UpdateTask(), 0, (int) (1000.0 / K_READING_RATE));
+                mTimer.schedule(new UpdateTask(), 0, (int) (K_READING_RATE));
             }
         }
     }
@@ -86,8 +74,6 @@ public class Vision {
         if(centerXArray.length != 0 && centerYArray.length != 0 && widthArray.length != 0) {
         	targetSeen = true;
         	double maxArea = 0;
-        	double maxY = 0;
-        	int maxYIndex = 0;
         	int maxIndex = 0;
         	for(int i = 0; i < gripAreaArray.length; i++){
         		if(gripAreaArray[i]>maxArea){
@@ -98,10 +84,8 @@ public class Vision {
         	gripCenterY = centerXArray[maxIndex];
         	gripX = centerXArray[maxIndex];
         	width = widthArray[maxIndex];
-        	checks--;
         }else {
         	targetSeen = false;
-        	checks = this.checksToAccept;
         	gripX = 0.0;
         	gripCenterY = 0.0;     
         	width = 0.0;
@@ -110,8 +94,8 @@ public class Vision {
     
     public static double getAngle(double x){
         double slope = Constants.CAMERA_FOV/Constants.CAMERA_PIXEL_WIDTH;
-        double intercept = -Constants.CAMERA_FOV/2;
-        return (x+Constants.GRIP_X_OFFSET)*slope+intercept; //gripX
+        double intercept = -Constants.CAMERA_FOV/2.0;
+        return (((x+Constants.GRIP_X_OFFSET)*slope)+intercept)*Constants.CAM_CALIBRATION; //gripX
     }
     public static double getAngle(){
     	return -getAngle(gripX);

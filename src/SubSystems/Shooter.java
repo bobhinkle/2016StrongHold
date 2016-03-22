@@ -4,10 +4,10 @@ import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
-import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.Solenoid;
+import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter 
@@ -28,6 +28,7 @@ public class Shooter
     private Turret turret;
     private ShootingAction fireCommand;
     private double speed = 0;
+    private Shot setShot = Shot.CLOSE;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -37,26 +38,30 @@ public class Shooter
     public static enum Status{
     	CLOSE, FAR, STOPPED,AUTO
     }
+    public static enum Shot{
+    	CLOSE,FAR,AUTO,WALL
+    }
     public static enum HoodStates{
     	DOWN, FAR_SHOT, CLOSE_SHOT,UP
+    }
+    public void setShot(Shot newShot){
+    	setShot = newShot;
     }
     public Shooter(){
     	motor1 = new CANTalon(Ports.SHOOTER_MOTOR_3);
     	absolutePosition = motor1.getPulseWidthPosition() & 0xFFF;
     	motor1.setEncPosition(absolutePosition);
     	motor1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	motor1.reverseSensor(true);
+    	motor1.reverseSensor(false);
     	motor1.configEncoderCodesPerRev(360);
     	motor1.configNominalOutputVoltage(+0f, -0f);
     	motor1.configPeakOutputVoltage(+12f, 0);
     	motor1.setAllowableClosedLoopErr(0); 
     	motor1.changeControlMode(TalonControlMode.Speed);
     	motor1.set(motor1.getPosition());
-//    	motor1.setPID(0.048, 0.0, 0.0, 0.048, 0, 0.0, 0);
-//    	motor1.setPID(0.0, 0.0, 0.0, 0.048, 0, 0.0, 1);
-//    	motor1.setVoltageRampRate(10.24);
+    	motor1.setPID(0.048, 0.0, 0.0, 0.048, 0, 0.0, 0);
+    	motor1.setPID(0.0, 0.0, 0.0, 0.05, 0, 0.0, 1);
     	motor1.setProfile(0);
-//    	motor1.setVoltageRampRate(12);
         motor2 = new CANTalon(Ports.SHOOTER_MOTOR_1);
         motor2.changeControlMode(TalonControlMode.Follower);
         motor2.set(Ports.SHOOTER_MOTOR_3);
@@ -71,6 +76,7 @@ public class Shooter
         turret  = Turret.getInstance();
         hood = new Solenoid(21,Ports.HOOD);
         topHood = new Solenoid(21,Ports.TOP_HOOD);
+        
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -107,22 +113,26 @@ public class Shooter
     public void setGoal(double goal){
     	speed = goal;
     }
-    public void setPresetSpeed(Status preset){
-    	switch(preset){
+    public void setPresetSpeed(){
+    	switch(setShot){
     	case CLOSE:
     		status = Status.CLOSE;
-    		set(speed);
+    		setGoal(Constants.SHOOTER_CLOSE_SHOT);
+    		set(Constants.SHOOTER_CLOSE_SHOT);
     		break;
     	case FAR:
     		status = Status.FAR;
-    		set(speed);
+    		setGoal(Constants.SHOOTER_FAR_SHOT);
+    		set(Constants.SHOOTER_FAR_SHOT);
     		break;
     	case AUTO:
     		status = Status.AUTO;
-    		set(speed);
+    		setGoal(Constants.SHOOTER_AUTON_SIDE_SHOT);
+    		set(Constants.SHOOTER_AUTON_SIDE_SHOT);
     		break;
     	default:
-    		set(speed);
+    		setGoal(Constants.SHOOTER_CLOSE_SHOT);
+    		set(Constants.SHOOTER_CLOSE_SHOT);
     		break;
     	}
     }

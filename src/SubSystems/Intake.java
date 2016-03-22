@@ -3,6 +3,7 @@ package SubSystems;
 import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
@@ -16,6 +17,7 @@ private static Intake instance = null;
     private int absolutePosition;
     private double position;
     private boolean whatForPositionDisable = false;
+    private AnalogInput ballSensor;
     public static Intake getInstance()
     {
         if( instance == null )
@@ -41,7 +43,8 @@ private static Intake instance = null;
     	intake_arm_motor.set(intake_arm_motor.getPosition());
     	intake_arm_motor.setPID(2.5, 0.0, 240.0, 0.0, 0, 0.0, 0);
     	intake_arm_motor.setPID(5.0, 0.005, 150.0, 0.0, 0, 0.0, 1);    	
-    	intake_arm_motor.setProfile(0);    	    	
+    	intake_arm_motor.setProfile(0);   
+    	ballSensor = new AnalogInput(Ports.PRESSURE);
     }
     public double getAngle(){
     	return intake_arm_motor.get();
@@ -63,6 +66,9 @@ private static Intake instance = null;
     		whatForPositionDisable = false;
     	}
     }
+    public double ballSensorData(){
+    	return ballSensor.getAverageVoltage() * Constants.PRESSURE_V2P;
+    }
     public void update(){
     	position = intake_arm_motor.getPosition();
     	SmartDashboard.putNumber("INTAKE_ANGLE", position);
@@ -71,6 +77,7 @@ private static Intake instance = null;
     	SmartDashboard.putNumber("INTAKE_GOAL", intake_arm_motor.getSetpoint());
     	SmartDashboard.putNumber("INTAKE_POWER", intake_arm_motor.getOutputVoltage());
     	SmartDashboard.putNumber("INTAKE_ERROR", (intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()));
+    	SmartDashboard.putNumber("BALL_PRES", ballSensorData());
     	if((intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()) > 0){
     		intake_arm_motor.setProfile(0);
     	}else{

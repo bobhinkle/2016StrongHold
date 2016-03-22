@@ -19,8 +19,8 @@ public class Ports {
     public static final int INTAKE = 5;
     public static final int ELEVATOR = 6;
     public static final int TEST_TALON = 9;
-    public static final int TURRET = 11; //10 pbot
-    public static final int PRELOAD = 10; //11 pbot
+    public static final int TURRET = 10; //10 pbot, 11 compbot
+    public static final int PRELOAD = 11; //11 pbot, 10 compbot
     public static final int SHOOTER_MOTOR_3 = 12;
     public static final int SHOOTER_MOTOR_4 = 13;    
     public static final int RIGHT_DT_1 = 14;
@@ -41,5 +41,5 @@ public class Ports {
     
     
     //ANALOG
-    public static final int GYRO = 0;
+    public static final int PRESSURE = 3;
 }

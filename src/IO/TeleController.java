@@ -1,11 +1,11 @@
-package IO;import SubSystems.Elevator;
+package IO;import ControlSystem.FSM;
+import ControlSystem.RoboSystem;
+import SubSystems.DriveTrain.GEAR;
+import SubSystems.Elevator;
 import SubSystems.Turret;
 import SubSystems.Vision;
-import SubSystems.DriveTrain.GEAR;
 import Utilities.Constants;
 import Utilities.Util;
-import ControlSystem.FSM;
-import ControlSystem.RoboSystem;
 import edu.wpi.first.wpilibj.Joystick;
 
 
@@ -18,7 +18,6 @@ public class TeleController
     private FSM fsm;
     private RoboSystem robot;
     private static TeleController instance = null;
-    private boolean tracked = false;
     public TeleController(){
         driver = new Joystick(0);
         codriver  = new Xbox(2);
@@ -54,6 +53,9 @@ public class TeleController
         if(codriver.xButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_CLOSE);
         }
+        if(codriver.xButton.buttonHoldTime() > 500){
+        	fsm.setGoalState(FSM.State.WALL_SHOT);
+        }
         ///////////////////////////////////////
         if(codriver.yButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_FAR);
@@ -62,6 +64,12 @@ public class TeleController
         if(codriver.rightTrigger.isPressed()){ 
         	robot.turret.stop();
         	robot.shooter.fire();
+        }
+        if(codriver.rightTrigger.isHeld()){
+        	if(robot.turret.visionError() < 5 && robot.vision.isTargetSeen()){
+        		robot.turret.stop();
+            	robot.shooter.fire();
+        	}
         }
         //////////////////////////////////////////////////////////////////// 
         if(codriver.leftBumper.isPressed()){ 
@@ -76,22 +84,16 @@ public class TeleController
         }
         ///////////////////////////////////////////////////////
         if(codriver.leftTrigger.isPressed()){
-        	robot.turret.setState(Turret.State.HOLDING);
-        	if(fsm.getPreviousState()==FSM.State.SHOOTER_CLOSE){
-        		robot.shooter.set(Constants.SHOOTER_CLOSE_SHOT);
-        	}else if(fsm.getPreviousState()==FSM.State.SHOOTER_FAR){
-        		robot.shooter.set(Constants.SHOOTER_FAR_SHOT);
-        	}else{
-        		System.out.println("Shooting position not set");
+        	robot.shooter.setPresetSpeed();        	
+        }
+        if(codriver.leftTrigger.buttonHoldTime() > 500){
+        	if(robot.elevator.status() == Elevator.Direction.UP){
+        		if(robot.vision.isTargetSeen() && Vision.getAngle() < 2 && Vision.getAngle() > -2 && robot.shooter.onTarget()){
+        			robot.turret.setState(Turret.State.OFF);
+        			robot.shooter.fire();
+        		}
         	}
         }
-        if(codriver.leftTrigger.buttonHoldTime() > 200){
-        	if(robot.elevator.status() == Elevator.Direction.UP){
-        		robot.turret.setState(Turret.State.SPOTTED);
-        	}
-        }else{
-			tracked = false;
-		}
         //////////////////////////////////////////////////////
         if(codriver.backButton.isPressed()){  // stop all      
         	robot.intake.intake_stop();
@@ -121,10 +123,10 @@ public class TeleController
         ////////////////////////////////////////////////////////        
         if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.25) {
         	robot.turret.setState(Turret.State.HOLDING);
-        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*10);
+        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*7);
         }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.25){
         	robot.turret.setState(Turret.State.HOLDING);
-        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*10);
+        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*7);
         }else{
         	
         }
@@ -151,6 +153,7 @@ public class TeleController
         ///////////////////////////////////////////////
         if(codriver.rightCenterClick.isPressed()) {
         	robot.turret.set(0.0);
+        	robot.turret.setState(Turret.State.OFF);
         }
         if(codriver.getPOV() == 0){
         	robot.shooter.preloader_forward();
@@ -161,23 +164,24 @@ public class TeleController
     }
     
     public void driver() {
-    	if (driver.getRawButton(1)){robot.dt.setGear(GEAR.LOW);
-    	robot.hanger.retractHanger();}
-    	if(driver.getRawButton(2)){robot.dt.setGear(GEAR.NUETRAL); }
-        if(driver.getRawButton(3)){robot.dt.setGear(GEAR.HIGH); 
-        robot.hanger.retractHanger();}
-        if(driver.getRawButton(4)){
-        	if(robot.hanger.armDeployed()){
-        		robot.hanger.retractArm(); 
-        	}else{
-        		robot.hanger.ptoUp();
-        	}
-        }
-        if(driver.getRawButton(5)){
-        	robot.hanger.extendHanger(); 
-        	robot.dt.setGear(GEAR.PTO);}
-        if(driver.getRawButton(6)){robot.dt.setGear(GEAR.PTO); }
-        if(driver.getRawButton(7)){robot.dt.disablePTO(); }    
+    	if (driver.getRawButton(1)){
+    		robot.dt.setGear(GEAR.LOW);
+    	}
+    	if(driver.getRawButton(2)){robot.dt.setGear(GEAR.HIGH); }
+        if(driver.getRawButton(3)){robot.dt.setGear(GEAR.HIGH); }
+//        robot.hanger.retractHanger();}
+//        if(driver.getRawButton(4)){
+//        	if(robot.hanger.armDeployed()){
+//        		robot.hanger.retractArm(); 
+//        	}else{
+//        		robot.hanger.ptoUp();
+//        	}
+//        }
+//        if(driver.getRawButton(5)){
+////        	robot.hanger.extendHanger(); 
+//        	robot.dt.setGear(GEAR.PTO);}
+//        if(driver.getRawButton(6)){robot.dt.setGear(GEAR.PTO); }
+//        if(driver.getRawButton(7)){robot.dt.disablePTO(); }    
         robot.dt.cheesyDrive(wheel.getX(), -driver.getY(), wheel.getLeftBumper() || wheel.getRightBumper());
     }
     public void update(){

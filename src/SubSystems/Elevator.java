@@ -61,6 +61,8 @@ public class Elevator {
         		status = Direction.DOWN;
         	}
         	break;
+		default:
+			break;
     	}  
     	currentStatus();
     }
