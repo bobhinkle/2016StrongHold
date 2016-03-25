@@ -44,7 +44,7 @@ public class Turret {
     	absolutePosition = turret_motor.getPulseWidthPosition() & 0xFFF;
     	turret_motor.setEncPosition(absolutePosition);
     	turret_motor.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	turret_motor.reverseSensor(true);
+    	turret_motor.reverseSensor(false);
     	turret_motor.configEncoderCodesPerRev(360);
     	turret_motor.configNominalOutputVoltage(+0f, -0f);
     	turret_motor.configPeakOutputVoltage(+12f, -12f);

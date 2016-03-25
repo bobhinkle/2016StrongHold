@@ -149,9 +149,9 @@ public class FSM {
 	            	setGoalState(State.SHOOTER_READY);
 	            	break;
 	            case SHOOTER_FAR:
-	            	robot.intake.setAngle(Constants.INTAKE_SHOOTING_ANGLE);
+	            	robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
 //	            	if(robot.elevator.status() != Elevator.Direction.UP)
-	            		robot.elevator.up();
+	            	robot.elevator.up();
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	robot.shooter.setShot(Shooter.Shot.FAR);

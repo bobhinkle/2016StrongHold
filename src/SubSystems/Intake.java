@@ -34,7 +34,7 @@ private static Intake instance = null;
     	intake_arm_motor.setEncPosition(absolutePosition);
     	intake_arm_motor.setFeedbackDevice(FeedbackDevice.AnalogPot);
     	intake_arm_motor.reverseSensor(false);
-    	intake_arm_motor.reverseOutput(false);
+    	intake_arm_motor.reverseOutput(true);
     	intake_arm_motor.configPotentiometerTurns(360);
     	intake_arm_motor.configNominalOutputVoltage(+0f, -0f);
     	intake_arm_motor.configPeakOutputVoltage(+12f, -12f);
