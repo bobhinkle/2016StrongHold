@@ -118,7 +118,7 @@ public class Robot extends SampleRobot {
     		}     		
     		robot.shooter.setShot(Shooter.Shot.AUTO);
     		robot.shooter.setPresetSpeed();
-    		robot.turret.set(-42.0);
+    		robot.turret.set(-55.0);
     		Timer.delay(0.5);
      		robot.turret.setState(Turret.State.SINGLE);    		
     		Timer.delay(1.0);
@@ -130,9 +130,9 @@ public class Robot extends SampleRobot {
     		}
     		Timer.delay(2.0);
     		fsm.setGoalState(FSM.State.LOW_BAR);
-    		driveDistanceHoldingHeading(120, 0, 0.68, 2, 2.0, false, 0);
+    		driveDistanceHoldingHeading(200, 0, 0.68, 2, 2.0, false, 0); //120
     		if(robot.elevator.status() == Elevator.Direction.DOWN){
-	    		driveDistanceHoldingHeading(0, 0, 0.55, 2, 2.0, false, 0);
+	    		driveDistanceHoldingHeading(200, 0, 0.55, 2, 2.0, false, 0); //0
 	    		turnToHeading(90,1.2);
 	    		while(isAutonomous()){
 	    			Timer.delay(0.1);
