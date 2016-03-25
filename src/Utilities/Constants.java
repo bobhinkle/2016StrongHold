@@ -56,8 +56,8 @@ public class Constants {
     public static final int TURRET_MIN_ZERO_CHECKS = 20;
     public static final int TURRET_TRACKING_ANGLE = 75;
 /////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final double SHOOTER_FAR_SHOT  = 6800; // 
-    public static final double SHOOTER_CLOSE_SHOT = 3300; //3500
+    public static final double SHOOTER_FAR_SHOT  = 4700; // 5500
+    public static final double SHOOTER_CLOSE_SHOT = 3400; //3500
     public static final double SHOOTER_AUTON_SIDE_SHOT = 7000;
     public static final double SHOOTER_ERROR      = 200;
     /////////////////////////////////////////////////////////////////////////////////////////////////

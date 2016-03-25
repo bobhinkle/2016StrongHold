@@ -127,6 +127,8 @@ public class Robot extends SampleRobot {
     		}
     		if(robot.vision.isTargetSeen() && Vision.getAngle() < 3 && Vision.getAngle() > -3 && isAutonomous()){
     			robot.shooter.fire();
+    		}else{
+    			robot.shooter.fire();
     		}
     		Timer.delay(2.0);
     		fsm.setGoalState(FSM.State.LOW_BAR);
