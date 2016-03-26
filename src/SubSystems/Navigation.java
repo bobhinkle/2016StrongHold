@@ -21,7 +21,7 @@ public class Navigation implements PIDSource{
     private double basicDistance = 0;
     private double angle = 0;
     private final Timer mTimer = new Timer();
-    private static final int K_READING_RATE = 200;
+    private static final int K_READING_RATE = 100;
     private SuperEncoder leftWheel;
     private SuperEncoder rightWheel;
     private ADXRS450_Gyro gyro;
@@ -71,11 +71,11 @@ public class Navigation implements PIDSource{
 	    	try{
 		    	updatePosition();
 		        SmartDashboard.putNumber("Y",getY());
-		        SmartDashboard.putNumber("RawDistanceLeft",leftWheel.getRaw());
+//		        SmartDashboard.putNumber("RawDistanceLeft",leftWheel.getRaw());
 		        SmartDashboard.putNumber("RawDistanceRight",rightWheel.getRaw());
 		        SmartDashboard.putNumber("DistanceRight",rightWheel.getDistance());
 		        SmartDashboard.putNumber("Heading",getHeadingInDegrees());
-		        SmartDashboard.putNumber("RawHeading",getRawHeading()); 
+//		        SmartDashboard.putNumber("RawHeading",getRawHeading()); 
 	    	}catch(Exception e){
 	    		System.out.println(e);
 	    	}

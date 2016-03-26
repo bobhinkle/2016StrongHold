@@ -73,7 +73,7 @@ private static Intake instance = null;
     	position = intake_arm_motor.getPosition();
     	SmartDashboard.putNumber("INTAKE_ANGLE", position);
     	SmartDashboard.putNumber("INTAKE_DRAW", intake_arm_motor.getOutputCurrent());
-    	SmartDashboard.putNumber("INTAKE_P", intake_arm_motor.getP());
+//    	SmartDashboard.putNumber("INTAKE_P", intake_arm_motor.getP());
     	SmartDashboard.putNumber("INTAKE_GOAL", intake_arm_motor.getSetpoint());
     	SmartDashboard.putNumber("INTAKE_POWER", intake_arm_motor.getOutputVoltage());
     	SmartDashboard.putNumber("INTAKE_ERROR", (intake_arm_motor.getPosition()-intake_arm_motor.getSetpoint()));

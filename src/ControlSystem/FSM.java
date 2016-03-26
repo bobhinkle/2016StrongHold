@@ -21,7 +21,7 @@ public class FSM {
 	private volatile State currentState = State.INIT;
     private volatile State goalState = State.DEFAULT;
     private volatile State prevState = State.DEFAULT;
-    private static final int K_READING_RATE = 200;
+    private static final int K_READING_RATE = 100;
     // synchronized access object
     private final Timer mTimer = new Timer();
 	public static FSM getInstance()
@@ -44,7 +44,7 @@ public class FSM {
                     robot = RoboSystem.getInstance();
                     break;
                 } catch (Exception e) {
-                    System.out.println("Gyro failed to initialize: " + e.getMessage());
+                    System.out.println("FSM failed to initialize: " + e.getMessage());
                     synchronized (mTimer) {
                         mTimer.schedule(new InitTask(), 500);
                     }
@@ -194,7 +194,7 @@ public class FSM {
 			default:
 				break;
 	        }
-	        SmartDashboard.putNumber("SVERSION", 1);
+	        
 	        try{
 		        robot.intake.update();
 			}catch(Exception e){
@@ -214,12 +214,7 @@ public class FSM {
 		        robot.elevator.update();
 			}catch(Exception e){
 				        	
-			}
-		    try{
-		    	robot.hanger.update();
-	        }catch(Exception e){
-	        	
-	        }
+			}		    
 	    }
     }
 }

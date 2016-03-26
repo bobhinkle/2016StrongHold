@@ -4,7 +4,6 @@ package ControlSystem;
 import SubSystems.DistanceController;
 import SubSystems.DriveTrain;
 import SubSystems.Elevator;
-import SubSystems.Hanger;
 import SubSystems.Intake;
 import SubSystems.Navigation;
 import SubSystems.Shooter;
@@ -24,7 +23,6 @@ public class RoboSystem{
 	public Intake intake;
 	public Turret turret;
 	public Elevator elevator;
-	public Hanger hanger;	
 	public TestTalon testTalon;
 	public Navigation nav;
 	public Vision vision;
@@ -47,7 +45,6 @@ public class RoboSystem{
     	shooter = Shooter.getInstance();
     	turret = Turret.getInstance();
     	elevator = Elevator.getInstance();
-    	hanger = Hanger.getInstance();
     	nav = Navigation.getInstance();
     	vision = Vision.getInstance();
     }

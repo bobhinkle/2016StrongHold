@@ -37,9 +37,9 @@ public class Robot extends SampleRobot {
     
     public void robotInit() {
         chooser = new SendableChooser();
-        chooser.addDefault("LOWBARNOSHOT", defaultAuto);
+        chooser.addDefault("TestRun", defaultAuto);
         chooser.addObject("LBSHOTBACKUNDER", customAuto);
-        chooser.addObject("TestRun", testRun);
+        chooser.addObject("LOWBARNOSHOT", testRun);
         SmartDashboard.putData("Auto modes", chooser);
         fsm = FSM.getInstance();
         fsm.start();
@@ -109,28 +109,39 @@ public class Robot extends SampleRobot {
     		}    	    	
             break;
     	case testRun:    		
+    		robot.turret.setState(Turret.State.OFF);
     		driveDistanceHoldingHeading(100, 0, 0.57, 2, 2.0, true, 0);
     		fsm.setGoalState(FSM.State.AUTO_SHOT);    		   		
     		driveDistanceHoldingHeading(200, 0, 0.8, 2, 2.0, false, 0);
+    		Timer.delay(2.0);
     		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
     			System.out.println("Step2");
     			Timer.delay(0.1);
     		}     		
     		robot.shooter.setShot(Shooter.Shot.AUTO);
     		robot.shooter.setPresetSpeed();
-    		robot.turret.set(-55.0);
-    		Timer.delay(0.5);
-     		robot.turret.setState(Turret.State.SINGLE);    		
+    		robot.turret.set(-51.0);
     		Timer.delay(1.0);
+    		if(Math.abs(Vision.getAngle()) < 5 ){
+	     		robot.turret.setState(Turret.State.SINGLE);    		
+	    		Timer.delay(1.0);
+    		}
     		while(!robot.shooter.onTarget() && isAutonomous()){
     			Timer.delay(0.1);
     		}
-    		if(robot.vision.isTargetSeen() && Vision.getAngle() < 3 && Vision.getAngle() > -3 && isAutonomous()){
+    		if(robot.vision.isTargetSeen() && Vision.getAngle() < 5  && Vision.getAngle() > -5 && isAutonomous()){
+    			robot.turret.setState(Turret.State.OFF);
+    			robot.turret.stop();
     			robot.shooter.fire();
+    			Timer.delay(2.0);
     		}else{
+    			Timer.delay(0.5);
+    			robot.turret.setState(Turret.State.OFF);
+    			robot.turret.stop();
     			robot.shooter.fire();
+    			Timer.delay(2.0);
     		}
-    		Timer.delay(2.0);
+
     		fsm.setGoalState(FSM.State.LOW_BAR);
     		driveDistanceHoldingHeading(200, 0, 0.68, 2, 2.0, false, 0); //120
     		if(robot.elevator.status() == Elevator.Direction.DOWN){

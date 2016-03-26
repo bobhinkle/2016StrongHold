@@ -8,6 +8,7 @@ import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
+import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 public class Shooter 
@@ -21,14 +22,23 @@ public class Shooter
     private Solenoid topHood;
     private int absolutePosition;
     private static Shooter instance = null;
-    private Status status = Status.STOPPED;
     private boolean firing = false;
     public boolean fenderShot = false;
     private Elevator elevator;
-    private Turret turret;
     private ShootingAction fireCommand;
-    private double speed = 0;
     private Shot setShot = Shot.CLOSE;
+    
+    final String defaultSpeed = "Default";
+    final String speed1 = "+250";
+    final String speed2 = "+500";
+    final String speed3 = "+750";
+    final String speed4 = "+1000";
+    final String speed5 = "-250";
+    final String speed6 = "-500";
+    final String speed7 = "-750";
+    final String speed8 = "-1000";
+    
+    SendableChooser chooser;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -73,10 +83,20 @@ public class Shooter
         motor4.set(Ports.SHOOTER_MOTOR_3);
         preloader_motor = new CANTalon(Ports.PRELOAD);
         elevator = Elevator.getInstance();
-        turret  = Turret.getInstance();
         hood = new Solenoid(21,Ports.HOOD);
         topHood = new Solenoid(21,Ports.TOP_HOOD);
         
+        chooser = new SendableChooser();
+        chooser.addDefault("default", defaultSpeed);
+        chooser.addObject("+250", speed1);
+        chooser.addObject("+500", speed2);
+        chooser.addObject("+750", speed3);
+        chooser.addObject("+1000", speed4);
+        chooser.addObject("-250", speed5);
+        chooser.addObject("-500", speed6);
+        chooser.addObject("-750", speed7);
+        chooser.addObject("-1000", speed8);
+        SmartDashboard.putData("Shooter modes", chooser);
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -110,30 +130,44 @@ public class Shooter
     		break;
     	}
     }
-    public void setGoal(double goal){
-    	speed = goal;
-    }
     public void setPresetSpeed(){
     	switch(setShot){
     	case CLOSE:
-    		status = Status.CLOSE;
-    		setGoal(Constants.SHOOTER_CLOSE_SHOT);
     		set(Constants.SHOOTER_CLOSE_SHOT);
     		break;
     	case FAR:
-    		status = Status.FAR;
-    		setGoal(Constants.SHOOTER_FAR_SHOT);
-    		set(Constants.SHOOTER_FAR_SHOT);
+//    		set(Constants.SHOOTER_FAR_SHOT);
+    		set(getchooseableSpeed());
     		break;
     	case AUTO:
-    		status = Status.AUTO;
-    		setGoal(Constants.SHOOTER_AUTON_SIDE_SHOT);
     		set(Constants.SHOOTER_AUTON_SIDE_SHOT);
     		break;
     	default:
-    		setGoal(Constants.SHOOTER_CLOSE_SHOT);
     		set(Constants.SHOOTER_CLOSE_SHOT);
     		break;
+    	}
+    }
+    public double getchooseableSpeed(){
+    	String speedSelected = (String) chooser.getSelected();
+    	switch(speedSelected){
+    	case "+250":
+    		return Constants.SHOOTER_FAR_SHOT + 250;
+    	case "+500":
+    		return Constants.SHOOTER_FAR_SHOT + 500;
+    	case "+750":
+    		return Constants.SHOOTER_FAR_SHOT + 750;
+    	case "+1000":
+    		return Constants.SHOOTER_FAR_SHOT + 1000;
+    	case "-250":
+    		return Constants.SHOOTER_FAR_SHOT - 250;
+    	case "-500":
+    		return Constants.SHOOTER_FAR_SHOT - 500;
+    	case "-750":
+    		return Constants.SHOOTER_FAR_SHOT - 750;
+    	case "-1000":
+    		return Constants.SHOOTER_FAR_SHOT - 1000;
+    	default:
+    		return Constants.SHOOTER_FAR_SHOT;
     	}
     }
     public void set(double _speed){
@@ -144,11 +178,7 @@ public class Shooter
     	motor1.setProfile(1);
     	motor1.set(0.0);
     }
-    public void hoodExtend(){ 
-    	double angle = turret.getAngle();
-    	if((angle > Constants.TURRET_HOOD_MIN_ANGLE) && (angle < Constants.TURRET_HOOD_MAX_ANGLE) ){
-    		turret.set(0.0);
-    	}
+    public void hoodExtend(){   	
     	hood.set(false); 
     } 
     public void hoodRetract(){ 
@@ -169,38 +199,13 @@ public class Shooter
     }
     public void fire(){
     	if(!firing){
-    		switch(status){
-			case CLOSE:
-				if(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
-					System.out.println("FIRE CLOSE");
-					fireCommand = new ShootingAction();
-			    	fireCommand.start();
-				}else{
-					System.out.println("FIRE CLOSE ERROR");
-				}
-			break;
-			case FAR:
-				if(Util.onTarget(Constants.SHOOTER_FAR_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
-					System.out.println("FIRE FAR");
-					fireCommand = new ShootingAction();
-			    	fireCommand.start();
-				}else{
-					System.out.println("FIRE FAR ERROR");
-				}
-			break;
-			case AUTO:
-				if(Util.onTarget(Constants.SHOOTER_AUTON_SIDE_SHOT, motor1.get(), Constants.SHOOTER_ERROR) ){
-					System.out.println("FIRE AUTO");
-					fireCommand = new ShootingAction();
-			    	fireCommand.start();
-				}else{
-					System.out.println("FIRE AUTO ERROR");
-				}
-				break;				
-			default:
-				System.out.println("NO STATUS");
-				break;
-    		}
+    		if(Util.onTarget(motor1.getSetpoint(), motor1.get(), Constants.SHOOTER_ERROR) ){
+				System.out.println("FIRE CLOSE");
+				fireCommand = new ShootingAction();
+		    	fireCommand.start();
+			}else{
+				System.out.println("FIRE CLOSE ERROR");
+			}
     	}else{
     		System.out.println("FIRE STUCK");
     	}

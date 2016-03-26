@@ -66,8 +66,7 @@ public class TeleController
         	robot.shooter.fire();
         }
         if(codriver.rightTrigger.isHeld()){
-        	if(robot.turret.visionError() < 5 && robot.vision.isTargetSeen()){
-        		robot.turret.stop();
+        	if(robot.turret.visionError() < 5 && robot.vision.isTargetSeen()){        		
             	robot.shooter.fire();
         	}
         }
@@ -99,7 +98,6 @@ public class TeleController
         	robot.intake.intake_stop();
         	robot.shooter.stop();
         	robot.shooter.preloader_stop();
-        	robot.hanger.ptoStop();
         	robot.shooter.killFire();
         }
         ////////////////////////////////////////////////////////

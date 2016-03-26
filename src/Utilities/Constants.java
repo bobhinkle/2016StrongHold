@@ -36,7 +36,7 @@ public class Constants {
     public static final double STRAIGHT_KD = 0.0;
     public static final double DISTANCE_TOLERANCE = 1.0;
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int INTAKE_OFFSET          = 94; //158 pbot
+    public static final int INTAKE_OFFSET          = 18; //158 pbot
     public static final int INTAKE_ARM_MAX_ANGLE   = INTAKE_OFFSET + 147; //280 298
     public static final int INTAKE_ARM_MIN_ANGLE   = INTAKE_OFFSET + 5; ///168
     public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET + 30; //231
@@ -56,9 +56,9 @@ public class Constants {
     public static final int TURRET_MIN_ZERO_CHECKS = 20;
     public static final int TURRET_TRACKING_ANGLE = 75;
 /////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final double SHOOTER_FAR_SHOT  = 4700; // 5500
-    public static final double SHOOTER_CLOSE_SHOT = 3400; //3500
-    public static final double SHOOTER_AUTON_SIDE_SHOT = 7000;
+    public static final double SHOOTER_FAR_SHOT  = 4100; // 5500
+    public static final double SHOOTER_CLOSE_SHOT = 3325; //3500
+    public static final double SHOOTER_AUTON_SIDE_SHOT = 4400;
     public static final double SHOOTER_ERROR      = 200;
     /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double HANGER_MAX_POWER = 1.0;
