@@ -60,6 +60,8 @@ public class Constants {
     public static final double SHOOTER_CLOSE_SHOT = 3325; //3500
     public static final double SHOOTER_AUTON_SIDE_SHOT = 4400;
     public static final double SHOOTER_ERROR      = 200;
+    public static final double SHOOTER_LOADER_LBS = 20;
+    public static final double SHOOTER_FIRED_SPEED = SHOOTER_CLOSE_SHOT - 500;
     /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double HANGER_MAX_POWER = 1.0;
 /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -69,8 +71,8 @@ public class Constants {
     public static final int GYRO_INIT = 0;
     public static final int GYRO_READY  = 1;
     
-    public static final double PRESSURE_V2P = 10.0;
-    
+    public static final double PRESSURE_V2P = 50.0;
+    public static final double BALL_MIN_PSI = 25.0;
     public static final double WHEELBASE_LENGTH = 33.1625;
     public static final double WHEELBASE_WIDTH  = 21.5;
     

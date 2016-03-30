@@ -1,11 +1,15 @@
 package SubSystems;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -27,18 +31,11 @@ public class Shooter
     private Elevator elevator;
     private ShootingAction fireCommand;
     private Shot setShot = Shot.CLOSE;
-    
-    final String defaultSpeed = "Default";
-    final String speed1 = "+250";
-    final String speed2 = "+500";
-    final String speed3 = "+750";
-    final String speed4 = "+1000";
-    final String speed5 = "-250";
-    final String speed6 = "-500";
-    final String speed7 = "-750";
-    final String speed8 = "-1000";
-    
+    Map<Integer, Double> map;
+    Map<Integer,String> adjustments;    
+    private AnalogInput ballSensor;
     SendableChooser chooser;
+    private double ballPSI = 0.0;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -62,7 +59,7 @@ public class Shooter
     	absolutePosition = motor1.getPulseWidthPosition() & 0xFFF;
     	motor1.setEncPosition(absolutePosition);
     	motor1.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	motor1.reverseSensor(true);
+    	motor1.reverseSensor(false);
     	motor1.configEncoderCodesPerRev(360);
     	motor1.configNominalOutputVoltage(+0f, -0f);
     	motor1.configPeakOutputVoltage(+12f, 0);
@@ -87,16 +84,21 @@ public class Shooter
         topHood = new Solenoid(21,Ports.TOP_HOOD);
         
         chooser = new SendableChooser();
-        chooser.addDefault("default", defaultSpeed);
-        chooser.addObject("+250", speed1);
-        chooser.addObject("+500", speed2);
-        chooser.addObject("+750", speed3);
-        chooser.addObject("+1000", speed4);
-        chooser.addObject("-250", speed5);
-        chooser.addObject("-500", speed6);
-        chooser.addObject("-750", speed7);
-        chooser.addObject("-1000", speed8);
+        chooser.addDefault("default", adjustments.get(0));
+        chooser.addObject("+250", adjustments.get(1));
+        chooser.addObject("+500", adjustments.get(2));
+        chooser.addObject("+750", adjustments.get(3));
+        chooser.addObject("+1000", adjustments.get(4));
+        chooser.addObject("-250", adjustments.get(5));
+        chooser.addObject("-500", adjustments.get(6));
+        chooser.addObject("-750", adjustments.get(7));
+        chooser.addObject("-1000", adjustments.get(8));
         SmartDashboard.putData("Shooter modes", chooser);
+        ballSensor = new AnalogInput(Ports.PRESSURE);
+        loadMap();
+    }
+    public double ballSensorData(){
+    	return ballSensor.getAverageVoltage() * Constants.PRESSURE_V2P;
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -104,7 +106,32 @@ public class Shooter
     	SmartDashboard.putNumber("SHOOTER_POWER", motor1.getOutputVoltage());
     	SmartDashboard.putNumber("SHOOTER_CURRENT", motor1.getOutputCurrent());
     	SmartDashboard.putNumber("SHOOTER_ERROR", motor1.getSetpoint()-motor1.getSpeed());
-    	
+    	SmartDashboard.putNumber("BALL_PRES", ballSensorData());
+    }
+    public void loadMap(){
+    	map =  new HashMap<>();
+    	map.put(10, 3000.0);
+    	map.put(15, 3500.0);
+    	map.put(20, 3750.0);
+    	map.put(30, 4000.0);
+    	map.put(45, 4250.0);
+    	map.put(50, 4500.0);
+    }
+    public void adjustmentsMap(){
+    	adjustments = new HashMap<>();
+    	adjustments.put(0, "Default");
+    	adjustments.put(1, "+250");
+    	adjustments.put(2, "+500");
+    	adjustments.put(3, "+750");
+    	adjustments.put(4, "+1000");
+    	adjustments.put(5, "-250");
+    	adjustments.put(6, "-500");
+    	adjustments.put(7, "-750");
+    	adjustments.put(8, "-1000");
+    }
+    public double getSpeedByHardness(double hardness){
+    	int hardnessRounded = (int)Math.round(hardness);
+    	return map.get(hardnessRounded);
     }
     public void setHoodState(HoodStates state){
     	switch(state){
@@ -137,7 +164,7 @@ public class Shooter
     		break;
     	case FAR:
 //    		set(Constants.SHOOTER_FAR_SHOT);
-    		set(getchooseableSpeed());
+    		set(getChooseableSpeed());
     		break;
     	case AUTO:
     		set(Constants.SHOOTER_AUTON_SIDE_SHOT);
@@ -147,7 +174,7 @@ public class Shooter
     		break;
     	}
     }
-    public double getchooseableSpeed(){
+    public double getChooseableSpeed(){
     	String speedSelected = (String) chooser.getSelected();
     	switch(speedSelected){
     	case "+250":
@@ -225,13 +252,31 @@ public class Shooter
 		public void run() {
 			firing = true;
 			preloader_forward();
-			while(Util.onTarget(Constants.SHOOTER_CLOSE_SHOT, motor1.get(), Constants.SHOOTER_ERROR+200) && keepRunning)
+			while(motor1.get() > Constants.SHOOTER_FIRED_SPEED && keepRunning)
 				Timer.delay(0.1);
 			if(keepRunning){
 				Timer.delay(2.0);
 				preloader_stop();
 			}
 			firing = false;			
+		}
+    	public void kill(){
+    		keepRunning = false;
+    	}
+    }
+    public class BallReadingAction extends Thread{
+    	private boolean keepRunning = true;
+		@Override
+		public void run() {
+			preloader_forward();
+			while(ballSensor.getVoltage() < Constants.BALL_MIN_PSI && keepRunning)
+				Timer.delay(0.1);
+			preloader_stop();
+			ballPSI = ballSensorData();
+			Timer.delay(0.1);
+			preloader_reverse();
+			Timer.delay(0.1);
+			preloader_stop();		
 		}
     	public void kill(){
     		keepRunning = false;

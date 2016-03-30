@@ -20,12 +20,15 @@ public class Vision {
 		private final double[]  DUMMY = {5000};
 		private boolean targetSeen = false;
 		private static volatile double gripCenterY = 0.0;
-	
+		private double lastKnownAngle = 0.0;
+		private boolean autonomousShotTracking = false;
 	public Vision(){
 		SmartDashboard.putString("VISION","INIT2");
         updateGripNetwork();
 	}
-	
+	public void setAutonomousTracking(boolean value){
+		autonomousShotTracking = value;
+	}
 	public static Vision getInstance(){
 		if(instance == null)
 			instance = new Vision();
@@ -44,15 +47,25 @@ public class Vision {
         	targetSeen = true;
         	double maxArea = 0;
         	int maxIndex = 0;
-        	for(int i = 0; i < gripAreaArray.length; i++){
-        		if(gripAreaArray[i]>maxArea){
-        			maxArea = gripAreaArray[i];
-        			maxIndex = i;
-        		}
-        	}
+        	if(autonomousShotTracking){
+        		for(int i = 0; i < centerYArray.length; i++){
+            		if(centerYArray[i]<maxArea){
+            			maxArea = centerYArray[i];
+            			maxIndex = i;
+            		}
+            	}
+        	}else{
+        		for(int i = 0; i < gripAreaArray.length; i++){
+            		if(gripAreaArray[i]>maxArea){
+            			maxArea = gripAreaArray[i];
+            			maxIndex = i;
+            		}
+            	}
+        	}        	
         	gripCenterY = centerXArray[maxIndex];
         	gripX = centerXArray[maxIndex];
         	width = widthArray[maxIndex];
+        	lastKnownAngle = gripX;
         }else {
         	targetSeen = false;
         	gripX = 0.0;
@@ -60,7 +73,9 @@ public class Vision {
         	width = 0.0;
         }
     }
-    
+    public double lastKnownAngle(){
+    	return lastKnownAngle;
+    }
     public static double getAngle(double x){
         double slope = Constants.CAMERA_FOV/Constants.CAMERA_PIXEL_WIDTH;
         double intercept = -Constants.CAMERA_FOV/2.0;

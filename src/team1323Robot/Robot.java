@@ -4,6 +4,7 @@ package team1323Robot;
 
 import ControlSystem.FSM;
 import ControlSystem.RoboSystem;
+import IO.Logger;
 import IO.TeleController;
 import SubSystems.DistanceController;
 import SubSystems.DriveTrain.GEAR;
@@ -30,6 +31,7 @@ public class Robot extends SampleRobot {
     public TurnController turn; 
     public DistanceController dist;
     private double distanceGoal;
+    
     public Robot() {
         robot = RoboSystem.getInstance();
         controllers = TeleController.getInstance();
@@ -46,11 +48,11 @@ public class Robot extends SampleRobot {
         turnTh = new turnThread();
         turn = TurnController.getInstance();
         dist = DistanceController.getInstance();
-        distTh = new distanceThread(false);
+        distTh = new distanceThread(false);        
     }
 
     public void autonomous() {
-    	
+    	robot.vision.setAutonomousTracking(true);
 //    	String autoSelected = (String) chooser.getSelected();
 		String autoSelected = testRun;
 		System.out.println("Auto selected: " + autoSelected);
@@ -175,6 +177,7 @@ public class Robot extends SampleRobot {
      */
     public void operatorControl() {
     	robot.Init();
+    	robot.vision.setAutonomousTracking(false);
     	robot.turret.setState(Turret.State.HOLDING);
         while (isOperatorControl() && isEnabled()) {
         	controllers.update();  

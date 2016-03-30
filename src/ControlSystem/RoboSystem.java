@@ -1,6 +1,7 @@
 
 package ControlSystem;
 
+import IO.Logger;
 import SubSystems.DistanceController;
 import SubSystems.DriveTrain;
 import SubSystems.Elevator;
@@ -30,7 +31,7 @@ public class RoboSystem{
     public TurnController turn; 
     public DistanceController dist;
     private static RoboSystem instance = null;
-    
+    public Logger logFile;
     
     public static RoboSystem getInstance()
     {
@@ -47,6 +48,7 @@ public class RoboSystem{
     	elevator = Elevator.getInstance();
     	nav = Navigation.getInstance();
     	vision = Vision.getInstance();
+    	logFile = Logger.getInstance();
     }
     public void Init(){
     	intake.setAngle(Constants.INTAKE_OFFSET-intake.getAngle());

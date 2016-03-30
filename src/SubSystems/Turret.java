@@ -14,24 +14,22 @@ public class Turret {
 	private static Turret instance = null;
     private CANTalon turret_motor;
     private int absolutePosition;
-    private double position;
     private double angle;
     private DigitalInput hallEffect;
-    private double scale = 39.13; //39.13
+    private double scale = 39.13;
     private Elevator elevator;
     private FSM fsm;
-    private int checks = 0;
     private State visionState = Turret.State.OFF;
     private Vision vision;
     private Direction trackingDirection = Direction.LEFT;
     private long timePassed = 125;
     private long timeStarted = 0;
     private double lastAngle = 0;
-    private int turretChecks = 25;
+    private int turretChecks = 15;
     private int checksCompleted = 0;
-    private double trackingTurnSpeed = 6.0;
+    private double trackingTurnSpeed = 10.0;
     public static enum Direction{
-    	LEFT, RIGHT
+    	LEFT, RIGHT,FIRST
     }
     public static Turret getInstance()
     {
@@ -47,7 +45,7 @@ public class Turret {
     	absolutePosition = turret_motor.getPulseWidthPosition() & 0xFFF;
     	turret_motor.setEncPosition(absolutePosition);
     	turret_motor.setFeedbackDevice(FeedbackDevice.QuadEncoder);
-    	turret_motor.reverseSensor(false);
+    	turret_motor.reverseSensor(true);
     	turret_motor.configEncoderCodesPerRev(360);
     	turret_motor.configNominalOutputVoltage(+0f, -0f);
     	turret_motor.configPeakOutputVoltage(+12f, -12f);
@@ -67,21 +65,11 @@ public class Turret {
     public void setState(Turret.State newState){
 		visionState = newState;
 	}
-    public double visionError(){
-    	if(vision.isTargetSeen()){
-    		return Math.abs(Vision.getAngle());
-    	}
-    	return Math.abs((position-turret_motor.getSetpoint())*scale);
-    }
+    
     public void update(){
-    	position = getAngle();
-    	angle = getAngle2();
-    	checkForStop();
-    	
-    	SmartDashboard.putNumber("TURRET_POS", position);
-//    	SmartDashboard.putNumber("TURRET_DRAW", turret_motor.getOutputCurrent());
+    	angle = getAngle();
+    	checkForStop();    	
     	SmartDashboard.putNumber("TURRET_GOAL", turret_motor.getSetpoint()*scale);
-    	SmartDashboard.putNumber("TURRET_ERROR_V", visionError());
     	SmartDashboard.putNumber("TURRET_ER", angle - turret_motor.getSetpoint());
     	SmartDashboard.putBoolean("TURRET_RESET", hallEffect.get());
     	SmartDashboard.putNumber("TURRET_ANGLE", angle);
@@ -115,6 +103,13 @@ public class Turret {
 		    					set(angle - trackingTurnSpeed);
 		    				}
 		    				break;
+		    			case FIRST:
+		    				set(vision.lastKnownAngle());
+		    				if(vision.lastKnownAngle() > 0)
+		    					trackingDirection = Turret.Direction.RIGHT;
+		    				else
+		    					trackingDirection = Turret.Direction.LEFT;
+		    				break;
 		    			}		    		
 		    		}
 		    		break;
@@ -138,7 +133,8 @@ public class Turret {
 		    			}
 		    		}else{
 		    			timeStarted = System.currentTimeMillis();
-		    		//	setState(Turret.State.TRACKING);
+		    			trackingDirection = Turret.Direction.FIRST;
+		    			setState(Turret.State.TRACKING);
 		    		}
 		    		break;
 		    	case SINGLE:
@@ -168,31 +164,26 @@ public class Turret {
     	vision.update();
     }
     public boolean safeToLower(){
-    	if(checks < 0 && !hallEffect.get()){
-    		return true;
-    	}else{
-    		if(!hallEffect.get() && Util.onTarget(0.0, turret_motor.getPosition()*scale, 1.0)){
-    			checks--;
-    		}else{
-    			checks = Constants.TURRET_MIN_ZERO_CHECKS;
-    		}
-    		return false;
-    	}
+    	return onTarget() && !hallEffect.get();
     }
     public boolean onTarget(){    	
     	return checksCompleted < 0;
     }
     public void stop(){
+    	turret_motor.enableBrakeMode(true);
+    }
+    public void estop(){
     	turret_motor.setSetpoint(turret_motor.getPosition());
     }
     public void set(double angle){
+    	turret_motor.enableBrakeMode(false);
     	if(elevator.status() == Elevator.Direction.UP){
     		if(angle <= Constants.TURRET_MIN_ANGLE){
     			angle = Constants.TURRET_MIN_ANGLE;
     		}else if(angle >= Constants.TURRET_MAX_ANGLE){
     			angle = Constants.TURRET_MAX_ANGLE;
     		}
-    		turret_motor.set(angle/scale);
+    		turret_motor.setSetpoint(angle/scale);
     	}
     }
     public void manualMove(double angle){
@@ -224,7 +215,7 @@ public class Turret {
     	}
     }
     public void checkForStop(){
-    	if(Util.onTarget(turret_motor.getSetpoint()* scale, getAngle2(), 1.0)){
+    	if(Util.onTarget(turret_motor.getSetpoint()* scale, getAngle(), 1.0)){
     		checksCompleted--;
     	}else{
     		checksCompleted = turretChecks;
@@ -232,9 +223,6 @@ public class Turret {
     }
     public double getAngle(){
     	return turret_motor.getPosition()*scale;
-    }
-    public double getAngle2(){
-    	return turret_motor.get() * scale;
     }
     public double getUnscaledAngle(){
     	return turret_motor.get();
