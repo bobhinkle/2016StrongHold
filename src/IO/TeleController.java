@@ -7,6 +7,7 @@ import SubSystems.Vision;
 import Utilities.Constants;
 import Utilities.Util;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.Timer;
 
 
 public class TeleController
@@ -90,11 +91,12 @@ public class TeleController
         	robot.shooter.setPresetSpeed();     
         	robot.logFile.writeToLog(System.currentTimeMillis() + " LT  PRESSED");
         }
-        if(codriver.leftTrigger.buttonHoldTime() > 250 && codriver.rightTrigger.isHeld()){
+        if(codriver.leftTrigger.buttonHoldTime() > 250){
         	robot.logFile.writeToLog(System.currentTimeMillis() + " LT  HELD && RT HELD");
         	if(robot.elevator.status() == Elevator.Direction.UP){
         		if(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle()) < 2 && robot.shooter.onTarget()){
         			robot.turret.setState(Turret.State.OFF);
+        			Timer.delay(0.1);
         			robot.turret.stop();
         			robot.shooter.fire();
         			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD FIRE- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());

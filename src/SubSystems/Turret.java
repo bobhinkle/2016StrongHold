@@ -25,9 +25,9 @@ public class Turret {
     private long timePassed = 125;
     private long timeStarted = 0;
     private double lastAngle = 0;
-    private int turretChecks = 15;
+    private int turretChecks = 25;
     private int checksCompleted = 0;
-    private double trackingTurnSpeed = 10.0;
+    private double trackingTurnSpeed = 3.0;
     public static enum Direction{
     	LEFT, RIGHT,FIRST
     }
@@ -89,7 +89,7 @@ public class Turret {
 		    			switch(trackingDirection){
 		    			case LEFT:
 		    				SmartDashboard.putString("TUR_STATUS", "T_LEFT");
-		    				if(angle + trackingTurnSpeed > Constants.TURRET_TRACKING_ANGLE){
+		    				if(angle + trackingTurnSpeed > Constants.TURRET_TRACKING_ANGLE && onTarget()){
 		    					trackingDirection = Turret.Direction.RIGHT;
 		    				}else{
 		    					set(angle + trackingTurnSpeed);
@@ -104,11 +104,7 @@ public class Turret {
 		    				}
 		    				break;
 		    			case FIRST:
-		    				set(vision.lastKnownAngle());
-		    				if(vision.lastKnownAngle() > 0)
-		    					trackingDirection = Turret.Direction.RIGHT;
-		    				else
-		    					trackingDirection = Turret.Direction.LEFT;
+		    				set(0.0);		    				
 		    				break;
 		    			}		    		
 		    		}

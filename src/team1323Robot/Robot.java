@@ -4,7 +4,6 @@ package team1323Robot;
 
 import ControlSystem.FSM;
 import ControlSystem.RoboSystem;
-import IO.Logger;
 import IO.TeleController;
 import SubSystems.DistanceController;
 import SubSystems.DriveTrain.GEAR;
@@ -53,8 +52,8 @@ public class Robot extends SampleRobot {
 
     public void autonomous() {
     	robot.vision.setAutonomousTracking(true);
-//    	String autoSelected = (String) chooser.getSelected();
-		String autoSelected = testRun;
+    	String autoSelected = (String) chooser.getSelected();
+//		String autoSelected = testRun;
 		System.out.println("Auto selected: " + autoSelected);
 		robot.dt.setGear(GEAR.HIGH);
 		fsm.setGoalState(FSM.State.LOW_BAR);
@@ -65,7 +64,7 @@ public class Robot extends SampleRobot {
     	case customAuto:
     		//Distance - Heading - Max Speed - Timout - Tolerance 
     		System.out.println("Step1");
-    		driveDistanceHoldingHeading(152, 0, 0.57, 4, 2.0, false, 0);
+    		driveDistanceHoldingHeading(152, 0, 0.57, 4, 2.0, false, 0,0);
     		while(!dist.onTarget() && isAutonomous()){
     			System.out.println("WAITING1");
     			Timer.delay(0.1);
@@ -104,7 +103,7 @@ public class Robot extends SampleRobot {
     		robot.dt.setGear(GEAR.LOW);
     		fsm.setGoalState(FSM.State.LOW_BAR);
     		Timer.delay(0.5);
-    		driveDistanceHoldingHeading(20, 0, 0.55, 4, 2.0, false, 0);
+    		driveDistanceHoldingHeading(20, 0, 0.55, 4, 2.0, false, 0,0);
     		while(!dist.onTarget() && isAutonomous()){
     			System.out.println("WAITING1");
     			Timer.delay(0.1);
@@ -112,9 +111,9 @@ public class Robot extends SampleRobot {
             break;
     	case testRun:    		
     		robot.turret.setState(Turret.State.OFF);
-    		driveDistanceHoldingHeading(100, 0, 0.57, 2, 2.0, true, 0);
-    		fsm.setGoalState(FSM.State.AUTO_SHOT);    		   		
-    		driveDistanceHoldingHeading(200, 0, 0.8, 2, 2.0, false, 0);
+    		driveDistanceHoldingHeading(100, 0, 0.57, 2, 2.0, true, 0,0);
+    		fsm.setGoalState(FSM.State.AUTO_SHOT);  
+    		driveDistanceHoldingHeading(200, 0, 0.8, 2, 2.0, false, 0,-51);
     		Timer.delay(2.0);
     		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
     			System.out.println("Step2");
@@ -145,9 +144,9 @@ public class Robot extends SampleRobot {
     		}
 
     		fsm.setGoalState(FSM.State.LOW_BAR);
-    		driveDistanceHoldingHeading(200, 0, 0.68, 2, 2.0, false, 0); //120
+    		driveDistanceHoldingHeading(200, 0, 0.68, 2, 2.0, false, 0,0); //120
     		if(robot.elevator.status() == Elevator.Direction.DOWN){
-	    		driveDistanceHoldingHeading(200, 0, 0.55, 2, 2.0, false, 0); //0
+	    		driveDistanceHoldingHeading(200, 0, 0.55, 2, 2.0, false, 0,0); //0
 	    		turnToHeading(90,1.2);
 	    		while(isAutonomous()){
 	    			Timer.delay(0.1);
@@ -156,7 +155,7 @@ public class Robot extends SampleRobot {
             break;
     	case defaultAuto:
     	default:
-    		driveDistanceHoldingHeading(160, 0, 0.52, 4, 2.0, false, 0);
+    		driveDistanceHoldingHeading(160, 0, 0.52, 4, 2.0, false, 0,0);
     		while(!dist.onTarget()){
     			System.out.println("WAITING1");
     			Timer.delay(0.1);
@@ -218,13 +217,14 @@ public class Robot extends SampleRobot {
             }            
         }
     }
-    public double driveDistanceHoldingHeading(double distance, double heading,double maxSpeed,double timeout,double tol, boolean holdSpeed,double breakTime){                
+    public double driveDistanceHoldingHeading(double distance, double heading,double maxSpeed,double timeout,double tol, boolean holdSpeed,double breakTime,double turretAngle){                
         dist.resetDistance();
         double startDistance = 0;
         double distanceChange = distance + startDistance;
         System.out.println("DD: " + startDistance + " " + distanceChange + " " + distance);
         dist.reset();
         dist.setGoal(distanceChange, maxSpeed,heading,timeout,tol,holdSpeed);
+        distTh.setTurretAngle(turretAngle);
         distTh.run();
         return robot.nav.getDistance() - startDistance;
     }
@@ -237,13 +237,22 @@ public class Robot extends SampleRobot {
     }
     private class distanceThread extends Thread{
         private boolean keeprunning = false;
+        private double turretAngle = 0.0;
+        private boolean setTurret = true;
         public distanceThread(boolean keeper){
             keeprunning = keeper;
+        }
+        public void setTurretAngle(double angle){
+        	turretAngle = angle;
         }
         public void run(){
                 if(!keeprunning){
                     while(!dist.onTarget() && isAutonomous()){
                         dist.run();
+                        if(robot.elevator.status() == Elevator.Direction.UP && setTurret){
+                        	robot.turret.set(turretAngle);
+                        	setTurret = false;
+                        }
                         Timer.delay(0.01);
                     }
                 }else{
