@@ -18,6 +18,9 @@ public class Logger {
 			SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss") ;
 			file = new File(path + dateFormat.format(date) + ".txt") ;		
 			out = new BufferedWriter(new FileWriter(file));
+			out.write("NEW BOOT");
+			out.newLine();
+			out.flush();
 		}catch (Exception e) {
 	        // TODO Auto-generated catch block
 	        System.out.println(e);
@@ -25,11 +28,12 @@ public class Logger {
 	}
 	public void writeToLog(String item){
 		try {			
-			out.write(item);
+			out.append(item);
 			out.newLine();
+			out.flush();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
-			e.printStackTrace();
+			System.out.print(e);
 		}		
 	}
 	public static Logger getInstance(){
