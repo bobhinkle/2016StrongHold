@@ -20,7 +20,6 @@ public class Vision {
 		private final double[]  DUMMY = {5000};
 		private boolean targetSeen = false;
 		private static volatile double gripCenterY = 0.0;
-		private double lastKnownAngle = 0.0;
 		private boolean autonomousShotTracking = false;
 	public Vision(){
 		SmartDashboard.putString("VISION","INIT2");
@@ -65,16 +64,12 @@ public class Vision {
         	gripCenterY = centerXArray[maxIndex];
         	gripX = centerXArray[maxIndex];
         	width = widthArray[maxIndex];
-        	lastKnownAngle = gripX;
         }else {
         	targetSeen = false;
         	gripX = 0.0;
         	gripCenterY = 0.0;     
         	width = 0.0;
         }
-    }
-    public double lastKnownAngle(){
-    	return lastKnownAngle;
     }
     public static double getAngle(double x){
         double slope = Constants.CAMERA_FOV/Constants.CAMERA_PIXEL_WIDTH;
