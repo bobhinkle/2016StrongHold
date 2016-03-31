@@ -82,7 +82,7 @@ public class Shooter
         elevator = Elevator.getInstance();
         hood = new Solenoid(21,Ports.HOOD);
         topHood = new Solenoid(21,Ports.TOP_HOOD);
-        
+        adjustmentsMap();
         chooser = new SendableChooser();
         chooser.addDefault("default", adjustments.get(0));
         chooser.addObject("+250", adjustments.get(1));
@@ -98,7 +98,7 @@ public class Shooter
         loadMap();
     }
     public double ballSensorData(){
-    	return ballSensor.getAverageVoltage() * Constants.PRESSURE_V2P;
+    	return ballSensor.getVoltage() * Constants.PRESSURE_V2P;
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -106,7 +106,7 @@ public class Shooter
     	SmartDashboard.putNumber("SHOOTER_POWER", motor1.getOutputVoltage());
     	SmartDashboard.putNumber("SHOOTER_CURRENT", motor1.getOutputCurrent());
     	SmartDashboard.putNumber("SHOOTER_ERROR", motor1.getSetpoint()-motor1.getSpeed());
-    	SmartDashboard.putNumber("BALL_PRES", ballSensorData());
+    	SmartDashboard.putNumber("BALL_PRES1", ballSensorData());
     }
     public void loadMap(){
     	map =  new HashMap<>();
