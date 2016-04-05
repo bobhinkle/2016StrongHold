@@ -173,7 +173,7 @@ public class DriveTrain{
 
         linear_power = throttle;
 
-        if ((!Util.inRange(throttle, -0.15,0.15) || !(Util.inRange(wheel, -0.4, 0.4))) && quickturn) {
+        if ((!Util.inRange(throttle, -0.2,0.2) || !(Util.inRange(wheel, -0.4, 0.4))) && quickturn) {
                 overPower = 1.0;
                 if (currentGear == GEAR.HIGH) {
                         sensitivity = 1.0; // default 1.0

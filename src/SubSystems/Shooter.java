@@ -6,10 +6,10 @@ import java.util.Map;
 import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
+import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -36,6 +36,13 @@ public class Shooter
     private AnalogInput ballSensor;
     SendableChooser chooser;
     private double ballPSI = 0.0;
+    private BallReadingAction ballIntake;
+    private boolean intakingBall = false;
+    private BallSuckForLowBar bSucker;
+    private BallBlower bBlower;
+    private boolean ballInShooter = false;
+    private boolean unJamming = false;
+    private boolean suckingInBall = false;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -66,7 +73,7 @@ public class Shooter
     	motor1.setAllowableClosedLoopErr(0); 
     	motor1.changeControlMode(TalonControlMode.Speed);
     	motor1.set(motor1.getPosition());
-    	motor1.setPID(0.048, 0.0, 0.0, 0.048, 0, 0.0, 0);
+    	motor1.setPID(0.1, 0.0, 0.0, 0.050, 0, 0.0, 0);
     	motor1.setPID(0.0, 0.0, 0.0, 0.05, 0, 0.0, 1);
     	motor1.setProfile(0);
         motor2 = new CANTalon(Ports.SHOOTER_MOTOR_1);
@@ -100,6 +107,43 @@ public class Shooter
     public double ballSensorData(){
     	return ballSensor.getVoltage() * Constants.PRESSURE_V2P;
     }
+    public void startPreloaderIntake(){
+    	if(!intakingBall){
+    		ballIntake = new BallReadingAction();
+    		ballIntake.start();
+    	}
+    }
+    public boolean ballInShooter(){
+    	return ballInShooter;
+    }
+    public void killPreloaderIntake(){
+    	if(intakingBall){
+    		ballIntake.kill();
+    	}
+    }
+    public void startBallSucker(){
+    	if(ballHeld()){
+    		bSucker = new BallSuckForLowBar();
+    		bSucker.start();
+    	}
+    }    
+    public void getBallOutOfShooter(){
+    	if(!unJamming){
+	    	bBlower = new BallBlower();
+	    	bBlower.start();
+    	}
+    }
+    public void killBallSucker(){
+    	if(unJamming){
+    		bBlower.kill();
+    	}
+    }
+    public boolean suckingBall(){
+    	return suckingInBall;
+    }
+    public boolean ballHeld(){
+    	return ballSensorData() > Constants.BALL_MIN_PSI;
+    }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
     	SmartDashboard.putNumber("SHOOTER_GOAL", motor1.getSetpoint());
@@ -107,6 +151,7 @@ public class Shooter
     	SmartDashboard.putNumber("SHOOTER_CURRENT", motor1.getOutputCurrent());
     	SmartDashboard.putNumber("SHOOTER_ERROR", motor1.getSetpoint()-motor1.getSpeed());
     	SmartDashboard.putNumber("BALL_PRES1", ballSensorData());
+    	SmartDashboard.putBoolean("SHOOTER_BALL_IN", ballInShooter());
     }
     public void loadMap(){
     	map =  new HashMap<>();
@@ -178,21 +223,29 @@ public class Shooter
     	String speedSelected = (String) chooser.getSelected();
     	switch(speedSelected){
     	case "+250":
-    		return Constants.SHOOTER_FAR_SHOT + 250;
+    		//return Constants.SHOOTER_FAR_SHOT + 250;
+    		return  2000;
     	case "+500":
-    		return Constants.SHOOTER_FAR_SHOT + 500;
+    		//return Constants.SHOOTER_FAR_SHOT + 500;
+    		return  2500;
     	case "+750":
-    		return Constants.SHOOTER_FAR_SHOT + 750;
+    		//return Constants.SHOOTER_FAR_SHOT + 750;
+    		return  3000;
     	case "+1000":
-    		return Constants.SHOOTER_FAR_SHOT + 1000;
+    		//return Constants.SHOOTER_FAR_SHOT + 1000;
+    		return  3250;
     	case "-250":
-    		return Constants.SHOOTER_FAR_SHOT - 250;
+    		//return Constants.SHOOTER_FAR_SHOT - 250;
+    		return  3500;
     	case "-500":
-    		return Constants.SHOOTER_FAR_SHOT - 500;
+    		//return Constants.SHOOTER_FAR_SHOT - 500;
+    		return  3750;
     	case "-750":
-    		return Constants.SHOOTER_FAR_SHOT - 750;
+    		//return Constants.SHOOTER_FAR_SHOT - 750;
+    		return  4000;
     	case "-1000":
-    		return Constants.SHOOTER_FAR_SHOT - 1000;
+    		//return Constants.SHOOTER_FAR_SHOT - 1000;
+    		return  4500;
     	default:
     		return Constants.SHOOTER_FAR_SHOT;
     	}
@@ -212,6 +265,9 @@ public class Shooter
     	if((elevator.status() != Elevator.Direction.MOVING) || (elevator.status() != Elevator.Direction.STOP) )
     		hood.set(true); 
     }	
+    public void intakeing_preloader_forward(){
+    	preloader_motor.set(-0.5);
+    }
     public void preloader_forward(){
     	preloader_motor.set(-1.0);
     }
@@ -237,6 +293,15 @@ public class Shooter
     		System.out.println("FIRE STUCK");
     	}
     }
+    public void noCheckFire(){
+    	if(!firing){
+    		System.out.println("FIRE CLOSE");
+			fireCommand = new ShootingAction();
+	    	fireCommand.start();
+    	}else{
+    		System.out.println("FIRE STUCK");
+    	}
+    }
     public void killFire(){
     	if(firing && fireCommand != null){
     		try{
@@ -245,6 +310,9 @@ public class Shooter
     			System.out.println(e);
     		}
     	}
+    }
+    public boolean isFiring(){
+    	return firing;
     }
     public class ShootingAction extends Thread{
     	private boolean keepRunning = true;
@@ -258,7 +326,8 @@ public class Shooter
 				Timer.delay(2.0);
 				preloader_stop();
 			}
-			firing = false;			
+			set(0.0);
+			firing = false;	
 		}
     	public void kill(){
     		keepRunning = false;
@@ -268,18 +337,53 @@ public class Shooter
     	private boolean keepRunning = true;
 		@Override
 		public void run() {
-			preloader_forward();
-			while(ballSensor.getVoltage() < Constants.BALL_MIN_PSI && keepRunning)
-				Timer.delay(0.1);
+			intakeing_preloader_forward();
+			while(!ballHeld() && keepRunning)
+				Timer.delay(0.01);
 			preloader_stop();
-			ballPSI = ballSensorData();
+/*			ballPSI = ballSensorData();
 			Timer.delay(0.1);
 			preloader_reverse();
 			Timer.delay(0.1);
-			preloader_stop();		
+			preloader_stop();		*/
 		}
     	public void kill(){
     		keepRunning = false;
+    	}
+    }
+    public class BallSuckForLowBar extends Thread{
+    	private boolean keepRunning = true;
+    	public void kill(){
+    		keepRunning = false;
+    	}
+    	@Override
+		public void run() {
+    		suckingInBall = true;
+    		intakeing_preloader_forward();
+    		while(ballHeld() && keepRunning)
+				Timer.delay(0.01);
+    		Timer.delay(0.35);
+    		preloader_stop();
+    		ballInShooter = true;
+    		suckingInBall = false;
+    	}
+    }
+    public class BallBlower extends Thread{
+    	private boolean keepRunning = true;
+    	public void kill(){
+    		keepRunning = false;
+    	}
+    	@Override
+    	public void run(){
+    		unJamming = true;
+    		preloader_reverse();
+    		while(ballHeld() && keepRunning){
+        		Timer.delay(0.01);
+    		}    
+    		Timer.delay(0.3);
+    		preloader_stop();
+    		unJamming = false;
+    		ballInShooter = false;
     	}
     }
 }

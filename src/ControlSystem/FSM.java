@@ -13,7 +13,8 @@ public class FSM {
 	public enum State{
     	DEFAULT, INIT, LOW_BAR, 
     	INTAKE, INTAKE_READY,STOW, ELEVATOR_WAITING,ELEVATOR_LOWER, STOW_READY,
-    	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY,PTO,AUTO_SHOT,WALL_SHOT
+    	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY,PTO,AUTO_SHOT,BATTER_SHOT,
+    	SHOOTER_BALL_SUCK,SHOOTER_WAIT_FOR_BALL_SUCK
     	
     }
 	private RoboSystem robot;
@@ -98,17 +99,27 @@ public class FSM {
 	            	robot.turret.setState(Turret.State.OFF);
 	            	robot.turret.set(0.0);
 	            	robot.shooter.set(0);
-	            	robot.shooter.preloader_stop();
 	            	robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
 	            	robot.shooter.setHoodState(Shooter.HoodStates.DOWN);	            	
 	            	stateComplete(FSM.State.LOW_BAR);
+	            	setGoalState(State.SHOOTER_BALL_SUCK);
+	            	break;
+	            case SHOOTER_BALL_SUCK:
+	            	if(robot.shooter.ballHeld()){
+	            		robot.shooter.getBallOutOfShooter();	            		
+	            	}
 	            	setGoalState(State.ELEVATOR_WAITING);
+	            	break;
+	            case SHOOTER_WAIT_FOR_BALL_SUCK:
+	            	if(!robot.shooter.suckingBall()){
+	            		setGoalState(State.ELEVATOR_WAITING);
+	            	}
 	            	break;
 	            case INTAKE:
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
 	            	robot.turret.set(0.0);
 	            	robot.shooter.set(0.0);
-	            	robot.shooter.preloader_stop();
+	            	robot.shooter.startPreloaderIntake();
 	            	stateComplete(FSM.State.INTAKE);
 	            	setGoalState(State.INTAKE_READY);
 	            	break;
@@ -136,6 +147,11 @@ public class FSM {
 	            case STOW_READY:
 	            	stateComplete(FSM.State.STOW_READY);
 	            	SmartDashboard.putString("FSM_STATE", "STOW READY");
+	            	if(robot.elevator.status() == Elevator.Direction.UP){
+	            		if(robot.shooter.ballInShooter()){
+	                		robot.shooter.getBallOutOfShooter();
+	                	}
+	            	}
 	            	break;
 	            case SHOOTER_CLOSE:
 	            	robot.intake.setAngle(Constants.INTAKE_SHOOTING_ANGLE);
@@ -159,14 +175,14 @@ public class FSM {
 	            	stateComplete(FSM.State.SHOOTER_FAR);
 	            	setGoalState(State.SHOOTER_WAITING);
 	            	break;
-	            case WALL_SHOT:
-	            	robot.intake.setAngle(Constants.INTAKE_STOW_ANGLE);
+	            case BATTER_SHOT:
+	            	robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
-	            	robot.shooter.setShot(Shooter.Shot.WALL);
+	            	robot.shooter.setShot(Shooter.Shot.CLOSE);
 	            	robot.turret.setState(Turret.State.OFF);
-	            	robot.turret.set(Constants.TURRET_MIN_ANGLE);
-	            	stateComplete(FSM.State.WALL_SHOT);
+	            	robot.turret.set(0.0);
+	            	stateComplete(FSM.State.BATTER_SHOT);
 	            	setGoalState(FSM.State.SHOOTER_WAITING);
 	            	break;
 	            case AUTO_SHOT:

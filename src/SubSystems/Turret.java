@@ -22,10 +22,10 @@ public class Turret {
     private State visionState = Turret.State.OFF;
     private Vision vision;
     private Direction trackingDirection = Direction.LEFT;
-    private long timePassed = 125;
+    private long timePassed = 250;
     private long timeStarted = 0;
     private double lastAngle = 0;
-    private int turretChecks = 25;
+    private int turretChecks = 35;
     private int checksCompleted = 0;
     private double trackingTurnSpeed = 3.0;
     public static enum Direction{
@@ -115,13 +115,13 @@ public class Turret {
 		    		double turAngle = getAngle();
 		    		if(vision.isTargetSeen()){		    
 		    			if(System.currentTimeMillis() > (timeStarted + timePassed) && onTarget()){
-		    				if((lastAngle!=visionAngle && Math.abs(visionAngle) > 1.5)){
+		    				if((lastAngle!=visionAngle && Math.abs(visionAngle) > 1.15)){
 		    					System.out.println(visionAngle + " " + lastAngle + " " + turAngle + " MOVING");
 			    				set(visionAngle + angle);			    				
 			    				lastAngle = visionAngle;
 			    				timeStarted = System.currentTimeMillis();			    				
 		    				}
-		    				else{
+		    				else{		    					
 		    					System.out.println(visionAngle + " " + lastAngle + " " + turAngle+ "no move 1" + onTarget());
 		    				}
 		    			}else{
@@ -211,7 +211,7 @@ public class Turret {
     	}
     }
     public void checkForStop(){
-    	if(Util.onTarget(turret_motor.getSetpoint()* scale, getAngle(), 1.0)){
+    	if(Util.onTarget(turret_motor.getSetpoint() * scale, getAngle(), 1.0)){
     		checksCompleted--;
     	}else{
     		checksCompleted = turretChecks;

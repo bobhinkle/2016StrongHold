@@ -36,7 +36,7 @@ public class Constants {
     public static final double STRAIGHT_KD = 0.0;
     public static final double DISTANCE_TOLERANCE = 1.0;
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int INTAKE_OFFSET          = 164; //158 pbot
+    public static final int INTAKE_OFFSET          = 140; //158 pbot
     public static final int INTAKE_ARM_MAX_ANGLE   = INTAKE_OFFSET + 147; //280 298
     public static final int INTAKE_ARM_MIN_ANGLE   = INTAKE_OFFSET + 5; ///168
     public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET + 30; //231
@@ -58,9 +58,10 @@ public class Constants {
     public static final int TURRET_TRACKING_AUTO_ANGLE = 45;
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double SHOOTER_FAR_SHOT  = 4100; // 4100
-    public static final double SHOOTER_CLOSE_SHOT = 3100; //3325
+    public static final double SHOOTER_CLOSE_SHOT = 3150; //3050
     public static final double SHOOTER_AUTON_SIDE_SHOT = 4400;
-    public static final double SHOOTER_ERROR      = 200;
+    
+    public static final double SHOOTER_ERROR      = 225;
     public static final double SHOOTER_LOADER_LBS = 20;
     public static final double SHOOTER_FIRED_SPEED = SHOOTER_CLOSE_SHOT - 500;
     /////////////////////////////////////////////////////////////////////////////////////////////////
@@ -72,8 +73,8 @@ public class Constants {
     public static final int GYRO_INIT = 0;
     public static final int GYRO_READY  = 1;
     
-    public static final double PRESSURE_V2P = 5.0;
-    public static final double BALL_MIN_PSI = 25.0;
+    public static final double PRESSURE_V2P = 10.0;
+    public static final double BALL_MIN_PSI = 10.0;
     public static final double WHEELBASE_LENGTH = 33.1625;
     public static final double WHEELBASE_WIDTH  = 21.5;
     
@@ -81,6 +82,6 @@ public class Constants {
     
     public static final double CAMERA_PIXEL_WIDTH = 640.0;
 	public static final double CAMERA_FOV = 45.3;
-	public static final double GRIP_X_OFFSET = -0.0;
+	public static final double GRIP_X_OFFSET = -4.0;
 	public static final double CAM_CALIBRATION = 1.7;
 }

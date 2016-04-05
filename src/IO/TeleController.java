@@ -58,20 +58,24 @@ public class TeleController
         	fsm.setGoalState(FSM.State.SHOOTER_CLOSE);
         	robot.logFile.writeToLog(System.currentTimeMillis() + " X  PRESSED");
         }
-        if(codriver.xButton.buttonHoldTime() > 500){
-        	fsm.setGoalState(FSM.State.WALL_SHOT);
+        if(codriver.xButton.buttonHoldTime() > 250){
+        	fsm.setGoalState(FSM.State.BATTER_SHOT);
         	robot.logFile.writeToLog(System.currentTimeMillis() + " X  HELD");
         }
         ///////////////////////////////////////
         if(codriver.yButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_FAR);
+        	
         	robot.logFile.writeToLog(System.currentTimeMillis() + " Y  PRESSED");
         }
         /////////////////////////////////////////////
-        if((codriver.rightTrigger.isPressed() || codriver.rightTrigger.isHeld()) && !codriver.leftTrigger.isHeld()){ 
+        if(codriver.rightTrigger.isHeld() && codriver.rightTrigger.buttonHoldTime() < 250 && !robot.shooter.isFiring()){ 
         	robot.turret.stop();
         	robot.shooter.fire();
         	robot.logFile.writeToLog(System.currentTimeMillis() + " RT  PRESSED TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
+        }else if(codriver.rightTrigger.isHeld() && codriver.rightTrigger.buttonHoldTime() > 500 && !robot.shooter.isFiring()){
+        	robot.turret.stop();
+        	robot.shooter.noCheckFire();
         }
         //////////////////////////////////////////////////////////////////// 
         if(codriver.leftBumper.isPressed()){ 
@@ -91,19 +95,26 @@ public class TeleController
         	robot.shooter.setPresetSpeed();     
         	robot.logFile.writeToLog(System.currentTimeMillis() + " LT  PRESSED");
         }
-        if(codriver.leftTrigger.buttonHoldTime() > 250){
+        if(codriver.leftTrigger.buttonHoldTime() > 250 && !robot.shooter.isFiring()){
         	robot.logFile.writeToLog(System.currentTimeMillis() + " LT  HELD && RT HELD");
         	if(robot.elevator.status() == Elevator.Direction.UP){
-        		if(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle()) < 2 && robot.shooter.onTarget()){
+        		if(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle()) <= 1.15 && robot.shooter.onTarget() && robot.turret.onTarget()){
         			robot.turret.setState(Turret.State.OFF);
-        			Timer.delay(0.1);
         			robot.turret.stop();
+        			Timer.delay(0.25);        			
         			robot.shooter.fire();
         			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD FIRE- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
-        		}else{
+        		}else if(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle()) > 1.15){
+        			robot.turret.setState(Turret.State.SPOTTED);
+        			System.out.println("RESCAN");
+        		}
+        		else{
+        			System.out.println("NOTHING");
         			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD NO FIRE- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
         		}
         	}
+        }else{
+        	
         }
         //////////////////////////////////////////////////////
         if(codriver.backButton.isPressed()){  // stop all      
@@ -111,6 +122,8 @@ public class TeleController
         	robot.shooter.stop();
         	robot.shooter.preloader_stop();
         	robot.shooter.killFire();
+        	robot.shooter.killPreloaderIntake();
+        	robot.shooter.killBallSucker();
         	robot.logFile.writeToLog(System.currentTimeMillis() + " BACK PRESSED");
         }
         ////////////////////////////////////////////////////////
@@ -168,13 +181,13 @@ public class TeleController
         ///////////////////////////////////////////////
         if(codriver.leftCenterClick.isPressed()){
         	robot.logFile.writeToLog(System.currentTimeMillis() + " LCC PRESSED");
-        	robot.elevator.down();
+        	robot.elevator.down();        	
         }     
         ///////////////////////////////////////////////
         if(codriver.rightCenterClick.isPressed()) {
         	robot.logFile.writeToLog(System.currentTimeMillis() + " RCC PRESSED");
         	robot.turret.set(0.0);
-        	robot.turret.setState(Turret.State.OFF);
+        	robot.turret.setState(Turret.State.OFF);        	
         }
         if(codriver.getPOV() == 0){
         	robot.logFile.writeToLog(System.currentTimeMillis() + " GP UP PRESSED");
