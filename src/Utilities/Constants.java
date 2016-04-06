@@ -59,7 +59,7 @@ public class Constants {
 /////////////////////////////////////////////////////////////////////////////////////////////////
     public static final double SHOOTER_FAR_SHOT  = 4100; // 4100
     public static final double SHOOTER_CLOSE_SHOT = 3150; //3050
-    public static final double SHOOTER_AUTON_SIDE_SHOT = 4400;
+    public static final double SHOOTER_AUTON_SIDE_SHOT = 4000;
     
     public static final double SHOOTER_ERROR      = 225;
     public static final double SHOOTER_LOADER_LBS = 20;
@@ -82,6 +82,6 @@ public class Constants {
     
     public static final double CAMERA_PIXEL_WIDTH = 640.0;
 	public static final double CAMERA_FOV = 45.3;
-	public static final double GRIP_X_OFFSET = -4.0;
+	public static final double GRIP_X_OFFSET = 0; //-4
 	public static final double CAM_CALIBRATION = 1.7;
 }

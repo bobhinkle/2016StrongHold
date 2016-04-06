@@ -150,12 +150,10 @@ public class TeleController
         }
         ////////////////////////////////////////////////////////        
         if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.25) {
-        	robot.logFile.writeToLog(System.currentTimeMillis() + " RSX UP");
-        	robot.turret.setState(Turret.State.HOLDING);
+        	robot.logFile.writeToLog(System.currentTimeMillis() + " RSX UP");        	
         	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*7);
         }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.25){
         	robot.logFile.writeToLog(System.currentTimeMillis() + " RSX DOWN");
-        	robot.turret.setState(Turret.State.HOLDING);
         	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*7);
         }else{
         	
@@ -184,7 +182,7 @@ public class TeleController
         	robot.elevator.down();        	
         }     
         ///////////////////////////////////////////////
-        if(codriver.rightCenterClick.isPressed()) {
+        if(codriver.rightCenterClick.isPressed() || codriver.rightCenterClick.isHeld()) {
         	robot.logFile.writeToLog(System.currentTimeMillis() + " RCC PRESSED");
         	robot.turret.set(0.0);
         	robot.turret.setState(Turret.State.OFF);        	
@@ -202,11 +200,11 @@ public class TeleController
     public void driver() {
     	if (driver.getRawButton(1)){
     		robot.logFile.writeToLog(System.currentTimeMillis() + " DRIVER (1) PRESSED");
-    		robot.dt.setGear(GEAR.LOW);
+    		robot.dt.setGear(GEAR.HIGH);
     	}
     	if(driver.getRawButton(2)){
     		robot.logFile.writeToLog(System.currentTimeMillis() + " DRIVER (2) PRESSED");
-    		robot.dt.setGear(GEAR.HIGH); 
+    		robot.dt.setGear(GEAR.LOW); 
     		}
         if(driver.getRawButton(3)){
         	robot.logFile.writeToLog(System.currentTimeMillis() + " DRIVER (3) PRESSED");

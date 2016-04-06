@@ -186,8 +186,8 @@ public class FSM {
 	            	setGoalState(FSM.State.SHOOTER_WAITING);
 	            	break;
 	            case AUTO_SHOT:
-	            	robot.intake.setAngle(Constants.INTAKE_SHOOTING_ANGLE);
 	            	robot.elevator.up();
+	            	robot.intake.setAngle(Constants.INTAKE_SHOOTING_ANGLE);
 	            	robot.intake.intake_stop();
 	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
 	            	robot.shooter.setShot(Shooter.Shot.AUTO);

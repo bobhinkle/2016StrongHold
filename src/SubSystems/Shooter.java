@@ -56,7 +56,7 @@ public class Shooter
     	CLOSE,FAR,AUTO,WALL
     }
     public static enum HoodStates{
-    	DOWN, FAR_SHOT, CLOSE_SHOT,UP
+    	DOWN, FAR_SHOT, CLOSE_SHOT
     }
     public void setShot(Shot newShot){
     	setShot = newShot;
@@ -195,10 +195,8 @@ public class Shooter
     		topHood.set(true);
     		System.out.println("CLOSE");
     		break;
-    	case UP:
-    		hood.set(true);
-    		topHood.set(false);
-    		System.out.println("UP");
+    	default:
+    		
     		break;
     	}
     }
@@ -280,6 +278,9 @@ public class Shooter
     public boolean onTarget(){
     	return Util.onTarget(motor1.getSetpoint(), motor1.get(), Constants.SHOOTER_ERROR);
     }
+    public boolean onTarget(double error){
+    	return Util.onTarget(motor1.getSetpoint(), motor1.get(), error);
+    }
     public void fire(){
     	if(!firing){
     		if(Util.onTarget(motor1.getSetpoint(), motor1.get(), Constants.SHOOTER_ERROR) ){
@@ -335,10 +336,12 @@ public class Shooter
     }
     public class BallReadingAction extends Thread{
     	private boolean keepRunning = true;
+    	private long endTime = 0;
 		@Override
 		public void run() {
+			endTime = System.currentTimeMillis()+2000;
 			intakeing_preloader_forward();
-			while(!ballHeld() && keepRunning)
+			while(!ballHeld() && keepRunning && (System.currentTimeMillis() < endTime))
 				Timer.delay(0.01);
 			preloader_stop();
 /*			ballPSI = ballSensorData();

@@ -7,6 +7,8 @@ import ControlSystem.RoboSystem;
 import IO.TeleController;
 import SubSystems.DistanceController;
 import SubSystems.DriveTrain.GEAR;
+import Utilities.Constants;
+import Utilities.Util;
 import SubSystems.Elevator;
 import SubSystems.Shooter;
 import SubSystems.TurnController;
@@ -52,12 +54,12 @@ public class Robot extends SampleRobot {
 
     public void autonomous() {
     	robot.vision.setAutonomousTracking(true);
-    	String autoSelected = (String) chooser.getSelected();
-//		String autoSelected = testRun;
+//    	String autoSelected = (String) chooser.getSelected();
+		String autoSelected = testRun;
 		System.out.println("Auto selected: " + autoSelected);
 		robot.dt.setGear(GEAR.HIGH);
-		fsm.setGoalState(FSM.State.LOW_BAR);
-		Timer.delay(0.5);
+		//fsm.setGoalState(FSM.State.LOW_BAR);
+		//Timer.delay(0.5);
 		robot.nav.resetPitch();
 		robot.nav.resetRobotPosition(0, 0, 0, true);
     	switch(autoSelected) {
@@ -111,26 +113,64 @@ public class Robot extends SampleRobot {
             break;
     	case testRun:    		
     		robot.turret.setState(Turret.State.OFF);
-    		driveDistanceHoldingHeading(100, 0, 0.57, 2, 2.0, true, 0,0);
+    		/*driveDistanceHoldingHeading(100, 0, 0.57, 2, 2.0, true, 0,0);
     		fsm.setGoalState(FSM.State.AUTO_SHOT);  
     		driveDistanceHoldingHeading(200, 0, 0.8, 2, 2.0, false, 0,-51);
-    		Timer.delay(2.0);
+    		*/
+    		Timer.delay(1.0);    		  
+    		fsm.setGoalState(FSM.State.AUTO_SHOT);
+    		robot.shooter.preloader_stop();
+    		Timer.delay(2.0);    		  
     		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
     			System.out.println("Step2");
     			Timer.delay(0.1);
-    		}     		
-    		robot.shooter.setShot(Shooter.Shot.AUTO);
-    		robot.shooter.setPresetSpeed();
-    		robot.turret.set(-51.0);
-    		Timer.delay(1.0);
-    		if(Math.abs(Vision.getAngle()) < 5 ){
+    		}           	
+			
+    		robot.turret.set(-55.0);
+    		Timer.delay(0.5);
+    		robot.turret.setState(Turret.State.SINGLE); 
+        	robot.shooter.preloader_stop();  
+        	boolean keepGoing = true;
+    		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 45 && isAutonomous() && keepGoing){
+    			if(Math.abs(Vision.getAngle()) < 1.75){ 
+    				robot.turret.setState(Turret.State.OFF);
+    				robot.turret.stop();
+    				robot.shooter.setShot(Shooter.Shot.AUTO);
+    	    		robot.shooter.setPresetSpeed();
+    				Timer.delay(1);
+    	    		System.out.println("AUTO 1");
+    	    		if(robot.shooter.onTarget()){
+    	    			System.out.println("AUTO 2");
+    	    			robot.shooter.fire();
+    	    		}else{
+    	    			System.out.println("AUTO 3");
+    	    			Timer.delay(2.0);
+    	    			if(robot.shooter.onTarget(500)){
+    	    				System.out.println("AUTO 4");
+    	    				robot.shooter.fire();
+    	    			}    	    			
+    	    		}        			
+        			keepGoing = false;
+    			}
+    			else{
+    				System.out.println("AUTO 5");
+    				robot.turret.setState(Turret.State.SINGLE);    					   
+    			}
+    		}
+    		System.out.println("AUTO 6");
+    		/*
+    		if(Math.abs(Vision.getAngle()) < 15 ){
 	     		robot.turret.setState(Turret.State.SINGLE);    		
-	    		Timer.delay(1.0);
+	    		Timer.delay(.5);
+	    		robot.turret.setState(Turret.State.SINGLE);    		
+	    		Timer.delay(.5);
+	    		robot.turret.setState(Turret.State.SINGLE);    		
+	    		Timer.delay(.5);
     		}
     		while(!robot.shooter.onTarget() && isAutonomous()){
     			Timer.delay(0.1);
     		}
-    		if(robot.vision.isTargetSeen() && Vision.getAngle() < 5  && Vision.getAngle() > -5 && isAutonomous()){
+    		if(robot.vision.isTargetSeen() && Vision.getAngle() < 1.5  && Vision.getAngle() > -1.5 && isAutonomous()){
     			robot.turret.setState(Turret.State.OFF);
     			robot.turret.stop();
     			robot.shooter.fire();
@@ -141,8 +181,8 @@ public class Robot extends SampleRobot {
     			robot.turret.stop();
     			robot.shooter.fire();
     			Timer.delay(2.0);
-    		}
-
+    		}*/
+/*
     		fsm.setGoalState(FSM.State.LOW_BAR);
     		driveDistanceHoldingHeading(200, 0, 0.68, 2, 2.0, false, 0,0); //120
     		if(robot.elevator.status() == Elevator.Direction.DOWN){
@@ -152,6 +192,7 @@ public class Robot extends SampleRobot {
 	    			Timer.delay(0.1);
 	    		}
     		}
+    		*/
             break;
     	case defaultAuto:
     	default:
