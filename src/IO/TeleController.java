@@ -79,7 +79,7 @@ public class TeleController
         }else if(codriver.rightTrigger.isHeld() && codriver.rightTrigger.buttonHoldTime() > 500 && !robot.shooter.isFiring() && robot.shooter.shooterOn()){
         	robot.turret.stop();
         	robot.shooter.noCheckFire();
-        	robot.logFile.writeToLog("FORCE FIRE");
+        	robot.logFile.writeToLog("FORCE FIRE2");
         }
         //////////////////////////////////////////////////////////////////// 
         if(codriver.leftBumper.isPressed()){ 

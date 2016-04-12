@@ -22,10 +22,8 @@ public class Robot extends SampleRobot {
     RoboSystem robot;
     private TeleController controllers;
     final String defaultAuto = "low bar";
-    final String rockwall = "rockwall";
-    final String rough    = "rough terrain";
+    final String rough_rock_ramps    = "rough terrain";
     final String cdf        = "cdf";
-    final String ramParts  = "ramParts";
     final String pc		   = "Portcullis";
     
     final String defaultPosition = "1";
@@ -47,7 +45,7 @@ public class Robot extends SampleRobot {
         controllers = TeleController.getInstance();
     }
     public static enum AUTO{
-    	CDF, LOWBAR,ROCKWALL, PC,ROUGH,RAMPS
+    	CDF, LOWBAR,PC,ROUGH_ROCK_RAMPS
     }
     public static enum AUTO_TARGET_SELECT{
     	LEFT,RIGHT
@@ -55,12 +53,10 @@ public class Robot extends SampleRobot {
     public void robotInit() {
         defenseType = new SendableChooser();
         defenseType.addDefault("Low Bar", defaultAuto);
-        defenseType.addObject("Rock Wall", rockwall);
-        defenseType.addObject("Rough Terrain", rough);
+        defenseType.addObject("Rough Terrain", rough_rock_ramps);
         defenseType.addObject("CDF", cdf);
-        defenseType.addObject("Ramparts", ramParts);
         defenseType.addObject("Portcullis", pc);
-        SmartDashboard.putData("Auto Select ", defenseType);
+        SmartDashboard.putData("Auto Select2", defenseType);
         
         position = new SendableChooser();
         position.addDefault("1", defaultPosition);
@@ -68,7 +64,7 @@ public class Robot extends SampleRobot {
         position.addObject("3", pos3);
         position.addObject("4", pos4);
         position.addObject("5", pos5);
-        SmartDashboard.putData("Position Mode", position);
+        SmartDashboard.putData("Position Mode2", position);
         
         fsm = FSM.getInstance();
         fsm.start();
@@ -219,9 +215,7 @@ public class Robot extends SampleRobot {
     			Timer.delay(0.1);
     		}    	    	
     		break;
-    	case ROCKWALL:
-    	case RAMPS:
-    	case ROUGH:
+    	case ROUGH_ROCK_RAMPS:
     		fsm.setGoalState(FSM.State.CDF_CROSS);
     		driveDistanceHoldingHeading(overallDistance, 0, 0.8, 7, 4.0, false, 0,0);
     		robot.turret.set(turretAngle);
@@ -229,7 +223,7 @@ public class Robot extends SampleRobot {
     		robot.turret.setState(Turret.State.SINGLE);
     		keepGoing = true;
     		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 30 && isAutonomous() && keepGoing){
-    			if(Math.abs(Vision.getAngle()) < 1.5){ 
+    			if(Math.abs(Vision.getAngle()) < 1.25){ 
     				robot.turret.setState(Turret.State.OFF);
     				robot.turret.stop();
     				if(shot == Shooter.Shot.CLOSE){
@@ -279,18 +273,11 @@ public class Robot extends SampleRobot {
 			case defaultAuto:
 				executeAuto(AUTO.LOWBAR,pos);
 				break;
-			case rockwall:
-				executeAuto(AUTO.ROCKWALL,pos);
-				break;
-			
-			case rough:
-				executeAuto(AUTO.ROUGH,pos);
+			case rough_rock_ramps:
+				executeAuto(AUTO.ROUGH_ROCK_RAMPS,pos);
 				break;
 			case cdf: 
 				executeAuto(AUTO.CDF,pos);
-				break;
-			case ramParts:
-				executeAuto(AUTO.RAMPS,pos);
 				break;
 			case pc:
 				executeAuto(AUTO.PC,pos);

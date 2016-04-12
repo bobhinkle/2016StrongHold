@@ -332,7 +332,7 @@ public class Shooter
     	private long endTime = 0;
 		@Override
 		public void run() {
-			endTime = System.currentTimeMillis()+3000;
+			endTime = System.currentTimeMillis()+2000;
 			firing = true;
 			preloader_forward();
 			while(motor1.get() > motor1.getSetpoint() - Constants.SHOOTER_FIRED_SPEED && keepRunning && (System.currentTimeMillis() < endTime))
