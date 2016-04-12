@@ -6,10 +6,10 @@ import java.util.Map;
 import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
-import edu.wpi.first.wpilibj.AnalogInput;
 import edu.wpi.first.wpilibj.CANTalon;
 import edu.wpi.first.wpilibj.CANTalon.FeedbackDevice;
 import edu.wpi.first.wpilibj.CANTalon.TalonControlMode;
+import edu.wpi.first.wpilibj.DigitalInput;
 import edu.wpi.first.wpilibj.Solenoid;
 import edu.wpi.first.wpilibj.Timer;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
@@ -33,9 +33,8 @@ public class Shooter
     private Shot setShot = Shot.CLOSE;
     Map<Integer, Double> map;
     Map<Integer,String> adjustments;    
-    private AnalogInput ballSensor;
+    private DigitalInput ballSensor;
     SendableChooser chooser;
-    private double ballPSI = 0.0;
     private BallReadingAction ballIntake;
     private boolean intakingBall = false;
     private BallSuckForLowBar bSucker;
@@ -101,17 +100,20 @@ public class Shooter
         chooser.addObject("-750", adjustments.get(7));
         chooser.addObject("-1000", adjustments.get(8));
         SmartDashboard.putData("Shooter modes", chooser);
-        ballSensor = new AnalogInput(Ports.PRESSURE);
+        ballSensor = new DigitalInput(Ports.BALL_SENSOR);
         loadMap();
     }
     public double ballSensorData(){
-    	return ballSensor.getVoltage() * Constants.PRESSURE_V2P;
+    	return preloader_motor.getOutputCurrent();
     }
     public void startPreloaderIntake(){
     	if(!intakingBall){
     		ballIntake = new BallReadingAction();
     		ballIntake.start();
     	}
+    }
+    public void clearFire(){
+    	firing = false;
     }
     public boolean ballInShooter(){
     	return ballInShooter;
@@ -142,7 +144,7 @@ public class Shooter
     	return suckingInBall;
     }
     public boolean ballHeld(){
-    	return ballSensorData() > Constants.BALL_MIN_PSI;
+    	return ballSensorData() > Constants.BALL_DRAW;
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -151,7 +153,11 @@ public class Shooter
     	SmartDashboard.putNumber("SHOOTER_CURRENT", motor1.getOutputCurrent());
     	SmartDashboard.putNumber("SHOOTER_ERROR", motor1.getSetpoint()-motor1.getSpeed());
     	SmartDashboard.putNumber("BALL_PRES1", ballSensorData());
-    	SmartDashboard.putBoolean("SHOOTER_BALL_IN", ballInShooter());
+    	SmartDashboard.putBoolean("SHOOTER_BALL_IN", ballHeld());
+    	SmartDashboard.putBoolean("FIRING", firing);
+    }
+    public boolean shooterOn(){
+    	return motor1.getSetpoint() > 2000;
     }
     public void loadMap(){
     	map =  new HashMap<>();
@@ -281,6 +287,9 @@ public class Shooter
     public boolean onTarget(double error){
     	return Util.onTarget(motor1.getSetpoint(), motor1.get(), error);
     }
+    public boolean firing(){
+    	return firing;
+    }
     public void fire(){
     	if(!firing){
     		if(Util.onTarget(motor1.getSetpoint(), motor1.get(), Constants.SHOOTER_ERROR) ){
@@ -315,13 +324,18 @@ public class Shooter
     public boolean isFiring(){
     	return firing;
     }
+    public Shot shot(){
+    	return setShot;
+    }
     public class ShootingAction extends Thread{
     	private boolean keepRunning = true;
+    	private long endTime = 0;
 		@Override
 		public void run() {
+			endTime = System.currentTimeMillis()+3000;
 			firing = true;
 			preloader_forward();
-			while(motor1.get() > Constants.SHOOTER_FIRED_SPEED && keepRunning)
+			while(motor1.get() > motor1.getSetpoint() - Constants.SHOOTER_FIRED_SPEED && keepRunning && (System.currentTimeMillis() < endTime))
 				Timer.delay(0.1);
 			if(keepRunning){
 				Timer.delay(2.0);

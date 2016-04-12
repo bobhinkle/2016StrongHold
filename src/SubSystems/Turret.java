@@ -1,6 +1,5 @@
 package SubSystems;
 
-import ControlSystem.FSM;
 import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
@@ -21,7 +20,6 @@ public class Turret {
     private State visionState = Turret.State.OFF;
     private Vision vision;
     private Direction trackingDirection = Direction.LEFT;
-    private double lastAngle = 0;
     private int turretChecks = 25;
     private int checksCompleted = 0;
     public static enum Direction{
@@ -47,7 +45,8 @@ public class Turret {
     	turret_motor.configPeakOutputVoltage(+12f, -12f);
     	turret_motor.setAllowableClosedLoopErr(0); 
     	turret_motor.changeControlMode(TalonControlMode.Position);
-    	turret_motor.setPID(5, 0.001, 50.0, 0.0, 0, 0.0, 0);       //added I for auto, may wanna tune the turret and then add i just for auto
+    	turret_motor.setPID(5, 0.001, 50.0, 0.0, 0, 0.0, 0); 
+    	turret_motor.setPID(5.5, 0.0015, 40.0, 0.0, 0, 0.0, 1);//added I for auto, may wanna tune the turret and then add i just for auto
     	turret_motor.setProfile(0);
     	turret_motor.set(0.0);
     	hallEffect = new DigitalInput(Ports.TURRET_RESET);
@@ -64,6 +63,11 @@ public class Turret {
     public void update(){
     	vision.update();
     	angle = getAngle();
+    	if(Math.abs(angle - (turret_motor.getSetpoint()*scale)) < 2){
+    		turret_motor.setProfile(1);
+    	}else{
+    		turret_motor.setProfile(0);
+    	}
     	checkForStop();    	
     	SmartDashboard.putNumber("TURRET_GOAL", turret_motor.getSetpoint()*scale);
     	SmartDashboard.putNumber("TURRET_ER", Math.abs(angle - (turret_motor.getSetpoint()*scale)));
@@ -76,8 +80,10 @@ public class Turret {
 	    		SmartDashboard.putString("TUR_STATUS", "OFF");
 	    		break;
 	    	case TRACKING:	    	
+	    		boolean trackSet = false;
 	    		SmartDashboard.putString("TUR_STATUS", "TRACKING");
-	    		if(vision.isTargetSeen()){		    			
+	    		if(vision.isTargetSeen()){		    		
+	    			trackSet = false;
 	    			setState(Turret.State.SPOTTED);
 	    		}else{	
 	    			SmartDashboard.putString("TUR_STATUS", "MOVING");
@@ -86,20 +92,31 @@ public class Turret {
 	    				SmartDashboard.putString("TUR_STATUS", "T_LEFT");
 	    				if(onTarget()){
 	    					trackingDirection = Turret.Direction.RIGHT;
+	    					trackSet = false;
 	    				}else{
-	    					set(30);
+	    					if(!trackSet){
+	    						set(15);
+	    						trackSet = true;
+	    					}
+	    					
 	    				}
 	    				break;
 	    			case RIGHT:
 	    				SmartDashboard.putString("TUR_STATUS", "T_RIGHT");
 	    				if(onTarget()){
 	    					trackingDirection = Turret.Direction.LEFT;
+	    					trackSet = false;
 	    				}else{
-	    					set(-30);
+	    					if(!trackSet){
+	    						set(-15);
+	    						trackSet = true;
+	    					}
 	    				}
 	    				break;
 	    			case FIRST:
-	    				set(0.0);		    				
+	    				set(0.0);	
+	    				trackSet = true;
+	    				trackingDirection = Turret.Direction.LEFT;
 	    				break;
 	    			}		    		
 	    		}
@@ -110,14 +127,14 @@ public class Turret {
 	    		if(vision.isTargetSeen()){		    
 	    			if(onTarget()){
 	    				if(Math.abs(visionAngle) > 1.15){
-	    					System.out.println(visionAngle + " " + lastAngle + " " + angle + " MOVING");
+//	    					System.out.println(visionAngle + " " + lastAngle + " " + angle + " MOVING");
 		    				set(visionAngle + angle);			    				
 	    				}
 	    				else{		    					
-	    					System.out.println(visionAngle + " " + lastAngle + " " + angle+ "no move 1" + onTarget());
+//	    					System.out.println(visionAngle + " " + lastAngle + " " + angle+ "no move 1" + onTarget());
 	    				}
 	    			}else{
-	    				System.out.println(visionAngle + " " + lastAngle + " " + angle + "no move 2" + onTarget());
+//	    				System.out.println(visionAngle + " " + lastAngle + " " + angle + "no move 2" + onTarget());
 	    			}
 	    		}else{
 	    			trackingDirection = Turret.Direction.FIRST;
@@ -182,7 +199,7 @@ public class Turret {
     	}
     }
     public void checkForStop(){
-    	if(Util.onTarget(turret_motor.getSetpoint() * scale, getAngle(), 1.0)){
+    	if(Util.onTarget(turret_motor.getSetpoint() * scale, getAngle(), 0.5)){
     		checksCompleted--;
     	}else{
     		checksCompleted = turretChecks;

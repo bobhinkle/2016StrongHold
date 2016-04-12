@@ -14,7 +14,7 @@ public class FSM {
     	DEFAULT, INIT, LOW_BAR, 
     	INTAKE, INTAKE_READY,STOW, ELEVATOR_WAITING,ELEVATOR_LOWER, STOW_READY,
     	SHOOTER_CLOSE, SHOOTER_FAR, SHOOTER_WAITING,SHOOTER_READY,PTO,AUTO_SHOT,BATTER_SHOT,
-    	SHOOTER_BALL_SUCK,SHOOTER_WAIT_FOR_BALL_SUCK
+    	SHOOTER_BALL_SUCK,SHOOTER_WAIT_FOR_BALL_SUCK,CDF_CROSS
     	
     }
 	private RoboSystem robot;
@@ -95,6 +95,15 @@ public class FSM {
 	                SmartDashboard.putString("FSM_STATE", "INIT");
 	                stateComplete(State.INIT);
 	                break;
+	            case CDF_CROSS:
+	            	robot.intake.setAngle(Constants.INTAKE_WAIT_FOR_GRAB);
+	            	robot.elevator.up();
+	            	robot.intake.intake_stop();
+	            	robot.shooter.setHoodState(Shooter.HoodStates.FAR_SHOT);
+	            	robot.turret.setState(Turret.State.OFF);
+	            	stateComplete(FSM.State.CDF_CROSS);
+	            	setGoalState(State.SHOOTER_WAITING);
+	            	break;
 	            case LOW_BAR:
 	            	robot.turret.setState(Turret.State.OFF);
 	            	robot.turret.set(0.0);
@@ -117,7 +126,7 @@ public class FSM {
 	            	break;
 	            case INTAKE:
 	            	robot.intake.setAngle(Constants.INTAKE_GRAB_BALL_ANGLE);
-	            	robot.turret.set(0.0);
+//	            	robot.turret.set(0.0);
 	            	robot.shooter.set(0.0);
 	            	robot.shooter.startPreloaderIntake();
 	            	stateComplete(FSM.State.INTAKE);

@@ -120,7 +120,9 @@ public class DriveTrain{
         double angular_power;
         double linear_power;
         double wheelNonLinearity;
-
+        if(Math.abs(throttle) < 0.2){
+        	throttle = 0.0;
+        }
         double neg_inertia = wheel - old_wheel;
         old_wheel = wheel;
 
@@ -141,7 +143,7 @@ public class DriveTrain{
         if (!inLowGear()) {
                 neg_inertia_scalar = 1.25; // used to be csvReader->NEG_INT 11
                 sensitivity = 1.06; // used to be csvReader->SENSE_HIGH  1.15
-                if (Math.abs(throttle) > 0.1) { // used to be csvReader->SENSE_
+                if (Math.abs(throttle) > 0.15) { // used to be csvReader->SENSE_ .15
                         sensitivity = .9 - (.9 - sensitivity) / Math.abs(throttle);
                 }
         } else {
@@ -156,12 +158,12 @@ public class DriveTrain{
                 }
                 sensitivity = 1.30; // used to be csvReader->SENSE_LOW lower is less sensitive 1.07
 
-                if (Math.abs(throttle) > 0.1) { // used to be csvReader->SENSE_
+                if (Math.abs(throttle) > 0.1) { // used to be csvReader->SENSE_ .1
                         sensitivity = .9 - (.9 - sensitivity) / Math.abs(throttle);
                 }
         }
         double neg_inertia_power = neg_inertia * neg_inertia_scalar;
-        if (Math.abs(throttle) >= 0.05 || quickturn) neg_inertia_accumulator += neg_inertia_power;
+        if (Math.abs(throttle) >= 0.25 || quickturn) neg_inertia_accumulator += neg_inertia_power; //.25
         
         wheel = wheel + neg_inertia_accumulator;
         if (neg_inertia_accumulator > 1)
@@ -173,7 +175,7 @@ public class DriveTrain{
 
         linear_power = throttle;
 
-        if ((!Util.inRange(throttle, -0.2,0.2) || !(Util.inRange(wheel, -0.4, 0.4))) && quickturn) {
+        if ((!Util.inRange(throttle, -0.2,0.2) || !(Util.inRange(wheel, -0.4, 0.4))) && quickturn) { //.2
                 overPower = 1.0;
                 if (currentGear == GEAR.HIGH) {
                         sensitivity = 1.0; // default 1.0
@@ -185,7 +187,7 @@ public class DriveTrain{
                 overPower = 0.0;
                 angular_power = Math.abs(throttle) * wheel * sensitivity;
         }
-//        System.out.println("NA " + neg_inertia_accumulator + " AP " + angular_power + " wheel " + wheel + " throttle" + throttle + " NAP " + neg_inertia_power);
+//      System.out.println("NA " + neg_inertia_accumulator + " AP " + angular_power + " wheel " + wheel + " throttle" + throttle + " NAP " + neg_inertia_power);
         right_pwm = left_pwm = linear_power;
         left_pwm += angular_power;
         right_pwm -= angular_power;

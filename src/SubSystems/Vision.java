@@ -7,20 +7,27 @@ import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 public class Vision {
 
 	private static Vision instance = null;
-	    // From server
-		public static volatile double gripX = 0.0;
-		public static volatile double width = 0.0;
-		public static double[] centerXArray;
-		public static double[] centerYArray;
-		private static double[] gripAreaArray;
-		private static double[] widthArray;
-		// Grip network
-		private final NetworkTable grip = NetworkTable.getTable("GRIP");
-		public Process gripProcess;
-		private final double[]  DUMMY = {5000};
-		private boolean targetSeen = false;
-		private static volatile double gripCenterY = 0.0;
-		private boolean autonomousShotTracking = false;
+    // From server
+	public static volatile double gripX = 0.0;
+	public static volatile double width = 0.0;
+	public static double[] centerXArray;
+	public static double[] centerYArray;
+	private static double[] gripAreaArray;
+	private static double[] widthArray;
+	// Grip network
+	private final NetworkTable grip = NetworkTable.getTable("GRIP");
+	public Process gripProcess;
+	private final double[]  DUMMY = {5000};
+	private boolean targetSeen = false;
+	private static volatile double gripCenterY = 0.0;
+	private boolean autonomousShotTracking = false;
+	private BIAS bias = BIAS.BIGGEST;
+	public static enum BIAS{
+		LEFT,RIGHT,BIGGEST
+	}
+	public void setBias(BIAS toSee){
+		bias = toSee;
+	}
 	public Vision(){
 		SmartDashboard.putString("VISION","INIT2");
         updateGripNetwork();
@@ -46,22 +53,33 @@ public class Vision {
         	targetSeen = true;
         	double maxArea = 0;
         	int maxIndex = 0;
-        	if(autonomousShotTracking){
-        		for(int i = 0; i < centerYArray.length; i++){
-            		if(centerYArray[i]<maxArea){
-            			maxArea = centerYArray[i];
+        	switch(bias){
+        	case LEFT:
+        		for(int i = 0; i < centerXArray.length; i++){
+            		if(centerXArray[i]<maxArea){
+            			maxArea = centerXArray[i];
             			maxIndex = i;
             		}
             	}
-        	}else{
+        		break;
+        	case RIGHT:
+        		for(int i = 0; i < centerXArray.length; i++){
+            		if(centerXArray[i]>maxArea){
+            			maxArea = centerXArray[i];
+            			maxIndex = i;
+            		}
+            	}
+        		break;
+        	case BIGGEST:
         		for(int i = 0; i < gripAreaArray.length; i++){
             		if(gripAreaArray[i]>maxArea){
             			maxArea = gripAreaArray[i];
             			maxIndex = i;
             		}
             	}
+        		break;
         	}        	
-        	gripCenterY = centerXArray[maxIndex];
+        	gripCenterY = centerYArray[maxIndex];
         	gripX = centerXArray[maxIndex];
         	width = widthArray[maxIndex];
         }else {
@@ -74,6 +92,7 @@ public class Vision {
     public static double getAngle(double x){
         double slope = Constants.CAMERA_FOV/Constants.CAMERA_PIXEL_WIDTH;
         double intercept = -Constants.CAMERA_FOV/2.0;
+//        System.out.println("slope:" + slope + " intertecpt:" + intercept + " x:" + x);
         return (((x*slope)+intercept)*Constants.CAM_CALIBRATION)+Constants.GRIP_X_OFFSET; //gripX
     }
     public static double getAngle(){
@@ -84,13 +103,12 @@ public class Vision {
     	SmartDashboard.putNumber("AngeToTurnAim", getAngle());
     	SmartDashboard.putBoolean("TARGET_SEEN", isTargetSeen()); 
     	SmartDashboard.putNumber("XCoorX", gripX);
-    	SmartDashboard.putNumber("X_MIN",gripCenterY);
+    	SmartDashboard.putNumber("YCOOR",gripCenterY);
     	SmartDashboard.putString("VISION","FINISHED");
 //    	System.out.println(gripX + " "  + getAngle(gripX) + " " + " " + gripCenterY + " " + width + " " + isTargetSeen());
     	
     }
     public boolean isTargetSeen() {
-//    	return Math.abs(getAngle()) != 27.0;
     	return targetSeen;
     }
 }

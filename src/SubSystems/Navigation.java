@@ -90,8 +90,10 @@ public class Navigation implements PIDSource{
     }
     public synchronized void resetRobotPosition(double x, double y, double theta,boolean gyroReset)
     {
+    	rightWheel.reset();
+        leftWheel.reset();
         this.x = x;
-        this.y = y;
+        this.y = y;        
         if(gyroReset){
         	resetPitch();
         }
