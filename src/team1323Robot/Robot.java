@@ -60,7 +60,7 @@ public class Robot extends SampleRobot {
         defenseType.addObject("CDF", cdf);
         defenseType.addObject("Ramparts", ramParts);
         defenseType.addObject("Portcullis", pc);
-        SmartDashboard.putData("Auto modes", defenseType);
+        SmartDashboard.putData("Auto Select ", defenseType);
         
         position = new SendableChooser();
         position.addDefault("1", defaultPosition);
@@ -68,7 +68,7 @@ public class Robot extends SampleRobot {
         position.addObject("3", pos3);
         position.addObject("4", pos4);
         position.addObject("5", pos5);
-        SmartDashboard.putData("Position", position);
+        SmartDashboard.putData("Position Mode", position);
         
         fsm = FSM.getInstance();
         fsm.start();
@@ -270,277 +270,32 @@ public class Robot extends SampleRobot {
     public void autonomous() {
     	robot.vision.setAutonomousTracking(true);
     	String autoSelected = (String) defenseType.getSelected();
-//		String autoSelected = testRun;
+    	String positionSelected = (String) position.getSelected();
+    	int pos = Integer.parseInt(positionSelected);
 		System.out.println("Auto selected: " + autoSelected);
-//		robot.dt.setGear(GEAR.HIGH);
-//		fsm.setGoalState(FSM.State.LOW_BAR);
 		robot.nav.resetPitch();
 		robot.nav.resetRobotPosition(0, 0, 0, true);
-		boolean keepGoing = true;
-    	switch(autoSelected) {
-    	case ramParts:
-    		//5th position
-    		fsm.setGoalState(FSM.State.CDF_CROSS);
-    		driveDistanceHoldingHeading(235, 0, 0.8, 7, 4.0, false, 0,0);
-    		robot.turret.set(20);
-    		Timer.delay(2);
-    		robot.turret.setState(Turret.State.SINGLE);
-    		keepGoing = true;
-    		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 30 && isAutonomous() && keepGoing){
-    			if(Math.abs(Vision.getAngle()) < 1.5){ 
-    				robot.turret.setState(Turret.State.OFF);
-    				robot.turret.stop();
-    				robot.shooter.setShot(Shooter.Shot.FAR);
-    	    		robot.shooter.setPresetSpeed();
-    				Timer.delay(2);
-    	    		System.out.println("AUTO 1");
-    	    		if(robot.shooter.onTarget()){
-    	    			System.out.println("AUTO 2");
-    	    			robot.shooter.fire();
-    	    		}else{
-    	    			System.out.println("AUTO 3");
-    	    			Timer.delay(.5);
-    	    			if(robot.shooter.onTarget(500)){
-    	    				System.out.println("AUTO 4");
-    	    				robot.shooter.fire();
-    	    			}    	    			
-    	    		}        			
-        			keepGoing = false;
-    			}
-    			else{
-    				System.out.println("AUTO 5");
-    				robot.turret.setState(Turret.State.SINGLE);    					   
-    			}
-    		}
-    		break;
-    		/*
-    		 //4th position
-    		fsm.setGoalState(FSM.State.CDF_CROSS);
-    		driveDistanceHoldingHeading(170, 0, 0.8, 7, 4.0, false, 0,0);
-    		robot.turret.set(5);
-    		Timer.delay(2);
-    		robot.turret.setState(Turret.State.SINGLE);
-    		keepGoing = true;
-    		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 30 && isAutonomous() && keepGoing){
-    			if(Math.abs(Vision.getAngle()) < 1.5){ 
-    				robot.turret.setState(Turret.State.OFF);
-    				robot.turret.stop();
-    				robot.shooter.setShot(Shooter.Shot.FAR);
-    	    		robot.shooter.setPresetSpeed();
-    				Timer.delay(2);
-    	    		System.out.println("AUTO 1");
-    	    		if(robot.shooter.onTarget()){
-    	    			System.out.println("AUTO 2");
-    	    			robot.shooter.fire();
-    	    		}else{
-    	    			System.out.println("AUTO 3");
-    	    			Timer.delay(.5);
-    	    			if(robot.shooter.onTarget(500)){
-    	    				System.out.println("AUTO 4");
-    	    				robot.shooter.fire();
-    	    			}    	    			
-    	    		}        			
-        			keepGoing = false;
-    			}
-    			else{
-    				System.out.println("AUTO 5");
-    				robot.turret.setState(Turret.State.SINGLE);    					   
-    			}
-    		}
-    		break;
-    		*/
-    		
-    		/*
-    		//2nd position atm
-    		fsm.setGoalState(FSM.State.CDF_CROSS);
-    		driveDistanceHoldingHeading(260, 0, 0.8, 7, 4.0, false, 0,0);
-    		robot.turret.set(-40);
-    		Timer.delay(2);
-    		robot.turret.setState(Turret.State.SINGLE);
-    		keepGoing = true;
-    		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 30 && isAutonomous() && keepGoing){
-    			if(Math.abs(Vision.getAngle()) < 1.5){ 
-    				robot.turret.setState(Turret.State.OFF);
-    				robot.turret.stop();
-    				robot.shooter.setShot(Shooter.Shot.FAR);
-    	    		robot.shooter.setPresetSpeed();
-    				Timer.delay(2);
-    	    		System.out.println("AUTO 1");
-    	    		if(robot.shooter.onTarget()){
-    	    			System.out.println("AUTO 2");
-    	    			robot.shooter.fire();
-    	    		}else{
-    	    			System.out.println("AUTO 3");
-    	    			Timer.delay(.5);
-    	    			if(robot.shooter.onTarget(500)){
-    	    				System.out.println("AUTO 4");
-    	    				robot.shooter.fire();
-    	    			}    	    			
-    	    		}        			
-        			keepGoing = false;
-    			}
-    			else{
-    				System.out.println("AUTO 5");
-    				robot.turret.setState(Turret.State.SINGLE);    					   
-    			}
-    		}
-    		break;
-    		*/
-    	case cdf:
-    		fsm.setGoalState(FSM.State.CDF_CROSS);
-    		driveDistanceHoldingHeading(36, 0, 0.8, 1.5, 2.0, false, 0,0);
-    		while(!dist.onTarget() && isAutonomous()){
-    			System.out.println("WAITING1");
-    			Timer.delay(0.1);
-    		}  
-    		robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
-    		while(isAutonomous() && robot.intake.getAngle() > Constants.INTAKE_LOW_BAR_ANGLE + 5){
-    			Timer.delay(0.01);
-    		}
-    		robot.turret.set(-26);
-    		driveDistanceHoldingHeading(125, 0, 0.8, 5, 5.0, false, 0,0);
-    		Timer.delay(2);
-    		robot.turret.setState(Turret.State.SINGLE);
-    		keepGoing = true;
-    		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 30 && isAutonomous() && keepGoing){
-    			if(Math.abs(Vision.getAngle()) < 1.25){ 
-    				robot.turret.setState(Turret.State.OFF);
-    				robot.turret.stop();
-    				robot.shooter.setShot(Shooter.Shot.FAR);
-    	    		robot.shooter.setPresetSpeed();
-    				Timer.delay(2);
-    	    		System.out.println("AUTO 1");
-    	    		if(robot.shooter.onTarget()){
-    	    			System.out.println("AUTO 2");
-    	    			robot.shooter.fire();
-    	    		}else{
-    	    			System.out.println("AUTO 3");
-    	    			Timer.delay(.5);
-    	    			if(robot.shooter.onTarget(500)){
-    	    				System.out.println("AUTO 4");
-    	    				robot.shooter.fire();
-    	    			}    	    			
-    	    		}        			
-        			keepGoing = false;
-    			}
-    			else{
-    				System.out.println("AUTO 5");
-    				robot.turret.setState(Turret.State.SINGLE);    					   
-    			}
-    		}
-    		break;
-    	case rockwall:
-    		//Distance - Heading - Max Speed - Timout - Tolerance 
-    		System.out.println("Step1");
-    		driveDistanceHoldingHeading(152, 0, 0.57, 4, 2.0, false, 0,0);
-    		while(!dist.onTarget() && isAutonomous()){
-    			System.out.println("WAITING1");
-    			Timer.delay(0.1);
-    		}    		    	
-    		System.out.println("DONE");    		
-    		fsm.setGoalState(FSM.State.AUTO_SHOT);
-    		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
-    			System.out.println("Step2");
-    			Timer.delay(0.1);
-    		}    		
-    		robot.shooter.preloader_forward();
-    		
-    		robot.turret.set(-45.0);
-    		Timer.delay(0.25);
-    		robot.shooter.preloader_stop();
-    		System.out.println("Step3");
-    		Timer.delay(0.25);
-    		System.out.println("Step4");
-    		robot.turret.setState(Turret.State.SINGLE);
-    		Timer.delay(0.5);
-    		System.out.println("Step5");
-    		robot.turret.setState(Turret.State.HOLDING);
-    		robot.turret.stop();
-    		robot.shooter.setShot(Shooter.Shot.AUTO);
-    		robot.shooter.setPresetSpeed();
-    		while(!robot.shooter.onTarget() && isAutonomous() ){  
-    			System.out.println("Step6");
-    			Timer.delay(0.1);
-    		}
-    		System.out.println("Step7");
-    		robot.shooter.fire();
-    		Timer.delay(3.0);
-    		robot.shooter.stop();
-    		robot.turret.set(0);
-       		robot.elevator.down();
-    		robot.dt.setGear(GEAR.LOW);
-    		fsm.setGoalState(FSM.State.LOW_BAR);
-    		Timer.delay(0.5);
-    		driveDistanceHoldingHeading(20, 0, 0.55, 4, 2.0, false, 0,0);
-    		while(!dist.onTarget() && isAutonomous()){
-    			System.out.println("WAITING1");
-    			Timer.delay(0.1);
-    		}    	    	
-            break;
-    	case rough:    		
-    		robot.turret.setState(Turret.State.OFF);
-    		/*driveDistanceHoldingHeading(100, 0, 0.57, 2, 2.0, true, 0,0);
-    		fsm.setGoalState(FSM.State.AUTO_SHOT);  
-    		driveDistanceHoldingHeading(200, 0, 0.8, 2, 2.0, false, 0,-51);
-    		*/
-    		Timer.delay(1.0);    		  
-    		fsm.setGoalState(FSM.State.AUTO_SHOT);
-    		robot.shooter.preloader_stop();
-    		Timer.delay(2.0);    		  
-    		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
-    			System.out.println("Step2");
-    			Timer.delay(0.1);
-    		}           	
+		switch(autoSelected){
+			case defaultAuto:
+				executeAuto(AUTO.LOWBAR,pos);
+				break;
+			case rockwall:
+				executeAuto(AUTO.ROCKWALL,pos);
+				break;
 			
-    		robot.turret.set(-55.0);
-    		Timer.delay(0.5);
-    		robot.turret.setState(Turret.State.SINGLE); 
-        	robot.shooter.preloader_stop();  
-        	keepGoing = true;
-    		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 45 && isAutonomous() && keepGoing){
-    			if(Math.abs(Vision.getAngle()) < 1.75){ 
-    				robot.turret.setState(Turret.State.OFF);
-    				robot.turret.stop();
-    				robot.shooter.setShot(Shooter.Shot.AUTO);
-    	    		robot.shooter.setPresetSpeed();
-    				Timer.delay(1);
-    	    		System.out.println("AUTO 1");
-    	    		if(robot.shooter.onTarget()){
-    	    			System.out.println("AUTO 2");
-    	    			robot.shooter.fire();
-    	    		}else{
-    	    			System.out.println("AUTO 3");
-    	    			Timer.delay(2.0);
-    	    			if(robot.shooter.onTarget(500)){
-    	    				System.out.println("AUTO 4");
-    	    				robot.shooter.fire();
-    	    			}    	    			
-    	    		}        			
-        			keepGoing = false;
-    			}
-    			else{
-    				System.out.println("AUTO 5");
-    				robot.turret.setState(Turret.State.SINGLE);    					   
-    			}
-    		}
-    		System.out.println("AUTO 6");
-            break;
-    	case defaultAuto:
-    	default:
-    		driveDistanceHoldingHeading(160, 0, 0.52, 4, 2.0, false, 0,0);
-    		while(!dist.onTarget()){
-    			System.out.println("WAITING1");
-    			Timer.delay(0.1);
-    		}    		    	
-    		System.out.println("DONE");
-    		robot.shooter.setHoodState(Shooter.HoodStates.CLOSE_SHOT);
-    		fsm.setGoalState(FSM.State.SHOOTER_CLOSE);
-    		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
-    			System.out.println("Step2");
-    			Timer.delay(0.1);
-    		}  
-            break;
-    	}
+			case rough:
+				executeAuto(AUTO.ROUGH,pos);
+				break;
+			case cdf: 
+				executeAuto(AUTO.CDF,pos);
+				break;
+			case ramParts:
+				executeAuto(AUTO.RAMPS,pos);
+				break;
+			case pc:
+				executeAuto(AUTO.PC,pos);
+				break;
+			}		
     }
 
     /**

@@ -37,7 +37,7 @@ public class Constants {
     public static final double STRAIGHT_KD = 0.0;
     public static final double DISTANCE_TOLERANCE = 1.0;
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int INTAKE_OFFSET          = 147 ; //158 pbot
+    public static final int INTAKE_OFFSET          = 147  ; //158 pbot
     public static final int INTAKE_ARM_MAX_ANGLE   = INTAKE_OFFSET + 147; //280 298
     public static final int INTAKE_ARM_MIN_ANGLE   = INTAKE_OFFSET + 5; ///168
     public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET + 45; //231

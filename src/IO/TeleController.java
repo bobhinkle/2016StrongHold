@@ -74,10 +74,12 @@ public class TeleController
         if(codriver.rightTrigger.isHeld() && codriver.rightTrigger.buttonHoldTime() < 250 && !robot.shooter.isFiring() && robot.shooter.shooterOn()){ 
         	robot.turret.stop();
         	robot.shooter.fire();
+        	robot.logFile.writeToLog("FORCE FIRE");
   //      	robot.logFile.writeToLog(System.currentTimeMillis() + " RT  PRESSED TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
         }else if(codriver.rightTrigger.isHeld() && codriver.rightTrigger.buttonHoldTime() > 500 && !robot.shooter.isFiring() && robot.shooter.shooterOn()){
         	robot.turret.stop();
         	robot.shooter.noCheckFire();
+        	robot.logFile.writeToLog("FORCE FIRE");
         }
         //////////////////////////////////////////////////////////////////// 
         if(codriver.leftBumper.isPressed()){ 
@@ -114,10 +116,11 @@ public class TeleController
         		if(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle()) <= visionError){        			  
         			if(robot.shooter.onTarget() && robot.turret.onTarget()){
 	        			robot.turret.setState(Turret.State.OFF);
-	        			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD FIRE1- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
+	//        			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD FIRE1- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
+	        			robot.logFile.writeToLog("AUTO FIRE");
 	        			robot.turret.stop();
 	        			robot.shooter.fire();
-	        			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD FIRE2- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
+	//        			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD FIRE2- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
         			}
         		}else if(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle()) > visionError){
         			robot.turret.setState(Turret.State.SPOTTED);
@@ -209,10 +212,12 @@ public class TeleController
         	robot.shooter.preloader_forward();
         }
         if(codriver.getPOV() == 90){
-        	robot.turret.set(robot.turret.getAngle() - 5);
+        	robot.turret.setState(Turret.State.OFF);  
+        	robot.turret.set(robot.turret.getAngle() - 45);
         }
         if(codriver.getPOV() == 270){
-        	robot.turret.set(robot.turret.getAngle() + 5);
+        	robot.turret.setState(Turret.State.OFF);  
+        	robot.turret.set(robot.turret.getAngle() + 45);
         }
         if(codriver.getPOV() == 180){
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " GP DOWN PRESSED");
