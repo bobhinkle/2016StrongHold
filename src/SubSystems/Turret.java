@@ -1,5 +1,7 @@
 package SubSystems;
 
+import IO.Controller.Vibration;
+import IO.TeleController;
 import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
@@ -23,6 +25,7 @@ public class Turret {
     private int turretChecks = 15; //25
     private int checksCompleted = 0;
     private Shot shot = Shot.FAR;
+    private TeleController controller;
     public static enum Direction{
     	LEFT, RIGHT,FIRST 
     }
@@ -134,7 +137,11 @@ public class Turret {
 //	    					System.out.println(visionAngle + " " + lastAngle + " " + angle + " MOVING");
 		    				set(visionAngle + angle);			    				
 	    				}
-	    				else{		    					
+	    				else{		    
+	    					if(controller == null){
+	    						controller = TeleController.getInstance();
+	    					}
+	    					controller.codriver.rumble(Vibration.SINGLE);
 //	    					System.out.println(visionAngle + " " + lastAngle + " " + angle+ "no move 1" + onTarget());
 	    				}
 	    			}else{

@@ -41,8 +41,7 @@ public class Robot extends SampleRobot {
     private double distanceGoal;
     
     public Robot() {
-        robot = RoboSystem.getInstance();
-        controllers = TeleController.getInstance();
+        robot = RoboSystem.getInstance();        
     }
     public static enum AUTO{
     	CDF, LOWBAR,PC,ROUGH_ROCK_RAMPS
@@ -71,7 +70,8 @@ public class Robot extends SampleRobot {
         turnTh = new turnThread();
         turn = TurnController.getInstance();
         dist = DistanceController.getInstance();
-        distTh = new distanceThread(false);        
+        distTh = new distanceThread(false);    
+        controllers = TeleController.getInstance();
     }
 
     public void executeAuto(AUTO autoSelect, int position){

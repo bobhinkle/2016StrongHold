@@ -1,7 +1,9 @@
 
 package ControlSystem;
 
+import IO.Controller;
 import IO.Logger;
+import IO.TeleController;
 import SubSystems.DistanceController;
 import SubSystems.DriveTrain;
 import SubSystems.Elevator;
@@ -34,6 +36,7 @@ public class RoboSystem{
     public turnThread turnTh;
     public TurnController turn; 
     public boolean turnRunning = false;
+    private TeleController controller;
     public static RoboSystem getInstance()
     {
         if( instance == null )
@@ -133,6 +136,10 @@ public class RoboSystem{
             			shooter.fire();
             			if(turnTh != null)
                     		turnTh.kill();
+            			if(controller == null){
+            				controller = TeleController.getInstance();
+            			}
+            			controller.wheel.rumble(Controller.Vibration.DOUBLE);
         			}
     			}else{
         			turret.setState(Turret.State.SINGLE);

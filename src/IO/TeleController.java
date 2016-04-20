@@ -11,18 +11,19 @@ import Utilities.Util;
 public class TeleController
 {
     public static final double STICK_DEAD_BAND = 0.2;
-    private Xbox codriver;
-    private ThrustMasterWheel wheel;
-    private Xbox driver;
+    public  Controller codriver;
+    public Controller wheel;
+    private Controller driver;
     private FSM fsm;
     private RoboSystem robot;
     private static TeleController instance = null;
     public TeleController(){
-        driver = new Xbox(0);
-        driver.init();
-        codriver  = new Xbox(2);
-        codriver.init();
-        wheel = new ThrustMasterWheel(1);
+        driver = new Controller(0);
+        driver.start();
+        codriver  = new Controller(2);
+        codriver.start();
+        wheel = new Controller(1);
+        wheel.start();
         robot = RoboSystem.getInstance();
         fsm = FSM.getInstance();
         System.out.println("CONTROLS STARTED");
@@ -32,12 +33,12 @@ public class TeleController
             instance = new TeleController();
         }
         return instance;
-    }    
+    }        
     public void coDriver(){
         if(codriver.aButton.isPressed() || codriver.aButton.isHeld()){
         	if(codriver.aButton.buttonHoldTime() > 10){
         		fsm.setGoalState(FSM.State.INTAKE);
-        		robot.intake.intake_forward();
+        		robot.intake.intake_forward();        		
  //       		robot.logFile.writeToLog(System.currentTimeMillis() + " A  PRESSED OR HELD");
         	}else{
         		System.out.println("ButtonHold" + codriver.aButton.buttonHoldTime());
@@ -104,7 +105,7 @@ public class TeleController
         ///////////////////////////////////////////////////////
         if(codriver.leftTrigger.isPressed() && !robot.shooter.isFiring()){
         	if(robot.shooter.shooterOn()){	        	 
-	        	if(robot.vision.isTargetSeen()){
+	        	if(robot.vision.isTargetSeen()){	        		
 	        		robot.turret.setState(Turret.State.SPOTTED);
 	        	}else{
 	        		robot.turret.setState(Turret.State.TRACKING);
@@ -118,14 +119,14 @@ public class TeleController
         if(codriver.leftTrigger.buttonHoldTime() > 250){
  //       	robot.logFile.writeToLog(System.currentTimeMillis() + " LT  HELD && RT HELD");
         	robot.shooter.setPresetSpeed(robot.shooter.visionAdd()); 
-        	if(robot.shooter.shooterOn()){        		
+        	if(robot.shooter.shooterOn()){            		
         		robot.visionFiring();
         	}else{
         		robot.shooter.setPresetSpeed(robot.shooter.visionAdd()); 
         	}
         }
         //////////////////////////////////////////////////////
-        if(codriver.backButton.isPressed()){  // stop all      
+        if(codriver.backButton.isPressed() || codriver.backButton.isHeld()){  // stop all      
         	robot.intake.intake_stop();
         	robot.shooter.stop();
         	robot.shooter.preloader_stop();
@@ -143,7 +144,7 @@ public class TeleController
         	robot.logFile.writeToLog(System.currentTimeMillis() + " START PRESSED");
         }
         ////////////////////////////////////////////////////////        
-        if (codriver.getButtonAxis(Xbox.RIGHT_STICK_Y) > 0.75) {
+        if (codriver.getButtonAxis(Controller.RIGHT_STICK_Y) > 0.75) {
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " RSY UP");
         	if(fsm.getCurrentState() == FSM.State.STOW || fsm.getCurrentState() == FSM.State.STOW_READY){
         		robot.shooter.hoodRetract();
@@ -152,7 +153,7 @@ public class TeleController
         	}else{
         		robot.elevator.up();
         	}
-        }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_Y) < -0.75){
+        }else if(codriver.getButtonAxis(Controller.RIGHT_STICK_Y) < -0.75){
         	robot.turret.set(0.0);
         	fsm.setGoalState(FSM.State.ELEVATOR_WAITING);
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " RSY DOWN");
@@ -160,29 +161,29 @@ public class TeleController
         	
         }
         ////////////////////////////////////////////////////////        
-        if (codriver.getButtonAxis(Xbox.RIGHT_STICK_X) > 0.25) {
+        if (codriver.getButtonAxis(Controller.RIGHT_STICK_X) > 0.25) {
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " RSX UP");        	
-        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*3);
-        }else if(codriver.getButtonAxis(Xbox.RIGHT_STICK_X) < -0.25){
+        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Controller.RIGHT_STICK_X))*10);
+        }else if(codriver.getButtonAxis(Controller.RIGHT_STICK_X) < -0.25){
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " RSX DOWN");
-        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Xbox.RIGHT_STICK_X))*3);
+        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Controller.RIGHT_STICK_X))*10);
         }else{
         	
         }
         ///////////////////////////////////////////////
-        if (codriver.getButtonAxis(Xbox.LEFT_STICK_Y) > 0.3) {
+        if (codriver.getButtonAxis(Controller.LEFT_STICK_Y) > 0.3) {
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " LSY UP");
-        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y)*2);
-        }else if( codriver.getButtonAxis(Xbox.LEFT_STICK_Y) < -0.3){
+        	robot.intake.manualMove(-codriver.getButtonAxis(Controller.LEFT_STICK_Y)*2);
+        }else if( codriver.getButtonAxis(Controller.LEFT_STICK_Y) < -0.3){
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " LSY DOWN");
-        	robot.intake.manualMove(-codriver.getButtonAxis(Xbox.LEFT_STICK_Y)*2);
+        	robot.intake.manualMove(-codriver.getButtonAxis(Controller.LEFT_STICK_Y)*2);
         }else{
         	
         }
 		///////////////////////////////////////////////
-		if (codriver.getButtonAxis(Xbox.LEFT_STICK_X) > 0.3) {
+		if (codriver.getButtonAxis(Controller.LEFT_STICK_X) > 0.3) {
 ///			robot.logFile.writeToLog(System.currentTimeMillis() + " LSX UP");
-		}else if( codriver.getButtonAxis(Xbox.LEFT_STICK_X) < -0.3){
+		}else if( codriver.getButtonAxis(Controller.LEFT_STICK_X) < -0.3){
 //			robot.logFile.writeToLog(System.currentTimeMillis() + " LSX DOWN");
 		}else{
 		
@@ -205,11 +206,11 @@ public class TeleController
         }
         if(codriver.getPOV() == 90){
         	robot.turret.setState(Turret.State.OFF);  
-        	robot.turret.manualMove(-45);
+        	robot.turret.set(-45);
         }
         if(codriver.getPOV() == 270){
         	robot.turret.setState(Turret.State.OFF);  
-        	robot.turret.manualMove(45);
+        	robot.turret.set(45);
         }
         if(codriver.getPOV() == 180){
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " GP DOWN PRESSED");
@@ -237,12 +238,12 @@ public class TeleController
         	if(robot.turnTh != null)
         		robot.turnTh.kill();
         }
-        if(driver.getPOV() == 0 || wheel.getBButton()){
+        if(driver.getPOV() == 0 || wheel.bButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_CLOSE);
         	robot.shooter.set(Constants.SHOOTER_LOAD_UP); 
         	robot.turret.setShot(Turret.Shot.CLOSE);
         }
-        if(driver.getPOV() == 180 || wheel.getYButton()){
+        if(driver.getPOV() == 180 || wheel.yButton.isPressed()){
         	fsm.setGoalState(FSM.State.SHOOTER_FAR);
         	robot.shooter.set(Constants.SHOOTER_LOAD_UP); 
         	robot.turret.setShot(Turret.Shot.FAR);
@@ -293,12 +294,10 @@ public class TeleController
 //        	robot.dt.setGear(GEAR.PTO);}
 //        if(driver.getRawButton(6)){robot.dt.setGear(GEAR.PTO); }
 //        if(driver.getRawButton(7)){robot.dt.disablePTO(); }    
-        robot.dt.cheesyDrive(wheel.getX(), -driver.getY(), wheel.getLeftBumper() || wheel.getRightBumper());
+        robot.dt.cheesyDrive(wheel.getX(), -driver.getY(), wheel.leftBumper.isPressed() || wheel.leftBumper.isHeld());
     }
     public void update(){
-    	codriver.run();
     	coDriver();
-    	driver.run();
     	driver();
     }
     

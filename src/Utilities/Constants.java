@@ -79,6 +79,6 @@ public class Constants {
     
     public static final double CAMERA_PIXEL_WIDTH = 640.0;
 	public static final double CAMERA_FOV = 66; //45.3
-	public static final double GRIP_X_OFFSET = -0.3; // negative to go left, positive to go right. 1.75
+	public static final double GRIP_X_OFFSET = 0.5; // negative to go left, positive to go right. 1.75
 	public static final double CAM_CALIBRATION = 1.0;
 }

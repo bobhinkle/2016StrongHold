@@ -3,6 +3,8 @@ package SubSystems;
 import java.util.HashMap;
 import java.util.Map;
 
+import IO.TeleController;
+import IO.Controller;
 import Utilities.Constants;
 import Utilities.Ports;
 import Utilities.Util;
@@ -44,6 +46,7 @@ public class Shooter
     private boolean unJamming = false;
     private boolean suckingInBall = false;
     private Vision vision;
+    private TeleController controller;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -378,15 +381,20 @@ public class Shooter
     	private long endTime = 0;
 		@Override
 		public void run() {
+			if(controller == null){
+				controller = TeleController.getInstance();
+			}
 			endTime = System.currentTimeMillis()+10000;
 			suckingInBall = true;
 			preloader_ballDetect();			
 			while(!ballDetected() && keepRunning && (System.currentTimeMillis() < endTime) && !ballHeld())
 				Timer.delay(0.01);
+			controller.codriver.rumble(Controller.Vibration.SINGLE);
 			preloader_forward();
 			while(!ballHeld() && keepRunning && (System.currentTimeMillis() < endTime)){
 				Timer.delay(0.01);
 			}
+			
 			preloader_stop();
 			suckingInBall = false;
 /*			ballPSI = ballSensorData();

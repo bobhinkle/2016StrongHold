@@ -1,13 +1,19 @@
 package IO;
 
+import java.util.Timer;
+import java.util.TimerTask;
+
 import Utilities.Util;
 import edu.wpi.first.wpilibj.Joystick;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
-public class Xbox extends Joystick
+public class Controller extends Joystick
 {
     private static final double PRESS_THRESHHOLD = 0.4;
     public static final double DEAD_BAND = 0.15;
-    
+    private final Timer mTimer = new Timer();
+    private static final int K_READING_RATE = 10;
+    private boolean rumbling = false;
     public buttonCheck aButton;
     public buttonCheck bButton;
     public buttonCheck xButton;
@@ -20,7 +26,7 @@ public class Xbox extends Joystick
     public buttonCheck rightBumper;
     public buttonCheck leftCenterClick;
     public buttonCheck rightCenterClick;
-    
+    private RumbleThread rumbler;
     public static final int A_BUTTON = 0;
     public static final int B_BUTTON = 1;
     public static final int X_BUTTON = 2;
@@ -40,7 +46,7 @@ public class Xbox extends Joystick
     public static final int DPADX = 16;
     public static final int DPADY = 17;
     
-    public Xbox(int usb)   { 
+    public Controller(int usb)   { 
     	super(usb);
    }
     public void init(){
@@ -55,7 +61,32 @@ public class Xbox extends Joystick
         leftBumper = new buttonCheck(LEFT_BUMPER);
         rightBumper = new buttonCheck(RIGHT_BUMPER);
         leftCenterClick = new buttonCheck(LEFT_CENTER_CLICK);
-        rightCenterClick = new buttonCheck(RIGHT_CENTER_CLICK);
+        rightCenterClick = new buttonCheck(RIGHT_CENTER_CLICK);        
+    }
+    public void start() {
+        synchronized (mTimer) {
+            mTimer.schedule(new InitTask(), 0);
+        }
+    }
+	private class InitTask extends TimerTask {
+        @Override
+        public void run() {
+            while (true) {
+                try {
+                	SmartDashboard.putString("FSM", "STARTED");
+                	init();
+                    break;
+                } catch (Exception e) {
+                    System.out.println("FSM failed to initialize: " + e.getMessage());
+                    synchronized (mTimer) {
+                        mTimer.schedule(new InitTask(), 500);
+                    }
+                }
+            }
+            synchronized (mTimer) {
+                mTimer.schedule(new UpdateTask(), 0, (int) (1000.0 / K_READING_RATE));
+            }
+        }
     }
     private boolean getAButton()      { return getRawButton(1); }
     private boolean getBButton()      { return getRawButton(2); }
@@ -94,8 +125,65 @@ public class Xbox extends Joystick
     		return 0;
     	}
     }
-    
-    
+    public enum Vibration{
+    	SINGLE, DOUBLE,PULSE
+    }
+    public void rumble(Vibration _mode){
+    	if(!rumbling){
+	    	rumbler = new RumbleThread();
+	    	rumbler.setVibration(_mode);
+	    	rumbler.start();
+    	}
+    }
+    public class RumbleThread extends Thread{
+    	private Vibration mode;
+		@Override
+		public void run() {
+			rumbling = true;
+			switch(mode){
+	    	case SINGLE:	    		
+	    		try {	    			
+	    			setRumble(RumbleType.kLeftRumble,1);
+		    		setRumble(RumbleType.kRightRumble,1);
+					sleep(500);
+					setRumble(RumbleType.kLeftRumble,0);
+		    		setRumble(RumbleType.kRightRumble,0);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					rumbling = false;
+					e.printStackTrace();
+				}
+	    		break;
+	    	case DOUBLE:
+	    		try {
+	    			setRumble(RumbleType.kLeftRumble,1);
+		    		setRumble(RumbleType.kRightRumble,1);
+					sleep(250);
+					setRumble(RumbleType.kLeftRumble,0);
+		    		setRumble(RumbleType.kRightRumble,0);
+		    		sleep(250);
+		    		setRumble(RumbleType.kLeftRumble,1);
+		    		setRumble(RumbleType.kRightRumble,1);
+					sleep(250);
+					setRumble(RumbleType.kLeftRumble,0);
+		    		setRumble(RumbleType.kRightRumble,0);
+		    		sleep(500);
+				} catch (InterruptedException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+					rumbling = false;
+				}
+	    		break;
+	    	case PULSE:
+	    		
+	    		break;
+	    	}
+			rumbling = false;
+		}
+		public void setVibration(Vibration _mode){
+	    	mode = _mode;
+	    }
+    }
     public class buttonCheck{
     	private int buttonState = 0;
     	private double buttonStartTime = 0;
@@ -183,18 +271,20 @@ public class Xbox extends Joystick
     		}
     	}
     }
-    public void run(){
-    	aButton.update();
-    	bButton.update();
-    	xButton.update();
-    	yButton.update();
-    	startButton.update();
-    	backButton.update();
-    	leftTrigger.update();
-    	rightTrigger.update();
-    	leftBumper.update();
-    	rightBumper.update();
-    	leftCenterClick.update();
-    	rightCenterClick.update();
+    private class UpdateTask extends TimerTask {
+	    public void run(){ 
+	    	aButton.update();
+	    	bButton.update();
+	    	xButton.update();
+	    	yButton.update();
+	    	startButton.update();
+	    	backButton.update();
+	    	leftTrigger.update();
+	    	rightTrigger.update();
+	    	leftBumper.update();
+	    	rightBumper.update();
+	    	leftCenterClick.update();
+	    	rightCenterClick.update();
+	    }
     }
 }
