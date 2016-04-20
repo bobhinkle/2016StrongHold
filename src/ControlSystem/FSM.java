@@ -225,10 +225,11 @@ public class FSM {
 			}catch(Exception e){
 				        	
 			 }
+//	        robot.shooter.update();
 	        try{
 		        robot.shooter.update();
 			}catch(Exception e){
-				        	
+				System.out.println(e);        	
 			}
 	        try{
 		        robot.turret.update();

@@ -28,11 +28,12 @@ public class RoboSystem{
 	public Navigation nav;
 	public Vision vision;
 	private  distanceThread distTh;
-    public TurnController turn; 
     public DistanceController dist;
     private static RoboSystem instance = null;
     public Logger logFile;
-    
+    public turnThread turnTh;
+    public TurnController turn; 
+    public boolean turnRunning = false;
     public static RoboSystem getInstance()
     {
         if( instance == null )
@@ -80,5 +81,69 @@ public class RoboSystem{
             System.out.println("done");
             dt.directDrive(0, 0);                       
         }
+    }
+    public void turnToHeading(double heading, double timeout,boolean hold){
+        nav.resetRobotPosition(0, 0, 0,false);
+        if(turn == null){
+            turn = TurnController.getInstance();
+        }
+        turn.reset();
+        turn.setGoal(heading,timeout,hold);
+        turnTh = new turnThread();
+        turnTh.start();
+        System.out.println("TurnHold");
+    }
+    public class turnThread extends Thread{
+        private boolean keepRunning = true;
+        public void run(){
+            try {
+            	turnRunning = true;
+                while(!turn.onTarget() && keepRunning){
+                    turn.run();
+                    Timer.delay(0.01);
+                }
+                System.out.println("done");
+                dt.directDrive(0, 0);
+                turnRunning = false;
+            }catch(Exception e){
+                System.out.println("crash" + e.toString());
+            }            
+        }
+        public void kill(){
+        	keepRunning = false;
+        	turnRunning = false;
+        }
+    }
+    
+    public void visionFiring(){
+    	double visionError = 0.0;
+    	if(shooter.shot() == Shooter.Shot.CLOSE){
+    		visionError = 1.25;
+    	}else{
+    		visionError = 0.8;
+    	}        	
+    	if(elevator.status() == Elevator.Direction.UP){    		
+    		if(vision.isTargetSeen()){ 
+    			if(Math.abs(Vision.getAngle()) <= visionError){
+    				turret.setState(Turret.State.OFF);
+    				if(shooter.onTarget() && turret.onTarget() && !shooter.firing()){            			
+//            			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD FIRE1- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
+            			logFile.writeToLog("AUTO FIRE");
+            			turret.stop();
+            			shooter.fire();
+            			if(turnTh != null)
+                    		turnTh.kill();
+        			}
+    			}else{
+        			turret.setState(Turret.State.SINGLE);
+        			System.out.println("RESCAN");
+        		}    			
+    		}else{
+    			System.out.println("NOTHING");
+    			turret.setState(Turret.State.TRACKING);
+//    			robot.logFile.writeToLog(System.currentTimeMillis() + " LT HELD NO FIRE- TARGET SEEN:" + robot.vision.isTargetSeen() + " VISION ANGLE:" + Vision.getAngle() + " SHOOTER SPEED :" + robot.shooter.onTarget() + " T_ANGLE:" + robot.turret.getAngle());
+    		}
+    		
+    	}
     }
 }

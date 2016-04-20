@@ -32,7 +32,8 @@ public class Shooter
     private ShootingAction fireCommand;
     private Shot setShot = Shot.CLOSE;
     Map<Integer, Double> map;
-    Map<Integer,String> adjustments;    
+    Map<Integer,String> adjustments;  
+    Map<Integer,Double> visionBump;
     private DigitalInput ballSensor;
     SendableChooser chooser;
     private BallReadingAction ballIntake;
@@ -42,6 +43,7 @@ public class Shooter
     private boolean ballInShooter = false;
     private boolean unJamming = false;
     private boolean suckingInBall = false;
+    private Vision vision;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -72,7 +74,7 @@ public class Shooter
     	motor1.setAllowableClosedLoopErr(0); 
     	motor1.changeControlMode(TalonControlMode.Speed);
     	motor1.set(motor1.getPosition());
-    	motor1.setPID(0.1, 0.0, 0.0, 0.050, 0, 0.0, 0);
+    	motor1.setPID(0.1, 0.0, 0.4, 0.050, 0, 0.0, 0);
     	motor1.setPID(0.0, 0.0, 0.0, 0.05, 0, 0.0, 1);
     	motor1.setProfile(0);
         motor2 = new CANTalon(Ports.SHOOTER_MOTOR_1);
@@ -91,25 +93,23 @@ public class Shooter
         adjustmentsMap();
         chooser = new SendableChooser();
         chooser.addDefault("default", adjustments.get(0));
-        chooser.addObject("+250", adjustments.get(1));
-        chooser.addObject("+500", adjustments.get(2));
-        chooser.addObject("+750", adjustments.get(3));
-        chooser.addObject("+1000", adjustments.get(4));
-        chooser.addObject("-250", adjustments.get(5));
-        chooser.addObject("-500", adjustments.get(6));
-        chooser.addObject("-750", adjustments.get(7));
-        chooser.addObject("-1000", adjustments.get(8));
+        chooser.addObject("+100", adjustments.get(1));
+        chooser.addObject("+200", adjustments.get(2));
+        chooser.addObject("-100", adjustments.get(3));
+        chooser.addObject("-200", adjustments.get(4));
         SmartDashboard.putData("Shooter modes", chooser);
         ballSensor = new DigitalInput(Ports.BALL_SENSOR);
         loadMap();
+        vision = Vision.getInstance();
     }
     public double ballSensorData(){
     	return preloader_motor.getOutputCurrent();
     }
     public void startPreloaderIntake(){
-    	if(!intakingBall){
+    	if(!intakingBall && !ballHeld() && !suckingInBall){
     		ballIntake = new BallReadingAction();
     		ballIntake.start();
+    		System.out.println("PSTARTED");
     	}
     }
     public void clearFire(){
@@ -144,7 +144,13 @@ public class Shooter
     	return suckingInBall;
     }
     public boolean ballHeld(){
+    	return !ballSensor.get() ;
+    }
+    public boolean ballDetected(){
     	return ballSensorData() > Constants.BALL_DRAW;
+    }
+    public double getSpeed(){
+    	return motor1.getSpeed();
     }
     public void update(){
     	SmartDashboard.putNumber("SHOOTER_SPEED", motor1.getSpeed());
@@ -152,9 +158,9 @@ public class Shooter
     	SmartDashboard.putNumber("SHOOTER_POWER", motor1.getOutputVoltage());
     	SmartDashboard.putNumber("SHOOTER_CURRENT", motor1.getOutputCurrent());
     	SmartDashboard.putNumber("SHOOTER_ERROR", motor1.getSetpoint()-motor1.getSpeed());
-    	SmartDashboard.putNumber("BALL_PRES1", ballSensorData());
-    	SmartDashboard.putBoolean("SHOOTER_BALL_IN", ballHeld());
-    	SmartDashboard.putBoolean("FIRING", firing);
+    	SmartDashboard.putNumber("PRESHOOTER_DRAW", preloader_motor.getOutputCurrent());
+    	SmartDashboard.putBoolean("FIRING", firing); 
+    	SmartDashboard.putNumber("SHOOTER_VBUMP", visionAdd());
     }
     public boolean shooterOn(){
     	return motor1.getSetpoint() > 2000;
@@ -167,18 +173,28 @@ public class Shooter
     	map.put(30, 4000.0);
     	map.put(45, 4250.0);
     	map.put(50, 4500.0);
+    	visionBump = new HashMap<>();
+    	visionBump.put(0, 0.0);
+    	visionBump.put(300, 0.0);
+    	visionBump.put(305, 0.0);
+    	visionBump.put(400,100.0);
+    	visionBump.put(425,150.0);
+    	visionBump.put(450,200.0);
     }
     public void adjustmentsMap(){
     	adjustments = new HashMap<>();
     	adjustments.put(0, "Default");
-    	adjustments.put(1, "+250");
-    	adjustments.put(2, "+500");
-    	adjustments.put(3, "+750");
-    	adjustments.put(4, "+1000");
-    	adjustments.put(5, "-250");
-    	adjustments.put(6, "-500");
-    	adjustments.put(7, "-750");
-    	adjustments.put(8, "-1000");
+    	adjustments.put(1, "+100");
+    	adjustments.put(2, "+200");
+    	adjustments.put(3, "-100");
+    	adjustments.put(4, "-200");
+    }
+    public double visionAdd(){
+    	if(visionBump.get((int)Math.floor(vision.getHieght()/25)*25) == null){
+    		return 0.0;
+    	}else{
+    		return visionBump.get((int)Math.floor(vision.getHieght()/25)*25);
+    	}
     }
     public double getSpeedByHardness(double hardness){
     	int hardnessRounded = (int)Math.round(hardness);
@@ -206,20 +222,20 @@ public class Shooter
     		break;
     	}
     }
-    public void setPresetSpeed(){
+    public void setPresetSpeed(double offset){
     	switch(setShot){
     	case CLOSE:
-    		set(Constants.SHOOTER_CLOSE_SHOT);
+    		set(Constants.SHOOTER_CLOSE_SHOT + offset);
     		break;
     	case FAR:
 //    		set(Constants.SHOOTER_FAR_SHOT);
-    		set(getChooseableSpeed());
+    		set(getChooseableSpeed()+ offset);
     		break;
     	case AUTO:
-    		set(Constants.SHOOTER_AUTON_SIDE_SHOT);
+    		set(Constants.SHOOTER_AUTON_SIDE_SHOT+ offset);
     		break;
     	default:
-    		set(Constants.SHOOTER_CLOSE_SHOT);
+    		set(Constants.SHOOTER_CLOSE_SHOT+ offset);
     		break;
     	}
     }
@@ -278,6 +294,9 @@ public class Shooter
     public void preloader_reverse(){
     	preloader_motor.set(1.0);
     }
+    public void preloader_ballDetect(){
+    	preloader_motor.set(-0.4);
+    }
     public void preloader_stop(){
     	preloader_motor.set(0.0);
     }
@@ -332,11 +351,16 @@ public class Shooter
     	private long endTime = 0;
 		@Override
 		public void run() {
+			if(suckingInBall){
+				ballIntake.kill();
+			}
 			endTime = System.currentTimeMillis()+2000;
 			firing = true;
 			preloader_forward();
-			while(motor1.get() > motor1.getSetpoint() - Constants.SHOOTER_FIRED_SPEED && keepRunning && (System.currentTimeMillis() < endTime))
+			while(motor1.get() > motor1.getSetpoint() - Constants.SHOOTER_FIRED_SPEED && keepRunning && (System.currentTimeMillis() < endTime)){
+				preloader_forward();
 				Timer.delay(0.1);
+			}
 			if(keepRunning){
 				Timer.delay(2.0);
 				preloader_stop();
@@ -346,6 +370,7 @@ public class Shooter
 		}
     	public void kill(){
     		keepRunning = false;
+    		firing = false;	
     	}
     }
     public class BallReadingAction extends Thread{
@@ -353,11 +378,17 @@ public class Shooter
     	private long endTime = 0;
 		@Override
 		public void run() {
-			endTime = System.currentTimeMillis()+2000;
-			intakeing_preloader_forward();
-			while(!ballHeld() && keepRunning && (System.currentTimeMillis() < endTime))
+			endTime = System.currentTimeMillis()+10000;
+			suckingInBall = true;
+			preloader_ballDetect();			
+			while(!ballDetected() && keepRunning && (System.currentTimeMillis() < endTime) && !ballHeld())
 				Timer.delay(0.01);
+			preloader_forward();
+			while(!ballHeld() && keepRunning && (System.currentTimeMillis() < endTime)){
+				Timer.delay(0.01);
+			}
 			preloader_stop();
+			suckingInBall = false;
 /*			ballPSI = ballSensorData();
 			Timer.delay(0.1);
 			preloader_reverse();
@@ -366,6 +397,7 @@ public class Shooter
 		}
     	public void kill(){
     		keepRunning = false;
+    		suckingInBall = false;
     	}
     }
     public class BallSuckForLowBar extends Thread{

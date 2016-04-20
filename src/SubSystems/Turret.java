@@ -20,10 +20,14 @@ public class Turret {
     private State visionState = Turret.State.OFF;
     private Vision vision;
     private Direction trackingDirection = Direction.LEFT;
-    private int turretChecks = 25;
+    private int turretChecks = 15; //25
     private int checksCompleted = 0;
+    private Shot shot = Shot.FAR;
     public static enum Direction{
-    	LEFT, RIGHT,FIRST
+    	LEFT, RIGHT,FIRST 
+    }
+    public static enum Shot{
+    	CLOSE,FAR
     }
     public static Turret getInstance()
     {
@@ -46,7 +50,7 @@ public class Turret {
     	turret_motor.setAllowableClosedLoopErr(0); 
     	turret_motor.changeControlMode(TalonControlMode.Position);
     	turret_motor.setPID(5, 0.001, 50.0, 0.0, 0, 0.0, 0); 
-    	turret_motor.setPID(5.5, 0.0015, 40.0, 0.0, 0, 0.0, 1);//added I for auto, may wanna tune the turret and then add i just for auto
+    	turret_motor.setPID(5.5, 0.0015, 40.0, 0.0, 0, 0.0, 1);
     	turret_motor.setProfile(0);
     	turret_motor.set(0.0);
     	hallEffect = new DigitalInput(Ports.TURRET_RESET);
@@ -126,7 +130,7 @@ public class Turret {
 	    		double visionAngle = Vision.getAngle();
 	    		if(vision.isTargetSeen()){		    
 	    			if(onTarget()){
-	    				if(Math.abs(visionAngle) > 1.15){
+	    				if(Math.abs(visionAngle) >= 0.5){
 //	    					System.out.println(visionAngle + " " + lastAngle + " " + angle + " MOVING");
 		    				set(visionAngle + angle);			    				
 	    				}
@@ -145,7 +149,7 @@ public class Turret {
 	    		if(onTarget()){
 		    		double vAngle = Vision.getAngle();
 		    		double newAngle = vAngle + angle;
-		    		if(vision.isTargetSeen() && Math.abs(vAngle) > 1.15){	 
+		    		if(vision.isTargetSeen() && Math.abs(vAngle) > 0.5){	 
 		    				set(newAngle);			    				
 		    		}
 		    		setState(Turret.State.OFF);
@@ -164,10 +168,15 @@ public class Turret {
     	
     	
     }
+    public void setShot(Shot where){
+    	shot = where;
+    }
     public boolean safeToLower(){
     	return onTarget() && !hallEffect.get();
     }
-    public boolean onTarget(){    	
+    public boolean onTarget(){  
+    	if(shot == Shot.FAR)
+    		return checksCompleted < 0;
     	return checksCompleted < 0;
     }
     public void stop(){
@@ -199,7 +208,7 @@ public class Turret {
     	}
     }
     public void checkForStop(){
-    	if(Util.onTarget(turret_motor.getSetpoint() * scale, getAngle(), 0.5)){
+    	if(Util.onTarget(turret_motor.getSetpoint() * scale, getAngle(), 0.6)){
     		checksCompleted--;
     	}else{
     		checksCompleted = turretChecks;

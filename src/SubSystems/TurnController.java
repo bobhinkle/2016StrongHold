@@ -4,12 +4,13 @@ import ControlSystem.RoboSystem;
 import Utilities.Constants;
 import Utilities.TrajectorySmoother;
 import Utilities.Util;
+import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
 
 /**
  *
  * @author Jared Russell
  */
-public class TurnController extends FeedforwardPIV implements Controller
+public class TurnController extends SynchronousPID implements Controller
 {
     private RoboSystem robot;
     private double goalPosition;
@@ -26,6 +27,7 @@ public class TurnController extends FeedforwardPIV implements Controller
     private double minPower = 0.15;
     private boolean force = false;
     private TrajectorySmoother trajectory;
+    private boolean hold = false;
     public static TurnController getInstance()
     {
         if( instance == null )
@@ -57,9 +59,10 @@ public class TurnController extends FeedforwardPIV implements Controller
         lastCheck = System.currentTimeMillis();
         return false;
     }
-    public synchronized void setGoal(double goalAngle, double timeout)
+    public synchronized void setGoal(double goalAngle, double timeout, boolean _hold)
     {
         this.setSetpoint(goalAngle);
+        hold = _hold;
         goalPosition = goalAngle;
         startTime = System.currentTimeMillis();
         this.timeout = (timeout * 1000) + System.currentTimeMillis() ;
@@ -73,7 +76,7 @@ public class TurnController extends FeedforwardPIV implements Controller
             robot = RoboSystem.getInstance();
         }
         lastHeading = robot.nav.getRawHeading();
-        setGoal(lastHeading,0);
+        setGoal(lastHeading,0,false);
         onTargetCounter = onTargetThresh;
     }
 
@@ -83,15 +86,13 @@ public class TurnController extends FeedforwardPIV implements Controller
             robot = RoboSystem.getInstance();
         }
         double current = robot.nav.getRawHeading();
-        double position = Util.getDifferenceInAngleDegrees(this.getSetpoint(), current);
-        double velocity = Util.getDifferenceInAngleDegrees(current, lastHeading) * kLoopRate;
-        trajectory.update(position, velocity, 0.0, 1.0/kLoopRate);
-//        System.out.println(trajectory.getPosition() + " " + trajectory.getVelocity() + " " + trajectory.getAcceleration());
-//        double output = calculate(trajectory, position, velocity, 1.0/kLoopRate);
-        double output = this.calculate(this.getSetpoint(), 90, 90, current, velocity, 1.0/kLoopRate);
+        double output = this.calculate(current);
+//        double output = calculate(trajectory, current, velocity, 1.0/kLoopRate);
+//        System.out.println(trajectory.getPosition() + " " + trajectory.getVelocity() + " " + trajectory.getAcceleration() + " " + output);
+//        double output = this.calculate(this.getSetpoint(), 40, 40, current, velocity, 1.0/kLoopRate);
         getError();
         //output = Util.pidPower(output, -minPower, -maxPower, minPower, maxPower);
-        if(timeout > System.currentTimeMillis() && !Util.onTarget(this.getSetpoint(),current,kOnTargetToleranceDegrees))
+        if(timeout > System.currentTimeMillis() && (hold || !Util.onTarget(this.getSetpoint(),current,kOnTargetToleranceDegrees)))
         {
             robot.dt.directDrive(output, -output);
             onTargetCounter = onTargetThresh;
@@ -107,7 +108,7 @@ public class TurnController extends FeedforwardPIV implements Controller
             onTargetCounter--;
             robot.dt.directDrive(0, 0);
         }
-        //System.out.println("TS: " + " " + output + " " + getError());
+//        System.out.println("TS: " + " " + output + " " + getError());
         lastHeading = current;
 //        SmartDashboard.putNumber("turnPower", output);
 //        SmartDashboard.putNumber("onTargetCounter", onTargetCounter);
@@ -134,7 +135,7 @@ public class TurnController extends FeedforwardPIV implements Controller
         double kd = Constants.TURN_KD;
         double kfa = Constants.TURN_KFA;
         double kfv = Constants.TURN_KFV;
-        setParams(kp, ki, kd, kfv, kfa);
+        this.setPID(kp, ki, kd);
         trajectory = new TrajectorySmoother(Constants.TURN_MAX_ACCEL,Constants.TURN_MAX_VEL);
     }
 }

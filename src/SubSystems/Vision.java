@@ -98,6 +98,9 @@ public class Vision {
     public static double getAngle(){
     	return -getAngle(gripX);
     }
+    public double getHieght(){
+    	return gripCenterY;
+    }
     public void update(){
     	updateGripNetwork();
     	SmartDashboard.putNumber("AngeToTurnAim", getAngle());

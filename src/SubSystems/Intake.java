@@ -34,7 +34,7 @@ private static Intake instance = null;
     	intake_arm_motor.reverseOutput(false);
     	intake_arm_motor.configPotentiometerTurns(360);
     	intake_arm_motor.configNominalOutputVoltage(+0f, -0f);
-    	intake_arm_motor.configPeakOutputVoltage(+12f, -12f);
+    	intake_arm_motor.configPeakOutputVoltage(+10f, -10f);
     	intake_arm_motor.setAllowableClosedLoopErr(0); 
     	intake_arm_motor.changeControlMode(TalonControlMode.Position);
     	intake_arm_motor.set(intake_arm_motor.getPosition());

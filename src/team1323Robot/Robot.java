@@ -48,15 +48,15 @@ public class Robot extends SampleRobot {
     	CDF, LOWBAR,PC,ROUGH_ROCK_RAMPS
     }
     public static enum AUTO_TARGET_SELECT{
-    	LEFT,RIGHT
+    	LEFT,RIGHT,BIGGEST
     }
     public void robotInit() {
         defenseType = new SendableChooser();
         defenseType.addDefault("Low Bar", defaultAuto);
-        defenseType.addObject("Rough Terrain", rough_rock_ramps);
+        defenseType.addObject("Rough/Rock Wall", rough_rock_ramps);
         defenseType.addObject("CDF", cdf);
         defenseType.addObject("Portcullis", pc);
-        SmartDashboard.putData("Auto Select2", defenseType);
+        SmartDashboard.putData("Auto Select1", defenseType);
         
         position = new SendableChooser();
         position.addDefault("1", defaultPosition);
@@ -64,7 +64,7 @@ public class Robot extends SampleRobot {
         position.addObject("3", pos3);
         position.addObject("4", pos4);
         position.addObject("5", pos5);
-        SmartDashboard.putData("Position Mode2", position);
+        SmartDashboard.putData("Position Mode1", position);
         
         fsm = FSM.getInstance();
         fsm.start();
@@ -81,28 +81,34 @@ public class Robot extends SampleRobot {
     	AUTO_TARGET_SELECT ats = null;
     	Shooter.Shot shot = Shooter.Shot.FAR;
     	switch(position){
+    	case 1:
+    		overallDistance = 152;
+			turretAngle = -45;
+			ats = AUTO_TARGET_SELECT.BIGGEST;
+			shot = Shooter.Shot.FAR;
+    		break;
 		case 2:
-			overallDistance = 260;
+			overallDistance = 272;
 			turretAngle = -40;
-			ats = AUTO_TARGET_SELECT.LEFT;
+			ats = AUTO_TARGET_SELECT.BIGGEST;
 			shot = Shooter.Shot.FAR;
 			break;
 		case 3:
-			overallDistance = 170;
-			turretAngle = -26;
-			ats = AUTO_TARGET_SELECT.RIGHT;
+			overallDistance = 125;
+			turretAngle = -35;
+			ats = AUTO_TARGET_SELECT.BIGGEST;
 			shot = Shooter.Shot.FAR;
 			break;
 		case 4:
-			overallDistance = 170;
+			overallDistance = 140;
 			turretAngle = 5;
-			ats = AUTO_TARGET_SELECT.LEFT;
+			ats = AUTO_TARGET_SELECT.BIGGEST;
 			shot = Shooter.Shot.FAR;
 			break;
 		case 5:
 			overallDistance = 235;
 			turretAngle = 20;
-			ats = AUTO_TARGET_SELECT.RIGHT;
+			ats = AUTO_TARGET_SELECT.BIGGEST;
 			shot = Shooter.Shot.CLOSE;
 			break;
 		}
@@ -113,12 +119,15 @@ public class Robot extends SampleRobot {
     	case RIGHT:
     		robot.vision.setBias(Vision.BIAS.RIGHT);
     		break;
+    	case BIGGEST:
+    		robot.vision.setBias(Vision.BIAS.BIGGEST);
+    		break;
     	}
     	
     	switch(autoSelect){
     	case CDF:
     		fsm.setGoalState(FSM.State.CDF_CROSS);
-    		driveDistanceHoldingHeading(36, 0, 0.8, 1.5, 2.0, false, 0,0);
+    		driveDistanceHoldingHeading(40, 0, 0.8, 1.5, 2.0, false, 0,turretAngle);
     		while(!dist.onTarget() && isAutonomous()){
     			System.out.println("WAITING1");
     			Timer.delay(0.1);
@@ -128,129 +137,51 @@ public class Robot extends SampleRobot {
     			Timer.delay(0.01);
     		}
     		robot.turret.set(turretAngle);
-    		driveDistanceHoldingHeading(overallDistance, 0, 0.8, 5, 5.0, false, 0,0);
-    		Timer.delay(2);
-    		robot.turret.setState(Turret.State.SINGLE);
+    		driveDistanceHoldingHeading(overallDistance, 1.5, 0.8, 5, 5.0, false, 0,turretAngle);
+    		Timer.delay(1.0);
+    		robot.turret.setState(Turret.State.SPOTTED);
     		keepGoing = true;
-    		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 30 && isAutonomous() && keepGoing){
-    			if(Math.abs(Vision.getAngle()) < 1.25){ 
-    				robot.turret.setState(Turret.State.OFF);
-    				robot.turret.stop();
-    				if(shot == Shooter.Shot.CLOSE){
-    					robot.shooter.setShot(Shooter.Shot.CLOSE);
-    				}else{
-    					robot.shooter.setShot(Shooter.Shot.FAR);
-    				}    				
-    	    		robot.shooter.setPresetSpeed();
-    				Timer.delay(2);
-    	    		System.out.println("AUTO 1");
-    	    		if(robot.shooter.onTarget()){
-    	    			System.out.println("AUTO 2");
-    	    			robot.shooter.fire();
-    	    		}else{
-    	    			System.out.println("AUTO 3");
-    	    			Timer.delay(.5);
-    	    			if(robot.shooter.onTarget(500)){
-    	    				System.out.println("AUTO 4");
-    	    				robot.shooter.fire();
-    	    			}    	    			
-    	    		}        			
-        			keepGoing = false;
-    			}
-    			else{
-    				System.out.println("AUTO 5");
-    				robot.turret.setState(Turret.State.SINGLE);    					   
-    			}
+    		while(isAutonomous() && keepGoing){
+    			keepGoing = !autoFireCommand(shot,1.25);
     		}
     		break;
     	case LOWBAR:
     		//Distance - Heading - Max Speed - Timout - Tolerance 
     		System.out.println("Step1");
-    		driveDistanceHoldingHeading(152, 0, 0.57, 4, 2.0, false, 0,0);
-    		while(!dist.onTarget() && isAutonomous()){
-    			System.out.println("WAITING1");
-    			Timer.delay(0.1);
-    		}    		    	
-    		System.out.println("DONE");    		
+    		driveDistanceHoldingHeading(overallDistance, 0, 0.60, 4, 2.0, true, 0,turretAngle);
     		fsm.setGoalState(FSM.State.AUTO_SHOT);
-    		while(robot.elevator.status() != Elevator.Direction.UP && isAutonomous()){
-    			System.out.println("Step2");
-    			Timer.delay(0.1);
-    		}    		
-    		robot.shooter.preloader_forward();
-    		
-    		robot.turret.set(-45.0);
+    		driveDistanceHoldingHeading(50, 0, 0.65, 4, 2.0, false, 0,turretAngle);   
+    		robot.turret.setState(Turret.State.SPOTTED);
+    		System.out.println("DONE");   		
+    		robot.shooter.preloader_forward();    		
+ //   		robot.turret.set(-45.0);
     		Timer.delay(0.25);
     		robot.shooter.preloader_stop();
     		System.out.println("Step3");
     		Timer.delay(0.25);
-    		System.out.println("Step4");
-    		robot.turret.setState(Turret.State.SINGLE);
-    		Timer.delay(0.5);
-    		System.out.println("Step5");
-    		robot.turret.setState(Turret.State.HOLDING);
-    		robot.turret.stop();
-    		if(shot == Shooter.Shot.CLOSE){
-				robot.shooter.setShot(Shooter.Shot.CLOSE);
-			}else{
-				robot.shooter.setShot(Shooter.Shot.FAR);
-			}   
-    		robot.shooter.setPresetSpeed();
-    		while(!robot.shooter.onTarget() && isAutonomous() ){  
-    			System.out.println("Step6");
-    			Timer.delay(0.1);
+    		keepGoing = true;
+    		while(isAutonomous() && keepGoing){
+    			keepGoing = !autoFireCommand(shot,1.15);
     		}
-    		System.out.println("Step7");
-    		robot.shooter.fire();
-    		Timer.delay(3.0);
+    		Timer.delay(2);
     		robot.shooter.stop();
-    		robot.turret.set(0);
-       		robot.elevator.down();
+    		robot.turret.set(0);       		
+       		Timer.delay(0.5);
     		robot.dt.setGear(GEAR.LOW);
     		fsm.setGoalState(FSM.State.LOW_BAR);
     		Timer.delay(0.5);
-    		driveDistanceHoldingHeading(20, 0, 0.55, 4, 2.0, false, 0,0);
-    		while(!dist.onTarget() && isAutonomous()){
-    			System.out.println("WAITING1");
-    			Timer.delay(0.1);
-    		}    	    	
+    		driveDistanceHoldingHeading(-100, 0, 0.55, 4, 2.0, false, 0,0);    		 	    	
     		break;
     	case ROUGH_ROCK_RAMPS:
     		fsm.setGoalState(FSM.State.CDF_CROSS);
-    		driveDistanceHoldingHeading(overallDistance, 0, 0.8, 7, 4.0, false, 0,0);
+    		driveDistanceHoldingHeading(overallDistance, 0, 0.8, 7, 4.0, false, 0,turretAngle);
+    		robot.intake.setAngle(Constants.INTAKE_LOW_BAR_ANGLE);
     		robot.turret.set(turretAngle);
-    		Timer.delay(2);
-    		robot.turret.setState(Turret.State.SINGLE);
+    		Timer.delay(2.0);
+    		robot.turret.setState(Turret.State.SPOTTED);  
     		keepGoing = true;
-    		while(robot.vision.isTargetSeen() && Math.abs(Vision.getAngle())< 30 && isAutonomous() && keepGoing){
-    			if(Math.abs(Vision.getAngle()) < 1.25){ 
-    				robot.turret.setState(Turret.State.OFF);
-    				robot.turret.stop();
-    				if(shot == Shooter.Shot.CLOSE){
-    					robot.shooter.setShot(Shooter.Shot.CLOSE);
-    				}else{
-    					robot.shooter.setShot(Shooter.Shot.FAR);
-    				}   
-    	    		robot.shooter.setPresetSpeed();
-    				Timer.delay(2);
-    	    		System.out.println("AUTO 1");
-    	    		if(robot.shooter.onTarget()){
-    	    			System.out.println("AUTO 2");
-    	    			robot.shooter.fire();
-    	    		}else{
-    	    			System.out.println("AUTO 3");
-    	    			Timer.delay(.5);
-    	    			if(robot.shooter.onTarget(500)){
-    	    				System.out.println("AUTO 4");
-    	    				robot.shooter.fire();
-    	    			}    	    			
-    	    		}        			
-        			keepGoing = false;
-    			}
-    			else{
-    				System.out.println("AUTO 5");
-    				robot.turret.setState(Turret.State.SINGLE);    					   
-    			}
+    		while(isAutonomous() && keepGoing){
+    			keepGoing = !autoFireCommand(shot,0.8);
     		}
     		break;
     	case PC:
@@ -292,6 +223,7 @@ public class Robot extends SampleRobot {
     	robot.Init();
     	robot.vision.setAutonomousTracking(false);
     	robot.turret.setState(Turret.State.HOLDING);
+    	robot.vision.setBias(Vision.BIAS.BIGGEST);
         while (isOperatorControl() && isEnabled()) {
         	controllers.update();  
             Timer.delay(0.01);		// wait for a motor update time
@@ -305,14 +237,44 @@ public class Robot extends SampleRobot {
      */
     public void test() {
     }
-    
+    public boolean autoFireCommand(Shooter.Shot shot, double error){
+    	if(Math.abs(Vision.getAngle()) < error){ 
+			robot.turret.setState(Turret.State.OFF);
+			robot.turret.stop();
+			if(shot == Shooter.Shot.CLOSE){
+				robot.shooter.setShot(Shooter.Shot.CLOSE);
+			}else{
+				robot.shooter.setShot(Shooter.Shot.FAR);
+			}    				
+    		robot.shooter.setPresetSpeed(0.0);
+			Timer.delay(2);
+    		System.out.println("AUTO 1");
+    		if(robot.shooter.onTarget()){
+    			System.out.println("AUTO 2");
+    			robot.shooter.fire();
+    		}else{
+    			System.out.println("AUTO 3");
+    			Timer.delay(.5);
+    			if(robot.shooter.onTarget(500)){
+    				System.out.println("AUTO 4");
+    				robot.shooter.fire();
+    			}    	    			
+    		}        			
+			return true;
+		}
+		else{
+			System.out.println("AUTO 5");
+			robot.turret.setState(Turret.State.SPOTTED);    
+			return true;
+		}
+    }
     public void turnToHeading(double heading, double timeout){
         robot.nav.resetRobotPosition(0, 0, 0,false);
         if(turn == null){
             turn = TurnController.getInstance();
         }
         turn.reset();
-        turn.setGoal(heading,timeout);
+        turn.setGoal(heading,timeout,false);
         turnTh = new turnThread();
         turnTh.start();
     }
@@ -345,7 +307,7 @@ public class Robot extends SampleRobot {
     public void driveDistanceHoldingHeadingThreaded(double distance, double heading,double maxSpeed,double timeout,double tol, boolean holdSpeed){                
         dist.reset();
         dist.setGoal(distance, maxSpeed,heading,timeout,tol,holdSpeed);
-        turn.setGoal(0, 0.1);
+        turn.setGoal(0, 0.1,false);
         distTh = new distanceThread(true);
         distTh.start();
     }

@@ -111,8 +111,8 @@ public class Navigation implements PIDSource{
     	return gyro.getAngle();
     }
     public double getRawHeading(){
-//        return gyro.getAngle();
-        return angle;
+        return gyro.getAngle();
+//        return angle;
     }
     public double getRawHeadingInDegrees(){
     	return Util.radsToDegrees(angle);

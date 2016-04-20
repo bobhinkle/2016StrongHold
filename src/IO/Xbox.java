@@ -1,8 +1,7 @@
 package IO;
 
 import Utilities.Util;
-import edu.wpi.first.wpilibj.*;
-import edu.wpi.first.wpilibj.smartdashboard.SmartDashboard;
+import edu.wpi.first.wpilibj.Joystick;
 
 public class Xbox extends Joystick
 {

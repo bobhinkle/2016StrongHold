@@ -1,9 +1,5 @@
 package Utilities;
 
-/**
- *
- * @author Rohi Zacharia
- */
 public class Constants {
     
     public static final boolean LOW_GEAR  = true; // Drivetrain low gear
@@ -13,14 +9,14 @@ public class Constants {
     
     public static final double INPUT_DELAY = 0.25;
     
-    public static final double TURN_KP = 0.01; //0.020
+    public static final double TURN_KP = 0.05; //0.020
     public static final double TURN_KI = 0.0;
     public static final double TURN_KD = 0.00;//0.02
-    public static final double TURN_KFV = 0.00;
-    public static final double TURN_KFA = 0.00;
+    public static final double TURN_KFV = 1.0;
+    public static final double TURN_KFA = 1.0;
     public static final double TURN_ON_TARGET_DEG = 1;
-    public static final double TURN_MAX_ACCEL = 90.0;
-    public static final double TURN_MAX_VEL = 90.0;
+    public static final double TURN_MAX_ACCEL = 40.0;
+    public static final double TURN_MAX_VEL = 40.0;
     
     public static final double DIST_KP = 0.08;  
     public static final double DIST_KI = 0.0001; 
@@ -37,10 +33,10 @@ public class Constants {
     public static final double STRAIGHT_KD = 0.0;
     public static final double DISTANCE_TOLERANCE = 1.0;
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int INTAKE_OFFSET          = 147  ; //158 pbot
+    public static final int INTAKE_OFFSET          = 105  ; //158 pbot
     public static final int INTAKE_ARM_MAX_ANGLE   = INTAKE_OFFSET + 147; //280 298
     public static final int INTAKE_ARM_MIN_ANGLE   = INTAKE_OFFSET + 5; ///168
-    public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET + 45; //231
+    public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET + 49; //231
     public static final int INTAKE_WAIT_FOR_GRAB   = INTAKE_OFFSET + 76;  //253
     
     public static final int INTAKE_SHOOTING_ANGLE  = INTAKE_OFFSET + 20; //188
@@ -54,12 +50,12 @@ public class Constants {
     public static final double TURRET_HOOD_MIN_ANGLE = -10.0;
     public static final double TURRET_CLOSE_SHOT_MAX_ANGLE = 90;
     public static final double TURRET_CLOSE_SHOT_MIN_ANGLE = -90; //145
-    public static final int TURRET_MIN_ZERO_CHECKS = 20;
+    public static final int TURRET_MIN_ZERO_CHECKS = 20;  //20
     public static final int TURRET_TRACKING_ANGLE = 75;
-    public static final int TURRET_TRACKING_AUTO_ANGLE = 45;
+    public static final int TURRET_TRACKING_AUTO_ANGLE = 45; 
 /////////////////////////////////////////////////////////////////////////////////////////////////
-    public static final double SHOOTER_FAR_SHOT  = 3800; // 4100
-    public static final double SHOOTER_CLOSE_SHOT = 3150; //3050
+    public static final double SHOOTER_FAR_SHOT  = 3750; // 3800
+    public static final double SHOOTER_CLOSE_SHOT = 3200; //3150
     public static final double SHOOTER_AUTON_SIDE_SHOT = 4000;
     public static final double SHOOTER_LOAD_UP  = 2000;
     public static final double SHOOTER_ERROR      = 225;
@@ -83,6 +79,6 @@ public class Constants {
     
     public static final double CAMERA_PIXEL_WIDTH = 640.0;
 	public static final double CAMERA_FOV = 66; //45.3
-	public static final double GRIP_X_OFFSET = 0; // negative to go left, positive to go right. 
+	public static final double GRIP_X_OFFSET = -0.3; // negative to go left, positive to go right. 1.75
 	public static final double CAM_CALIBRATION = 1.0;
 }
