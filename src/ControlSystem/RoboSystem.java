@@ -8,6 +8,7 @@ import SubSystems.DistanceController;
 import SubSystems.DriveTrain;
 import SubSystems.Elevator;
 import SubSystems.Intake;
+import SubSystems.Lights;
 import SubSystems.Navigation;
 import SubSystems.Shooter;
 import SubSystems.TestTalon;
@@ -37,6 +38,7 @@ public class RoboSystem{
     public TurnController turn; 
     public boolean turnRunning = false;
     private TeleController controller;
+    public Lights lights;
     public static RoboSystem getInstance()
     {
         if( instance == null )
@@ -53,6 +55,7 @@ public class RoboSystem{
     	nav = Navigation.getInstance();
     	vision = Vision.getInstance();
     	logFile = Logger.getInstance();
+    	lights = Lights.getInstance();
     }
     public void Init(){
     	intake.setAngle(Constants.INTAKE_OFFSET-intake.getAngle());

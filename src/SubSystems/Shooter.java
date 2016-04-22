@@ -47,6 +47,7 @@ public class Shooter
     private boolean suckingInBall = false;
     private Vision vision;
     private TeleController controller;
+    private Lights lights;
     public static Shooter getInstance()
     {
         if( instance == null )
@@ -384,11 +385,15 @@ public class Shooter
 			if(controller == null){
 				controller = TeleController.getInstance();
 			}
+			if(lights == null){
+				lights = Lights.getInstance();
+			}
 			endTime = System.currentTimeMillis()+10000;
 			suckingInBall = true;
 			preloader_ballDetect();			
 			while(!ballDetected() && keepRunning && (System.currentTimeMillis() < endTime) && !ballHeld())
 				Timer.delay(0.01);
+			lights.setState(Lights.MODE.BALL_INTAKE);
 			controller.codriver.rumble(Controller.Vibration.SINGLE);
 			preloader_forward();
 			while(!ballHeld() && keepRunning && (System.currentTimeMillis() < endTime)){

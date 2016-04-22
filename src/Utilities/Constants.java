@@ -33,7 +33,7 @@ public class Constants {
     public static final double STRAIGHT_KD = 0.0;
     public static final double DISTANCE_TOLERANCE = 1.0;
     ////////////////////////////////////////////////////////////////////////////////////////////
-    public static final int INTAKE_OFFSET          = 105  ; //158 pbot
+    public static final int INTAKE_OFFSET          = 168  ; //158 pbot
     public static final int INTAKE_ARM_MAX_ANGLE   = INTAKE_OFFSET + 147; //280 298
     public static final int INTAKE_ARM_MIN_ANGLE   = INTAKE_OFFSET + 5; ///168
     public static final int INTAKE_GRAB_BALL_ANGLE = INTAKE_OFFSET + 49; //231
@@ -79,6 +79,6 @@ public class Constants {
     
     public static final double CAMERA_PIXEL_WIDTH = 640.0;
 	public static final double CAMERA_FOV = 66; //45.3
-	public static final double GRIP_X_OFFSET = 0.5; // negative to go left, positive to go right. 1.75
+	public static final double GRIP_X_OFFSET = -0.5; // negative to go left, positive to go right. 1.75
 	public static final double CAM_CALIBRATION = 1.0;
 }

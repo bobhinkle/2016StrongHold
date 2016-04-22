@@ -26,6 +26,7 @@ public class Turret {
     private int checksCompleted = 0;
     private Shot shot = Shot.FAR;
     private TeleController controller;
+    private Lights lights;
     public static enum Direction{
     	LEFT, RIGHT,FIRST 
     }
@@ -81,7 +82,9 @@ public class Turret {
     	SmartDashboard.putBoolean("TURRET_RESET", hallEffect.get());
     	SmartDashboard.putNumber("TURRET_ANGLE", angle);
     	SmartDashboard.putBoolean("TURRET_MOVING", !onTarget());   	
-    	
+    	if(lights == null){
+    		lights = Lights.getInstance();
+    	}
     	switch(visionState){
 	    	case OFF:
 	    		SmartDashboard.putString("TUR_STATUS", "OFF");
@@ -141,6 +144,7 @@ public class Turret {
 	    					if(controller == null){
 	    						controller = TeleController.getInstance();
 	    					}
+	    					lights.setState(Lights.MODE.ON_TARGET);
 	    					controller.codriver.rumble(Vibration.SINGLE);
 //	    					System.out.println(visionAngle + " " + lastAngle + " " + angle+ "no move 1" + onTarget());
 	    				}
@@ -148,6 +152,7 @@ public class Turret {
 //	    				System.out.println(visionAngle + " " + lastAngle + " " + angle + "no move 2" + onTarget());
 	    			}
 	    		}else{
+	    			lights.setState(Lights.MODE.OFF_TARGET);
 	    			trackingDirection = Turret.Direction.FIRST;
 	    			setState(Turret.State.TRACKING);
 	    		}

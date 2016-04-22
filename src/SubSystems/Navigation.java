@@ -25,6 +25,7 @@ public class Navigation implements PIDSource{
     private SuperEncoder leftWheel;
     private SuperEncoder rightWheel;
     private ADXRS450_Gyro gyro;
+    private Lights lights;
     private Navigation()
     {
         start();
@@ -45,8 +46,13 @@ public class Navigation implements PIDSource{
         public void run() {
             while (true) {
                 try {
+                	if(lights == null){
+                		lights = Lights.getInstance();
+                	}
+                	lights.setState(Lights.MODE.GYRO_INIT);
                 	gyro = new ADXRS450_Gyro();
                     gyro.calibrate();
+                    lights.setState(Lights.MODE.GYRO_READY);
                 	leftWheel = new SuperEncoder(Ports.LEFT_ENC,Ports.LEFT_ENC+1,true,SuperEncoder.RESOLUTION.HIGH_RESOLUTION);
                 	leftWheel.setDistancePerPulse(Constants.DRIVE_DISTANCE_PER_PULSE);
                 	leftWheel.start();

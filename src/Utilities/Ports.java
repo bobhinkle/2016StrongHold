@@ -38,6 +38,9 @@ public class Ports {
     public static final int TURRET_RESET = 5;
     public static final int RIGHT_ENC   = 0;
     public static final int LEFT_ENC   = 2;
+    public static final int LIGHTS_0   = 6;
+    public static final int LIGHTS_1   = 7;
+    public static final int LIGHTS_2   = 8;
     public static final int BALL_SENSOR = 9;
     
     //ANALOG

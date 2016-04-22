@@ -2,6 +2,7 @@ package IO;import ControlSystem.FSM;
 import ControlSystem.RoboSystem;
 import SubSystems.DriveTrain.GEAR;
 import SubSystems.Elevator;
+import SubSystems.Lights;
 import SubSystems.Turret;
 import SubSystems.Vision;
 import Utilities.Constants;
@@ -134,6 +135,7 @@ public class TeleController
         	robot.shooter.killPreloaderIntake();
         	robot.shooter.killBallSucker();
         	robot.shooter.clearFire();
+        	robot.lights.setState(Lights.MODE.WAITING);
         	if(robot.turnTh != null)
         		robot.turnTh.kill();
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " BACK PRESSED");
@@ -163,10 +165,10 @@ public class TeleController
         ////////////////////////////////////////////////////////        
         if (codriver.getButtonAxis(Controller.RIGHT_STICK_X) > 0.25) {
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " RSX UP");        	
-        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Controller.RIGHT_STICK_X))*10);
+        	robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Controller.RIGHT_STICK_X))*3);
         }else if(codriver.getButtonAxis(Controller.RIGHT_STICK_X) < -0.25){
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " RSX DOWN");
-        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Controller.RIGHT_STICK_X))*10);
+        	robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Controller.RIGHT_STICK_X))*3);
         }else{
         	
         }
@@ -182,16 +184,19 @@ public class TeleController
         }
 		///////////////////////////////////////////////
 		if (codriver.getButtonAxis(Controller.LEFT_STICK_X) > 0.3) {
+			robot.turret.manualMove(-Util.turretSmoother(codriver.getButtonAxis(Controller.LEFT_STICK_X))*10);
 ///			robot.logFile.writeToLog(System.currentTimeMillis() + " LSX UP");
 		}else if( codriver.getButtonAxis(Controller.LEFT_STICK_X) < -0.3){
+			robot.turret.manualMove(Util.turretSmoother(codriver.getButtonAxis(Controller.LEFT_STICK_X))*10);
 //			robot.logFile.writeToLog(System.currentTimeMillis() + " LSX DOWN");
 		}else{
 		
 		}
         ///////////////////////////////////////////////
-        if(codriver.leftCenterClick.isPressed()){
+        if(codriver.leftCenterClick.isPressed() || codriver.rightCenterClick.isHeld()){
 //        	robot.logFile.writeToLog(System.currentTimeMillis() + " LCC PRESSED");
-        	robot.elevator.down();        	
+        	robot.turret.set(0.0);
+        	robot.turret.setState(Turret.State.OFF);    	
         }     
         ///////////////////////////////////////////////
         if(codriver.rightCenterClick.isPressed() || codriver.rightCenterClick.isHeld()) {
